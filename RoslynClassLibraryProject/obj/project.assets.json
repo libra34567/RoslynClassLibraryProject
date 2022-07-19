@@ -3200,19 +3200,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\jiejie\\.nuget\\packages\\": {}
+    "C:\\Users\\libra\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\jiejie\\source\\repos\\RoslynClassLibraryProject\\RoslynClassLibraryProject\\RoslynClassLibraryProject.csproj",
+      "projectUniqueName": "C:\\Users\\libra\\Documents\\RoslynClassLibraryProject\\RoslynClassLibraryProject\\RoslynClassLibraryProject.csproj",
       "projectName": "RoslynClassLibraryProject",
-      "projectPath": "C:\\Users\\jiejie\\source\\repos\\RoslynClassLibraryProject\\RoslynClassLibraryProject\\RoslynClassLibraryProject.csproj",
-      "packagesPath": "C:\\Users\\jiejie\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\jiejie\\source\\repos\\RoslynClassLibraryProject\\RoslynClassLibraryProject\\obj\\",
+      "projectPath": "C:\\Users\\libra\\Documents\\RoslynClassLibraryProject\\RoslynClassLibraryProject\\RoslynClassLibraryProject.csproj",
+      "packagesPath": "C:\\Users\\libra\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\libra\\Documents\\RoslynClassLibraryProject\\RoslynClassLibraryProject\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\jiejie\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\libra\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -3259,7 +3259,7 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.410\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.405\\RuntimeIdentifierGraph.json"
       }
     }
   }
