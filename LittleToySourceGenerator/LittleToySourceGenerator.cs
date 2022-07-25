@@ -64,7 +64,7 @@ public class Generator : ISourceGenerator
             var parameters = string.Join(", ", fields.Select(f => $"{f.Type.ToDisplayString()} {LowercaseName(f.Name)}"));// "float3 value";
             builder.AppendLine($@"public {typeSymbol.ToDisplayString()} Update({parameters})");
             builder.OpenBraces();
-            var comparison = string.Join("\r\n&& ", fields.Select(f => $"{f.Name}.Equals({LowercaseName(f.Name)})"));
+            var comparison = string.Join(" && ", fields.Select(f => $"{f.Name}.Equals({LowercaseName(f.Name)})"));
             builder.AppendLine($@"if({comparison}) return this;");
             builder.AppendLine();
             builder.AppendLine("IsDirty = true;");
@@ -82,7 +82,7 @@ public class Generator : ISourceGenerator
             builder.AppendLine();
             builder.AppendLine($@"public interface I{nameRoot}Listener");
             builder.OpenBraces();
-            builder.AppendLine($@"public void OnPosition3Changed({parameters});");
+            builder.AppendLine($@"public void On{nameRoot}Changed({parameters});");
             builder.CloseBraces();
 
             if (!typeSymbol.ContainingNamespace.IsGlobalNamespace)
