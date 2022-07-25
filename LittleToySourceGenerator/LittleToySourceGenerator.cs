@@ -60,7 +60,8 @@ public class Generator : ISourceGenerator
             builder.AppendLine($@"public partial struct {name}");
             builder.OpenBraces();
             builder.AppendLine($@"public bool IsDirty {{ get; set; }}");
-            var fields = typeSymbol.GetMembers().OfType<IFieldSymbol>();
+            var fields = typeSymbol.GetMembers().OfType<IFieldSymbol>()
+                .Where(field => field.Name != "IsDirty" && !field.GetAttributes().Any(a => a.AttributeClass.Name.Contains("IgnoreDirty")));
             var parameters = string.Join(", ", fields.Select(f => $"{f.Type.ToDisplayString()} {LowercaseName(f.Name)}"));// "float3 value";
             builder.AppendLine($@"public {typeSymbol.ToDisplayString()} Update({parameters})");
             builder.OpenBraces();
