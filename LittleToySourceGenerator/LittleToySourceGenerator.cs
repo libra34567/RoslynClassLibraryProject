@@ -27,7 +27,7 @@ public class Generator : ISourceGenerator
             return;
         }
 
-        foreach (var (type, attr) in receiver.ComponentDirtyEventStructs)
+        foreach (var type in receiver.ComponentDirtyEventStructs)
         {
             var model = context.Compilation.GetSemanticModel(type.SyntaxTree);
             var typeSymbol = model.GetDeclaredSymbol(type) as ITypeSymbol;
@@ -53,11 +53,24 @@ public class Generator : ISourceGenerator
                 builder.OpenBraces();
             }
 
-            var fields = typeSymbol.GetMembers().OfType<IFieldSymbol>()
-                .Where(field => field.Name != "IsDirty" && !field.GetAttributes().Any(a => a.AttributeClass.Name.Contains("IgnoreDirty")));
-            GenerateEventStructModel(typeSymbol, builder, fields);
-            builder.AppendLine();
-            GenerateComponentDirtyEventInterfaceModel(typeSymbol, builder, fields);
+            if (typeSymbol.HasAttribute("ComponentDirtyEvent"))
+            {
+                var fields = typeSymbol.GetMembers().OfType<IFieldSymbol>()
+                    .Where(field => field.Name != "IsDirty" && !field.HasAttribute("IgnoreDirty"));
+                GenerateEventStructModel(typeSymbol, builder, fields);
+                builder.AppendLine();
+                GenerateComponentDirtyEventInterfaceModel(typeSymbol, builder, fields);
+            }
+
+            if (typeSymbol.HasAttribute("ComponentRemovedEvent"))
+            {
+                GenerateComponentRemovedEventInterfaceModel(typeSymbol, builder);
+            }
+
+            if (typeSymbol.HasAttribute("ComponentAddedEvent"))
+            {
+                GenerateComponentAddedEventInterfaceModel(typeSymbol, builder);
+            }
 
             if (!typeSymbol.ContainingNamespace.IsGlobalNamespace)
             {
@@ -104,6 +117,24 @@ public class Generator : ISourceGenerator
         builder.CloseBraces();
     }
 
+    private static void GenerateComponentRemovedEventInterfaceModel(ITypeSymbol typeSymbol, IndentedStringBuilder builder)
+    {
+        var nameRoot = GetNameRootFromEventComponentType(typeSymbol);
+        builder.AppendLine($@"public interface I{nameRoot}RemovedListener");
+        builder.OpenBraces();
+        builder.AppendLine($@"public void On{nameRoot}Removed();");
+        builder.CloseBraces();
+    }
+
+    private static void GenerateComponentAddedEventInterfaceModel(ITypeSymbol typeSymbol, IndentedStringBuilder builder)
+    {
+        var nameRoot = GetNameRootFromEventComponentType(typeSymbol);
+        builder.AppendLine($@"public interface I{nameRoot}AddedListener");
+        builder.OpenBraces();
+        builder.AppendLine($@"public void On{nameRoot}Added();");
+        builder.CloseBraces();
+    }
+
     /// <inheritdoc/>
     public void Initialize(GeneratorInitializationContext context)
     {
@@ -140,7 +171,7 @@ public class Generator : ISourceGenerator
 
     internal class SyntaxReceiver : ISyntaxReceiver
     {
-        public List<(StructDeclarationSyntax, AttributeSyntax)> ComponentDirtyEventStructs { get; } = new();
+        public List<StructDeclarationSyntax> ComponentDirtyEventStructs { get; } = new();
 
         public void OnVisitSyntaxNode(SyntaxNode context)
         {
@@ -148,17 +179,14 @@ public class Generator : ISourceGenerator
             if (context is StructDeclarationSyntax structDeclarationSyntax
                 && structDeclarationSyntax.AttributeLists.Count > 0)
             {
-                var componentDirtyEventAttribute = FindAttribute("ComponentDirtyEvent", structDeclarationSyntax.AttributeLists);
-                if (componentDirtyEventAttribute != null)
+                var componentDirtyEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute("ComponentDirtyEvent");
+                var ComponentRemovedEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute("ComponentRemovedEvent");
+                var ComponentAddedEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute("ComponentAddedEvent");
+                if (componentDirtyEventAttribute != null || ComponentRemovedEventAttribute != null || ComponentAddedEventAttribute != null)
                 {
-                    this.ComponentDirtyEventStructs.Add((structDeclarationSyntax, componentDirtyEventAttribute));
+                    this.ComponentDirtyEventStructs.Add(structDeclarationSyntax);
                 }
             }
-        }
-
-        private static AttributeSyntax FindAttribute(string searchAttributeName, SyntaxList<AttributeListSyntax> attributeLists)
-        {
-            return attributeLists.SelectMany(_ => _.Attributes).FirstOrDefault(a => a.Name.ToFullString().Contains(searchAttributeName));
         }
     }
 }
