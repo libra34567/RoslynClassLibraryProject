@@ -12,7 +12,7 @@ namespace LittleToySourceGenerator;
 [Generator]
 public class Generator : ISourceGenerator
 {
-    public bool GenerateEventData { get; set; } = false;
+    public bool GenerateEventData { get; set; } = true;
     public bool GenerateEventViewInterface { get; set; } = true;
     public bool GenerateReadWriteEcs { get; set; } = true;
 
