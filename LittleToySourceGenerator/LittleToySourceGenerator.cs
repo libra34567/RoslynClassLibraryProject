@@ -136,7 +136,12 @@ public class Generator : ISourceGenerator
             {
                 return $"I{GetNameRootFromEventComponentType(typeInfo)}AddedListener";
             });
-            string interfacesList = string.Join(", ", dirtyViewTypes.Union(addedViewTypes));
+            var onRemovedEventViewAttribute = type.AttributeLists.FindAttribute("OnRemovedEventView");
+            var removedViewTypes = ExtractTypesFromAttribute(onRemovedEventViewAttribute, model).Select(typeInfo =>
+            {
+                return $"I{GetNameRootFromEventComponentType(typeInfo)}RemovedListener";
+            });
+            string interfacesList = string.Join(", ", dirtyViewTypes.Union(addedViewTypes).Union(removedViewTypes));
             var name = typeSymbol.Name;
             builder.AppendLine($@"public partial class {name} : {interfacesList}");
             builder.OpenBraces();
