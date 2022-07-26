@@ -11,7 +11,7 @@ namespace LittleToySourceGenerator;
 [Generator]
 public class Generator : ISourceGenerator
 {
-    public bool GenerateEventData { get; set; } = true;
+    public bool GenerateEventData { get; set; } = false;
 
     public void DisableAllGeneration()
     {
@@ -27,6 +27,14 @@ public class Generator : ISourceGenerator
             return;
         }
 
+        if (GenerateEventData)
+        {
+            GenerateEventDataFiles(context, receiver);
+        }
+    }
+
+    private static void GenerateEventDataFiles(GeneratorExecutionContext context, SyntaxReceiver receiver)
+    {
         foreach (var type in receiver.ComponentDirtyEventStructs)
         {
             var model = context.Compilation.GetSemanticModel(type.SyntaxTree);
