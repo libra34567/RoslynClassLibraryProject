@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace LittleToySourceGenerator;
@@ -126,13 +127,17 @@ public class Generator : ISourceGenerator
             }
 
             var onDirtyEventViewAttribute = type.AttributeLists.FindAttribute("OnDirtyEventView");
-            var typeOfExpressions = onDirtyEventViewAttribute.ArgumentList.Arguments.Select(_ => _.Expression).OfType<TypeOfExpressionSyntax>();
-            var name = typeSymbol.Name;
-            var validTypes = typeOfExpressions.Select(typeOfExpression => model.GetTypeInfo(typeOfExpression.Type)).Where(_ => _.Type != null);
-            string interfacesList = string.Join(", ", validTypes.Select(typeInfo =>
+            var dirtyViewTypes = ExtractTypesFromAttribute(onDirtyEventViewAttribute, model).Select(typeInfo =>
             {
-                return $"I{GetNameRootFromEventComponentType(typeInfo.Type)}Listener";
-            }));
+                return $"I{GetNameRootFromEventComponentType(typeInfo)}Listener";
+            });
+            var onAddedEventViewAttribute = type.AttributeLists.FindAttribute("OnAddedEventView");
+            var addedViewTypes = ExtractTypesFromAttribute(onAddedEventViewAttribute, model).Select(typeInfo =>
+            {
+                return $"I{GetNameRootFromEventComponentType(typeInfo)}AddedListener";
+            });
+            string interfacesList = string.Join(", ", dirtyViewTypes.Union(addedViewTypes));
+            var name = typeSymbol.Name;
             builder.AppendLine($@"public partial class {name} : {interfacesList}");
             builder.OpenBraces();
             builder.CloseBraces();
@@ -144,6 +149,17 @@ public class Generator : ISourceGenerator
 
             context.AddSource(typeSymbol.Name + "Event", SourceText.From(builder.ToString(), Encoding.UTF8));
         }
+    }
+    private static IEnumerable<ITypeSymbol> ExtractTypesFromAttribute(AttributeSyntax attributeSyntax, SemanticModel model)
+    {
+        if (attributeSyntax == null)
+        {
+            return Array.Empty<ITypeSymbol>();
+        }
+
+        var typeOfExpressions = attributeSyntax.ArgumentList.Arguments.Select(_ => _.Expression).OfType<TypeOfExpressionSyntax>();
+        var validTypes = typeOfExpressions.Select(typeOfExpression => model.GetTypeInfo(typeOfExpression.Type)).Where(_ => _.Type != null).Select(_ => _.Type!);
+        return validTypes;
     }
 
     private static void GenerateEventStructModel(ITypeSymbol typeSymbol, IndentedStringBuilder builder, IEnumerable<IFieldSymbol> fields)
