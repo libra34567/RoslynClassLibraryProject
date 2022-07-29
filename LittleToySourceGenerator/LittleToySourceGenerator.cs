@@ -149,79 +149,147 @@ public class Generator : ISourceGenerator
 
             List<ClassDeclarationSyntax> classCandidates = receiver.ComponentWithEventStructs;
             var dirtyEventViewTypes = GetDirtyTypes(model, typeSymbol, classCandidates, "OnDirtyEventView");
+            var hasDirtyEventViewTypes = dirtyEventViewTypes.Count > 0;
+            var addedEventViewTypes = GetDirtyTypes(model, typeSymbol, classCandidates, "OnAddedEventView");
+            var hasAddedEventViewTypes = addedEventViewTypes.Count > 0;
 
             // Fields
-            foreach (var eventViewType in dirtyEventViewTypes)
+            if (hasDirtyEventViewTypes)
             {
-                builder.AppendLine($"private EntityQuery _entityWith{eventViewType.Name}And{typeSymbol.Name}Query;");
+                foreach (var eventViewType in dirtyEventViewTypes)
+                {
+                    builder.AppendLine($"private EntityQuery _entityWith{eventViewType.Name}And{typeSymbol.Name}Query;");
+                }
+
+                builder.AppendLine($"private EntityQuery _entityWith{typeSymbol.Name}Query;");
+                builder.AppendLine($"private ComponentTypeHandle<{typeSymbol.Name}> _{typeSymbol.Name}ROComponentTypeHandle;");
+                builder.AppendLine($"private ComponentTypeHandle<{typeSymbol.Name}> _{typeSymbol.Name}RWComponentTypeHandle;");
             }
 
-            builder.AppendLine($"private EntityQuery _entityWith{typeSymbol.Name}Query;");
-            builder.AppendLine($"private ComponentTypeHandle<{typeSymbol.Name}> _{typeSymbol.Name}ROComponentTypeHandle;");
-            builder.AppendLine($"private ComponentTypeHandle<{typeSymbol.Name}> _{typeSymbol.Name}RWComponentTypeHandle;");
+            if (hasAddedEventViewTypes)
+            {
+                foreach (var eventViewType in addedEventViewTypes)
+                {
+                    builder.AppendLine($"private EntityQuery _entityWith{eventViewType.Name}AndAddedComponentArrayDataQuery;");
+                }
+
+                builder.AppendLine($"private ComponentTypeHandle<AddedComponentArrayData> _addedComponentArrayDataROComponentTypeHandle;");
+            }
+
             builder.AppendLine();
 
             // OnCreate
             builder.AppendLine($"protected override void OnCreate()");
             builder.OpenBraces();
             builder.AppendLine($"base.OnCreate();");
-            foreach (var eventViewType in dirtyEventViewTypes)
+            if (hasDirtyEventViewTypes)
             {
-                builder.AppendLine($"_entityWith{eventViewType.Name}And{typeSymbol.Name}Query = GetEntityQuery(new EntityQueryDesc");
+                foreach (var eventViewType in dirtyEventViewTypes)
+                {
+                    builder.AppendLine($"_entityWith{eventViewType.Name}And{typeSymbol.Name}Query = GetEntityQuery(new EntityQueryDesc");
+                    builder.OpenBraces();
+                    builder.AppendLine($"All = new []");
+                    builder.OpenBraces();
+                    builder.AppendLine($"ComponentType.ReadWrite<{eventViewType.Name}>(),");
+                    builder.AppendLine($"ComponentType.ReadOnly<{typeSymbol.Name}>(),");
+                    builder.CloseBraces();
+                    builder.CloseBraces(");");
+                    builder.AppendLine($"_entityWith{eventViewType.Name}And{typeSymbol.Name}Query.SetChangedVersionFilter(ComponentType.ReadOnly<{typeSymbol.Name}>());");
+                    builder.AppendLine();
+                }
+
+                builder.AppendLine($"_entityWith{typeSymbol.Name}Query = GetEntityQuery(new EntityQueryDesc");
                 builder.OpenBraces();
                 builder.AppendLine($"All = new []");
                 builder.OpenBraces();
-                builder.AppendLine($"ComponentType.ReadWrite<{eventViewType.Name}>(),");
-                builder.AppendLine($"ComponentType.ReadOnly<{typeSymbol.Name}>(),");
+                builder.AppendLine($"ComponentType.ReadWrite<{typeSymbol.Name}>(),");
                 builder.CloseBraces();
                 builder.CloseBraces(");");
-                builder.AppendLine($"_entityWith{eventViewType.Name}And{typeSymbol.Name}Query.SetChangedVersionFilter(ComponentType.ReadOnly<{typeSymbol.Name}>());");
-                builder.AppendLine();
+                builder.AppendLine($"_entityWith{typeSymbol.Name}Query.SetChangedVersionFilter(ComponentType.ReadOnly<{typeSymbol.Name}>());");
+                builder.AppendLine($"_{typeSymbol.Name}ROComponentTypeHandle = GetComponentTypeHandle<{typeSymbol.Name}>(true);");
+                builder.AppendLine($"_{typeSymbol.Name}RWComponentTypeHandle = GetComponentTypeHandle<{typeSymbol.Name}>(false);");
             }
 
-            builder.AppendLine($"_entityWith{typeSymbol.Name}Query = GetEntityQuery(new EntityQueryDesc");
-            builder.OpenBraces();
-            builder.AppendLine($"All = new []");
-            builder.OpenBraces();
-            builder.AppendLine($"ComponentType.ReadWrite<{typeSymbol.Name}>(),");
-            builder.CloseBraces();
-            builder.CloseBraces(");");
-            builder.AppendLine($"_entityWith{typeSymbol.Name}Query.SetChangedVersionFilter(ComponentType.ReadOnly<{typeSymbol.Name}>());");
-            builder.AppendLine($"_{typeSymbol.Name}ROComponentTypeHandle = GetComponentTypeHandle<{typeSymbol.Name}>(true);");
-            builder.AppendLine($"_{typeSymbol.Name}RWComponentTypeHandle = GetComponentTypeHandle<{typeSymbol.Name}>(false);");
+            if (hasAddedEventViewTypes)
+            {
+                foreach (var eventViewType in addedEventViewTypes)
+                {
+                    builder.AppendLine($"_entityWith{eventViewType.Name}AndAddedComponentArrayDataQuery = GetEntityQuery(new EntityQueryDesc");
+                    builder.OpenBraces();
+                    builder.AppendLine($"All = new []");
+                    builder.OpenBraces();
+                    builder.AppendLine($"ComponentType.ReadWrite<{eventViewType.Name}>(),");
+                    builder.AppendLine($"ComponentType.ReadOnly<AddedComponentArrayData>(),");
+                    builder.CloseBraces();
+                    builder.CloseBraces(");");
+                    builder.AppendLine();
+                }
+
+                builder.AppendLine($"_addedComponentArrayDataROComponentTypeHandle = GetComponentTypeHandle<AddedComponentArrayData>(true);");
+            }
+
             builder.CloseBraces();
             builder.AppendLine();
 
             // OnUpdate
             builder.AppendLine($"protected override void OnUpdate()");
             builder.OpenBraces();
-            foreach (var eventViewType in dirtyEventViewTypes)
+            if (hasDirtyEventViewTypes)
             {
-                builder.AppendLine($"_{typeSymbol.Name}ROComponentTypeHandle.Update(this);");
-                builder.AppendLine($"var notify{eventViewType.Name}{typeSymbol.Name}DirtyJob = new Notify{typeSymbol.Name}DirtyJob<{eventViewType.Name}>");
+                foreach (var eventViewType in dirtyEventViewTypes)
+                {
+                    builder.AppendLine($"_{typeSymbol.Name}ROComponentTypeHandle.Update(this);");
+                    builder.AppendLine($"var notify{eventViewType.Name}{typeSymbol.Name}DirtyJob = new Notify{typeSymbol.Name}DirtyJob<{eventViewType.Name}>");
+                    builder.OpenBraces();
+                    builder.AppendLine($"EntityManager = this.EntityManager,");
+                    builder.AppendLine($"DataTypeHandle = _{typeSymbol.Name}ROComponentTypeHandle,");
+                    builder.AppendLine($"ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.Name}>(false)");
+                    builder.CloseBraces(";");
+                    builder.AppendLine($"CompleteDependency();");
+                    builder.AppendLine($"JobEntityBatchExtensions.RunWithoutJobs(ref notify{eventViewType.Name}{typeSymbol.Name}DirtyJob, _entityWith{eventViewType.Name}And{typeSymbol.Name}Query);");
+                    builder.AppendLine();
+                }
+
+                builder.AppendLine($"_{typeSymbol.Name}RWComponentTypeHandle.Update(this);");
+                builder.AppendLine($"var job{typeSymbol.Name}ResetDirty = new {typeSymbol.Name}ResetDirtyJob");
                 builder.OpenBraces();
-                builder.AppendLine($"EntityManager = this.EntityManager,");
-                builder.AppendLine($"DataTypeHandle = _{typeSymbol.Name}ROComponentTypeHandle,");
-                builder.AppendLine($"ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.Name}>(false)");
+                builder.AppendLine($"DataTypeHandle = _{typeSymbol.Name}RWComponentTypeHandle,");
                 builder.CloseBraces(";");
                 builder.AppendLine($"CompleteDependency();");
-                builder.AppendLine($"JobEntityBatchExtensions.RunWithoutJobs(ref notify{eventViewType.Name}{typeSymbol.Name}DirtyJob, _entityWith{eventViewType.Name}And{typeSymbol.Name}Query);");
-                builder.AppendLine();
+                builder.AppendLine($"JobEntityBatchExtensions.RunWithoutJobs(ref job{typeSymbol.Name}ResetDirty, _entityWith{typeSymbol.Name}Query);");
             }
 
-            builder.AppendLine($"_{typeSymbol.Name}RWComponentTypeHandle.Update(this);");
-            builder.AppendLine($"var job{typeSymbol.Name}ResetDirty = new {typeSymbol.Name}ResetDirtyJob");
-            builder.OpenBraces();
-            builder.AppendLine($"DataTypeHandle = _{typeSymbol.Name}RWComponentTypeHandle,");
-            builder.CloseBraces(";");
-            builder.AppendLine($"CompleteDependency();");
-            builder.AppendLine($"JobEntityBatchExtensions.RunWithoutJobs(ref job{typeSymbol.Name}ResetDirty, _entityWith{typeSymbol.Name}Query);");
-            builder.CloseBraces();
-            builder.AppendLine();
+            if (hasAddedEventViewTypes)
+            {
+                builder.AppendLine($"_addedComponentArrayDataROComponentTypeHandle.Update(this);");
+                foreach (var eventViewType in addedEventViewTypes)
+                {
+                    builder.AppendLine();
+                    builder.AppendLine($"var notify{eventViewType.Name}Add{typeSymbol.Name}Job = new NotifyAdd{typeSymbol.Name}Job<{eventViewType.Name}>");
+                    builder.OpenBraces();
+                    builder.AppendLine($"EntityManager = this.EntityManager,");
+                    builder.AppendLine($"DataTypeHandle = _addedComponentArrayDataROComponentTypeHandle,");
+                    builder.AppendLine($"ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.Name}>(false),");
+                    builder.CloseBraces(";");
+                    builder.AppendLine($"CompleteDependency();");
+                    builder.AppendLine($"JobEntityBatchExtensions.RunWithoutJobs(ref notify{eventViewType.Name}Add{typeSymbol.Name}Job, _entityWith{eventViewType.Name}AndAddedComponentArrayDataQuery);");
+                }
+            }
 
-            GenerateNotifyDirtyJob();
-            builder.AppendLine();
-            GenerateResetDirtyJob();
+            builder.CloseBraces();
+            if (hasDirtyEventViewTypes)
+            {
+                builder.AppendLine();
+                GenerateNotifyDirtyJob();
+                builder.AppendLine();
+                GenerateResetDirtyJob();
+            }
+
+            if (hasAddedEventViewTypes)
+            {
+                builder.AppendLine();
+                GenerateNotifyAddJob();
+            }
 
             builder.CloseBraces();
             if (!typeSymbol.ContainingNamespace.IsGlobalNamespace)
@@ -233,7 +301,7 @@ public class Generator : ISourceGenerator
 
             void GenerateNotifyDirtyJob()
             {
-                builder.AppendLine($"private struct Notify{typeSymbol.Name}DirtyJob<T> : IJobEntityBatch where T : class, IPosition3Listener");
+                builder.AppendLine($"private struct Notify{typeSymbol.Name}DirtyJob<T> : IJobEntityBatch where T : class, I{GetNameRootFromEventComponentType(typeSymbol)}Listener");
                 builder.OpenBraces();
                 builder.AppendLine($"public EntityManager EntityManager;");
                 builder.AppendLine($"public ComponentTypeHandle<{typeSymbol.Name}> DataTypeHandle;");
@@ -255,6 +323,7 @@ public class Generator : ISourceGenerator
                 builder.CloseBraces(); // Execute
                 builder.CloseBraces(); // struct
             }
+
             void GenerateResetDirtyJob()
             {
                 builder.AppendLine($"private struct {typeSymbol.Name}ResetDirtyJob : IJobEntityBatch");
@@ -275,6 +344,34 @@ public class Generator : ISourceGenerator
                 builder.CloseBraces();
                 builder.CloseBraces();
                 builder.CloseBraces();
+            }
+
+            void GenerateNotifyAddJob()
+            {
+                builder.AppendLine($"private struct NotifyAdd{typeSymbol.Name}Job<T> : IJobEntityBatch where T : class, I{GetNameRootFromEventComponentType(typeSymbol)}AddedListener");
+                builder.OpenBraces();
+                builder.AppendLine($"public EntityManager EntityManager;");
+                builder.AppendLine($"public ComponentTypeHandle<AddedComponentArrayData> DataTypeHandle;");
+                builder.AppendLine($"public ComponentTypeHandle<T> ListenerTypeHandle;");
+                builder.AppendLine();
+                builder.AppendLine($"public void Execute(ArchetypeChunk batchInChunk, int batchIndex)");
+                builder.OpenBraces();
+                builder.AppendLine($"var listenerAccessor = batchInChunk.GetManagedComponentAccessor(ListenerTypeHandle, EntityManager);");
+                builder.AppendLine($"var dataArray = batchInChunk.GetNativeArray(DataTypeHandle);");
+                builder.AppendLine($"for (int i = 0; i < batchInChunk.Count; i++)");
+                builder.OpenBraces();
+                builder.AppendLine($"var data = dataArray[i];");
+                builder.AppendLine($"var listener = listenerAccessor[i];");
+                builder.AppendLine($"for (int j = 0; j < data.Value.Length; j++)");
+                builder.OpenBraces();
+                builder.AppendLine($"if (data.Value[j] == ComponentType.ReadWrite<{typeSymbol.Name}>().TypeIndex)");
+                builder.OpenBraces();
+                builder.AppendLine($"listener.On{GetNameRootFromEventComponentType(typeSymbol)}Added();");
+                builder.CloseBraces();
+                builder.CloseBraces();
+                builder.CloseBraces();
+                builder.CloseBraces(); // Execute
+                builder.CloseBraces(); // struct
             }
         }
     }
