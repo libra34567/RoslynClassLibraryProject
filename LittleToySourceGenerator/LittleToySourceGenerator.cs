@@ -152,6 +152,8 @@ public class Generator : ISourceGenerator
             var hasDirtyEventViewTypes = dirtyEventViewTypes.Count > 0;
             var addedEventViewTypes = GetDirtyTypes(model, typeSymbol, classCandidates, "OnAddedEventView");
             var hasAddedEventViewTypes = addedEventViewTypes.Count > 0;
+            var removedEventViewTypes = GetDirtyTypes(model, typeSymbol, classCandidates, "OnRemovedEventView");
+            var hasRemovedEventViewTypes = removedEventViewTypes.Count > 0;
 
             // Fields
             if (hasDirtyEventViewTypes)
@@ -174,6 +176,16 @@ public class Generator : ISourceGenerator
                 }
 
                 builder.AppendLine($"private ComponentTypeHandle<AddedComponentArrayData> _addedComponentArrayDataROComponentTypeHandle;");
+            }
+
+            if (hasRemovedEventViewTypes)
+            {
+                foreach (var eventViewType in removedEventViewTypes)
+                {
+                    builder.AppendLine($"private EntityQuery _entityWith{eventViewType.Name}AndRemovedComponentArrayDataQuery;");
+                }
+
+                builder.AppendLine($"private ComponentTypeHandle<RemovedComponentArrayData> _removedComponentArrayDataROComponentTypeHandle;");
             }
 
             builder.AppendLine();
@@ -228,6 +240,24 @@ public class Generator : ISourceGenerator
                 builder.AppendLine($"_addedComponentArrayDataROComponentTypeHandle = GetComponentTypeHandle<AddedComponentArrayData>(true);");
             }
 
+            if (hasRemovedEventViewTypes)
+            {
+                foreach (var eventViewType in removedEventViewTypes)
+                {
+                    builder.AppendLine($"_entityWith{eventViewType.Name}AndRemovedComponentArrayDataQuery = GetEntityQuery(new EntityQueryDesc");
+                    builder.OpenBraces();
+                    builder.AppendLine($"All = new []");
+                    builder.OpenBraces();
+                    builder.AppendLine($"ComponentType.ReadWrite<{eventViewType.Name}>(),");
+                    builder.AppendLine($"ComponentType.ReadOnly<RemovedComponentArrayData>(),");
+                    builder.CloseBraces();
+                    builder.CloseBraces(");");
+                    builder.AppendLine();
+                }
+
+                builder.AppendLine($"_removedComponentArrayDataROComponentTypeHandle = GetComponentTypeHandle<RemovedComponentArrayData>(true);");
+            }
+
             builder.CloseBraces();
             builder.AppendLine();
 
@@ -276,6 +306,23 @@ public class Generator : ISourceGenerator
                 }
             }
 
+            if (hasRemovedEventViewTypes)
+            {
+                builder.AppendLine($"_removedComponentArrayDataROComponentTypeHandle.Update(this);");
+                foreach (var eventViewType in removedEventViewTypes)
+                {
+                    builder.AppendLine();
+                    builder.AppendLine($"var notify{eventViewType.Name}Remove{typeSymbol.Name}Job = new NotifyRemove{typeSymbol.Name}Job<{eventViewType.Name}>");
+                    builder.OpenBraces();
+                    builder.AppendLine($"EntityManager = this.EntityManager,");
+                    builder.AppendLine($"DataTypeHandle = _removedComponentArrayDataROComponentTypeHandle,");
+                    builder.AppendLine($"ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.Name}>(false),");
+                    builder.CloseBraces(";");
+                    builder.AppendLine($"CompleteDependency();");
+                    builder.AppendLine($"JobEntityBatchExtensions.RunWithoutJobs(ref notify{eventViewType.Name}Remove{typeSymbol.Name}Job, _entityWith{eventViewType.Name}AndRemovedComponentArrayDataQuery);");
+                }
+            }
+
             builder.CloseBraces();
             if (hasDirtyEventViewTypes)
             {
@@ -289,6 +336,12 @@ public class Generator : ISourceGenerator
             {
                 builder.AppendLine();
                 GenerateNotifyAddJob();
+            }
+
+            if (hasRemovedEventViewTypes)
+            {
+                builder.AppendLine();
+                GenerateNotifyRemoveJob();
             }
 
             builder.CloseBraces();
@@ -367,6 +420,34 @@ public class Generator : ISourceGenerator
                 builder.AppendLine($"if (data.Value[j] == ComponentType.ReadWrite<{typeSymbol.Name}>().TypeIndex)");
                 builder.OpenBraces();
                 builder.AppendLine($"listener.On{GetNameRootFromEventComponentType(typeSymbol)}Added();");
+                builder.CloseBraces();
+                builder.CloseBraces();
+                builder.CloseBraces();
+                builder.CloseBraces(); // Execute
+                builder.CloseBraces(); // struct
+            }
+
+            void GenerateNotifyRemoveJob()
+            {
+                builder.AppendLine($"private struct NotifyRemove{typeSymbol.Name}Job<T> : IJobEntityBatch where T : class, I{GetNameRootFromEventComponentType(typeSymbol)}RemovedListener");
+                builder.OpenBraces();
+                builder.AppendLine($"public EntityManager EntityManager;");
+                builder.AppendLine($"public ComponentTypeHandle<RemovedComponentArrayData> DataTypeHandle;");
+                builder.AppendLine($"public ComponentTypeHandle<T> ListenerTypeHandle;");
+                builder.AppendLine();
+                builder.AppendLine($"public void Execute(ArchetypeChunk batchInChunk, int batchIndex)");
+                builder.OpenBraces();
+                builder.AppendLine($"var listenerAccessor = batchInChunk.GetManagedComponentAccessor(ListenerTypeHandle, EntityManager);");
+                builder.AppendLine($"var dataArray = batchInChunk.GetNativeArray(DataTypeHandle);");
+                builder.AppendLine($"for (int i = 0; i < batchInChunk.Count; i++)");
+                builder.OpenBraces();
+                builder.AppendLine($"var data = dataArray[i];");
+                builder.AppendLine($"var listener = listenerAccessor[i];");
+                builder.AppendLine($"for (int j = 0; j < data.Value.Length; j++)");
+                builder.OpenBraces();
+                builder.AppendLine($"if (data.Value[j] == ComponentType.ReadWrite<{typeSymbol.Name}>().TypeIndex)");
+                builder.OpenBraces();
+                builder.AppendLine($"listener.On{GetNameRootFromEventComponentType(typeSymbol)}Removed();");
                 builder.CloseBraces();
                 builder.CloseBraces();
                 builder.CloseBraces();
