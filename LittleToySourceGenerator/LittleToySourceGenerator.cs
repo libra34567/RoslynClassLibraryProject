@@ -148,11 +148,11 @@ public class Generator : ISourceGenerator
             builder.OpenBraces();
 
             List<ClassDeclarationSyntax> classCandidates = receiver.ComponentWithEventStructs;
-            var dirtyEventViewTypes = GetDirtyTypes(model, typeSymbol, classCandidates, "OnDirtyEventView");
+            var dirtyEventViewTypes = GetDirtyTypes(context.Compilation, typeSymbol, classCandidates, "OnDirtyEventView");
             var hasDirtyEventViewTypes = dirtyEventViewTypes.Count > 0;
-            var addedEventViewTypes = GetDirtyTypes(model, typeSymbol, classCandidates, "OnAddedEventView");
+            var addedEventViewTypes = GetDirtyTypes(context.Compilation, typeSymbol, classCandidates, "OnAddedEventView");
             var hasAddedEventViewTypes = addedEventViewTypes.Count > 0;
-            var removedEventViewTypes = GetDirtyTypes(model, typeSymbol, classCandidates, "OnRemovedEventView");
+            var removedEventViewTypes = GetDirtyTypes(context.Compilation, typeSymbol, classCandidates, "OnRemovedEventView");
             var hasRemovedEventViewTypes = removedEventViewTypes.Count > 0;
 
             // Fields
@@ -457,15 +457,17 @@ public class Generator : ISourceGenerator
         }
     }
 
-    private static List<ITypeSymbol> GetDirtyTypes(SemanticModel model, ITypeSymbol typeSymbol, List<ClassDeclarationSyntax> classCandidates, string SearchAttributeName)
-    {
+    private static List<ITypeSymbol> GetDirtyTypes(Compilation compilation, ITypeSymbol typeSymbol, List<ClassDeclarationSyntax> classCandidates, string SearchAttributeName)
+    {        
         return classCandidates.Where(eventType =>
         {
             var onDirtyEventViewAttribute = eventType.AttributeLists.FindAttribute(SearchAttributeName);
+            var model = compilation.GetSemanticModel(eventType.SyntaxTree);
             var dirtyViewTypes = ExtractTypesFromAttribute(onDirtyEventViewAttribute, model);
             return dirtyViewTypes.Contains(typeSymbol);
         }).Select(eventType =>
         {
+            var model = compilation.GetSemanticModel(eventType.SyntaxTree);
             ITypeSymbol eventTypeSymbol = (ITypeSymbol)model.GetDeclaredSymbol(eventType);
             return eventTypeSymbol;
         }).ToList();
