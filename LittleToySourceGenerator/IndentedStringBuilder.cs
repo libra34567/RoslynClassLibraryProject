@@ -62,6 +62,12 @@ internal sealed class IndentedStringBuilder
         this.AppendLine("}");
     }
 
+    public void CloseBraces(string addenum)
+    {
+        this.PopIndent();
+        this.AppendLine("}" + addenum);
+    }
+
     /// <inheritdoc/>
     public override string ToString() => this.builder.ToString();
 
