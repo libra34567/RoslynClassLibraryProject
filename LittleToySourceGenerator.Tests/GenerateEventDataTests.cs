@@ -13,7 +13,7 @@ public class GenerateEventDataTests : CodeGenerationTestBase
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
-    public Unity.Mathematics.float3 Value;
+    [MarkDirty] public Unity.Mathematics.float3 Value;
 }
 ";
         var generator = new Generator();
@@ -65,8 +65,8 @@ public interface IPosition3Listener
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
-    public Unity.Mathematics.float3 Value;
-    public Unity.Mathematics.float3 SecondValue;
+    [MarkDirty]public Unity.Mathematics.float3 Value;
+    [MarkDirty]public Unity.Mathematics.float3 SecondValue;
 }
 ";
         var generator = new Generator();
@@ -119,8 +119,7 @@ public interface IPosition3Listener
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
-    public Unity.Mathematics.float3 Value;
-    [Plugins.basegame.Events.IgnoreDirty]
+    [MarkDirty] public Unity.Mathematics.float3 Value;
     public Unity.Mathematics.float3 SecondValue;
 }
 ";
@@ -173,8 +172,7 @@ public interface IPosition3Listener
 [Plugins.basegame.Events.ComponentRemovedEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
-    public Unity.Mathematics.float3 Value;
-    [Plugins.basegame.Events.IgnoreDirty]
+    [MarkDirty] public Unity.Mathematics.float3 Value;
     public Unity.Mathematics.float3 SecondValue;
 }
 ";
@@ -213,8 +211,7 @@ public interface IPosition3RemovedListener
 [Plugins.basegame.Events.ComponentAddedEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
-    public Unity.Mathematics.float3 Value;
-    [Plugins.basegame.Events.IgnoreDirty]
+    [MarkDirty]public Unity.Mathematics.float3 Value;
     public Unity.Mathematics.float3 SecondValue;
 }
 ";

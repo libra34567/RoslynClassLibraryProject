@@ -80,7 +80,7 @@ public class Generator : ISourceGenerator
             if (typeSymbol.HasAttribute("ComponentDirtyEvent"))
             {
                 var fields = typeSymbol.GetMembers().OfType<IFieldSymbol>()
-                    .Where(field => field.Name != "IsDirty" && !field.HasAttribute("IgnoreDirty"));
+                    .Where(field => field.HasAttribute("MarkDirty"));
                 GenerateEventStructModel(typeSymbol, builder, fields);
                 builder.AppendLine();
                 GenerateComponentDirtyEventInterfaceModel(typeSymbol, builder, fields);
