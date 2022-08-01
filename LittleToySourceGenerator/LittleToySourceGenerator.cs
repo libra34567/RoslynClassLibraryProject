@@ -354,6 +354,9 @@ public class Generator : ISourceGenerator
 
             void GenerateNotifyDirtyJob()
             {
+                var fields = typeSymbol.GetMembers().OfType<IFieldSymbol>()
+                    .Where(field => field.HasAttribute("MarkDirty"));
+
                 builder.AppendLine($"private struct Notify{typeSymbol.Name}DirtyJob<T> : IJobEntityBatch where T : class, I{GetNameRootFromEventComponentType(typeSymbol)}Listener");
                 builder.OpenBraces();
                 builder.AppendLine($"public EntityManager EntityManager;");
@@ -370,7 +373,7 @@ public class Generator : ISourceGenerator
                 builder.AppendLine($"var listener = listenerAccessor[i];");
                 builder.AppendLine($"if (data.IsDirty && listener != null)");
                 builder.OpenBraces();
-                builder.AppendLine($"listener.On{GetNameRootFromEventComponentType(typeSymbol)}Changed(data.Value);");
+                builder.AppendLine($"listener.On{GetNameRootFromEventComponentType(typeSymbol)}Changed({string.Join(", ", fields.Select(field => "data." + field.Name))});");
                 builder.CloseBraces();
                 builder.CloseBraces();
                 builder.CloseBraces(); // Execute
