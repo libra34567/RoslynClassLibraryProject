@@ -39,6 +39,14 @@ public class Generator : ISourceGenerator
 #nullable enable
 #pragma warning disable 1591";
 
+    private static DiagnosticDescriptor FieldTypeShouldBeKnownForDotsNet = new DiagnosticDescriptor(
+        "LT0001",
+        "Field type should be known to DOTSNET", 
+        "Cannot convert field type {0} to dotsnet read/write methods",
+        "LittleToy",
+        DiagnosticSeverity.Error, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
+
+
     private static Dictionary<string, string> _systemToDotsnetTypeDictionary = new Dictionary<string, string>()
     {
         { "System.Byte", "Byte"},
@@ -124,7 +132,7 @@ public class Generator : ISourceGenerator
             var typeSymbol = model.GetDeclaredSymbol(type) as ITypeSymbol;
             if (!UseStringBuilder)
             {
-                var file = GenerateEventData(typeSymbol);
+                var file = GenerateEventData(typeSymbol, context, type);
                 context.AddSource(typeSymbol.Name + "EventData", SourceText.From(file.ToString(), Encoding.UTF8));
                 continue;
             }
@@ -179,7 +187,7 @@ public class Generator : ISourceGenerator
         }
     }
 
-    private static FileModel GenerateEventData(ITypeSymbol eventComponentType)
+    private static FileModel GenerateEventData(ITypeSymbol eventComponentType, GeneratorExecutionContext context, SyntaxNode syntaxNode)
     {
         var file = new FileModel(eventComponentType.Name + "EventData")
         {
@@ -200,7 +208,7 @@ public class Generator : ISourceGenerator
         if (eventComponentType.HasAttribute(ComponentDirtyEventAttributeType) || eventComponentType.HasAttribute(CodeGenNetComponentAttributeType))
         {
             // Create the StructModel used for code generation
-            file.Structs.Add(GenerateEventStructModel(eventComponentType));
+            file.Structs.Add(GenerateEventStructModel(eventComponentType, context, syntaxNode));
         }
 
         // Generate listeners required for each type of event add/remove/dirty
@@ -211,7 +219,7 @@ public class Generator : ISourceGenerator
     }
 
     // Generate the struct model used for code generation
-    private static StructModel GenerateEventStructModel(ITypeSymbol eventComponentType)
+    private static StructModel GenerateEventStructModel(ITypeSymbol eventComponentType, GeneratorExecutionContext context, SyntaxNode syntaxNode)
     {
         //Only generate IfDirty Property if there's any field marked with [MarkDirty] attribute
         var needIfDirty = false;
@@ -353,8 +361,8 @@ public class Generator : ISourceGenerator
 
                 if (IsDotsnetType(fieldType) == false)
                 {
-                    // Replace with Roslyn diagnostics
-                    // Debug.LogError($"Cannot convert field type {fieldType.Name} to dotsnet read/write methods");
+                    var err = Diagnostic.Create(FieldTypeShouldBeKnownForDotsNet, location: syntaxNode.GetLocation(), fieldType.Name);
+                    context.ReportDiagnostic(err);
                     return structModel;
                 }
 
@@ -409,11 +417,10 @@ public class Generator : ISourceGenerator
 
                     if (IsDotsnetType(fieldType) == false)
                     {
-                        // Replace with Roslyn diagnostics
-                        // Debug.LogError("Cannot convert field type to dotsnet read/write methods");
+                        var err = Diagnostic.Create(FieldTypeShouldBeKnownForDotsNet, location: syntaxNode.GetLocation(), fieldType.Name);
+                        context.ReportDiagnostic(err);
                         return structModel;
                     }
-
 
                     if (i == 0)
                     {
@@ -468,8 +475,8 @@ public class Generator : ISourceGenerator
 
                     if (IsDotsnetType(fieldType) == false)
                     {
-                        // Replace with Roslyn diagnostics
-                        // Debug.LogError($"Cannot convert field type {fieldType.Name} to dotsnet read/write methods");
+                        var err = Diagnostic.Create(FieldTypeShouldBeKnownForDotsNet, location: syntaxNode.GetLocation(), fieldType.Name);
+                        context.ReportDiagnostic(err);
                         return structModel;
                     }
 
