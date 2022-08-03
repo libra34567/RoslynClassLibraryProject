@@ -18,7 +18,7 @@ public partial struct Position3Data : Unity.Entities.IComponentData
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventData = true;
+        generator.EnableEventDataGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -35,24 +35,25 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
 using DOTSNET;
+using Unity.Collections;
 
 public partial struct Position3Data
 {
     public bool IsDirty { get; set; }
-    public Position3Data Update(Unity.Mathematics.float3 value)
+    public Position3Data Update(float3 value)
     {
         if(Value.Equals(value)) return this;
-
+        
         IsDirty = true;
         Value = value;
-
+        
         return this;
     }
 }
 
 public interface IPosition3Listener
 {
-    public void OnPosition3Changed(Unity.Mathematics.float3 value);
+    public void OnPosition3Changed(float3 value);
 }
 ";
         Assert.AreEqual(expectedOutput, output);
@@ -71,7 +72,7 @@ public partial struct Position3Data : Unity.Entities.IComponentData
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventData = true;
+        generator.EnableEventDataGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -88,25 +89,26 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
 using DOTSNET;
+using Unity.Collections;
 
 public partial struct Position3Data
 {
     public bool IsDirty { get; set; }
-    public Position3Data Update(Unity.Mathematics.float3 value, Unity.Mathematics.float3 secondValue)
+    public Position3Data Update(float3 value, float3 secondValue)
     {
         if(Value.Equals(value) && SecondValue.Equals(secondValue)) return this;
-
+        
         IsDirty = true;
         Value = value;
         SecondValue = secondValue;
-
+        
         return this;
     }
 }
 
 public interface IPosition3Listener
 {
-    public void OnPosition3Changed(Unity.Mathematics.float3 value, Unity.Mathematics.float3 secondValue);
+    public void OnPosition3Changed(float3 value, float3 secondValue);
 }
 ";
         Assert.AreEqual(expectedOutput, output);
@@ -125,7 +127,7 @@ public partial struct Position3Data : Unity.Entities.IComponentData
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventData = true;
+        generator.EnableEventDataGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -142,24 +144,25 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
 using DOTSNET;
+using Unity.Collections;
 
 public partial struct Position3Data
 {
     public bool IsDirty { get; set; }
-    public Position3Data Update(Unity.Mathematics.float3 value)
+    public Position3Data Update(float3 value)
     {
         if(Value.Equals(value)) return this;
-
+        
         IsDirty = true;
         Value = value;
-
+        
         return this;
     }
 }
 
 public interface IPosition3Listener
 {
-    public void OnPosition3Changed(Unity.Mathematics.float3 value);
+    public void OnPosition3Changed(float3 value);
 }
 ";
         Assert.AreEqual(expectedOutput, output);
@@ -178,7 +181,7 @@ public partial struct Position3Data : Unity.Entities.IComponentData
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventData = true;
+        generator.EnableEventDataGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -195,6 +198,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
 using DOTSNET;
+using Unity.Collections;
 
 public interface IPosition3RemovedListener
 {
@@ -217,7 +221,7 @@ public partial struct Position3Data : Unity.Entities.IComponentData
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventData = true;
+        generator.EnableEventDataGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -234,6 +238,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
 using DOTSNET;
+using Unity.Collections;
 
 public interface IPosition3AddedListener
 {
