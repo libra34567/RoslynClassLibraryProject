@@ -73,4 +73,30 @@ public partial struct Position3Data : NetworkComponent
 ";
         Assert.AreEqual(expectedOutput, output);
     }
+
+    [TestMethod]
+    public void UnknownTypeReported()
+    {
+        string source = @"
+using Plugins.basegame.Events;
+using DOTSNET;
+
+[Plugins.basegame.Events.CodeGenNetComponentAttribute(DOTSNET.SyncDirection.SERVER_TO_CLIENT)]
+public partial struct Position3Data
+{
+    [MarkDirty] [SyncField] public string HatIndex;
+    [MarkDirty] [SyncField] public int BodyIndex;
+    [SyncField] public Unity.Collections.FixedString64Bytes UserName;
+}
+";
+        var generator = new Generator();
+        generator.DisableAllGeneration();
+        generator.EnableEventDataGeneration = true;
+        var diagnostics = this.GetDiagnosticsFromGenerator(source, generator, NullableContextOptions.Disable);
+
+        Diagnostic? value = diagnostics.FirstOrDefault();
+        Assert.IsNotNull(value);
+        Assert.AreEqual("LT0001", value.Id);
+        Assert.AreEqual("(5,1): error LT0001: Cannot convert field type String to dotsnet read/write methods", value.ToString());
+    }
 }
