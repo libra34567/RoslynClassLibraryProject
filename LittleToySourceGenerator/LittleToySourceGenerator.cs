@@ -191,7 +191,6 @@ public class Generator : ISourceGenerator
             }
         }
 
-
         var structModel = new StructModel(eventComponentType.Name)
         {
             SingleKeyWord = KeyWord.Partial,
@@ -207,14 +206,14 @@ public class Generator : ISourceGenerator
             });
         }
 
-        //implement NetworkComponent interface if has attribute CodeGenNetComponent
+        // Implement NetworkComponent interface if has attribute CodeGenNetComponent
         if (eventComponentType.HasAttribute(CodeGenNetComponentAttributeType))
         {
             structModel.Interfaces.Add("NetworkComponent");
         }
 
-        //generate update method, when there's at least one field with MarkDirty and without SyncField attribute
-        //the Update method used to update the fields/properties of the struct then mark the struct as dirty.
+        // Generate update method, when there's at least one field with MarkDirty and without SyncField attribute
+        // the Update method used to update the fields/properties of the struct then mark the struct as dirty.
         List<IFieldSymbol> fieldsWithMarkDirtyAndWithoutSyncField = new List<IFieldSymbol>();
         foreach (var fieldInfo in eventComponentType.GetFields())
         {
@@ -240,10 +239,9 @@ public class Generator : ISourceGenerator
                 CustomDataType = eventComponentType.Name
             };
 
-
-
             var isFirst = true;
-            //the body of the update method
+
+            // The body of the update method
             foreach (var fieldInfo in fieldsWithMarkDirtyAndWithoutSyncField)
             {
                 method.Parameters.Add(new Parameter()
@@ -271,7 +269,7 @@ public class Generator : ISourceGenerator
 
         if (eventComponentType.HasAttribute(CodeGenNetComponentAttributeType))
         {
-            //Generate the GetSyncDirection Method
+            // Generate the GetSyncDirection Method
             var syncDir = eventComponentType.GetCustomAttribute(CodeGenNetComponentAttributeType).GetFieldValue("SyncDirection");
             var GetSyncDirectionMethodModel = new Method("SyncDirection", "GetSyncDirection")
             {
@@ -284,7 +282,7 @@ public class Generator : ISourceGenerator
             };
             structModel.Methods.Add(GetSyncDirectionMethodModel);
 
-            //get syncField field list
+            // Get syncField field list
             var fieldWithSyncFieldAttribute = new List<IFieldSymbol>();
             var fieldWithSyncFieldAndMarkDirtyAttribute = new List<IFieldSymbol>();
 
@@ -444,7 +442,7 @@ public class Generator : ISourceGenerator
 
                     if (i == fieldWithSyncFieldAttribute.Count - 1)
                     {
-                        //last one
+                        // last one
                         deserializeMethodModel.BodyLines[0] +=
                             $" reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name});";
                     }
