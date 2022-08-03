@@ -59,6 +59,20 @@ namespace DOTSNET
     public struct long3 {}
 }
 
+namespace Unity.Collections
+{
+    public struct FixedBytes16 {}
+    public struct FixedBytes30 {}
+    public struct FixedBytes62 {}
+    public struct FixedBytes126 {}
+    public struct FixedBytes510 {}
+    public struct FixedBytes4094 {}
+    public struct FixedString32Bytes {}
+    public struct FixedString64Bytes {}
+    public struct FixedString128Bytes {}
+    public struct FixedString512Bytes {}
+}
+
 namespace Unity.Mathematics
 {
     public struct int2 {}
