@@ -171,7 +171,13 @@ public class Generator : ISourceGenerator
         return file;
     }
 
-    // Generate the struct model used for code generation
+    /// <summary>
+    /// Generate the struct model used for code generation
+    /// </summary>
+    /// <param name="eventComponentType">Component type for which generate EventData structure implementation.</param>
+    /// <param name="context">Code generation context in which generate the struct.</param>
+    /// <param name="syntaxNode">Syntax node for which attempt to generate code happens.</param>
+    /// <returns>A <see cref="StructModel"/> representing generated component.</returns>
     private static StructModel GenerateEventStructModel(ITypeSymbol eventComponentType, GeneratorExecutionContext context, SyntaxNode syntaxNode)
     {
         //Only generate IfDirty Property if there's any field marked with [MarkDirty] attribute
@@ -338,9 +344,7 @@ public class Generator : ISourceGenerator
 
             structModel.Methods.Add(serializeMethodModel);
 
-
             var shouldDealWithDirtyInDeserialize = fieldWithSyncFieldAndMarkDirtyAttribute.Count > 0;
-
             var deserializeMethodModel = new Method(BuiltInDataType.Bool, "Deserialize")
             {
                 AccessModifier = AccessModifier.Public,
@@ -365,7 +369,6 @@ public class Generator : ISourceGenerator
                     "return"
                 };
             }
-
 
             if (shouldDealWithDirtyInDeserialize)
             {
@@ -451,9 +454,7 @@ public class Generator : ISourceGenerator
                             $" reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name}) &&";
                     }
                 }
-
             }
-
 
             structModel.Methods.Add(deserializeMethodModel);
         }
@@ -461,105 +462,99 @@ public class Generator : ISourceGenerator
         return structModel;
     }
 
-    // Generate listeners required for ComponentData dirty event, this is used in ViewClasses to receive events
+    /// <summary>
+    /// Generate listeners required for ComponentData dirty event, this is used in ViewClasses to receive events
+    /// </summary>
+    /// <param name="eventComponentType">Component type for which generate IXXXListener interface declaration.</param>
+    /// <returns>An <see cref="InterfaceModel"/> for generated IXXXListener interface or null if interface would not be generated.</returns>
     private static InterfaceModel GenerateComponentDirtyEventInterfaceModel(ITypeSymbol eventComponentType)
     {
-        var nameRoot = GetNameRootFromEventComponentType(eventComponentType);
-
-        foreach (var attribute in eventComponentType.GetCustomAttributes(true))
+        var hasMarker = eventComponentType.GetCustomAttributes(true).Any(attribute => attribute.IsAttribute(ComponentDirtyEventAttributeType));
+        if (!hasMarker)
         {
-            if (attribute.IsAttribute(ComponentDirtyEventAttributeType))
-            {
-                var interfaceModel = new InterfaceModel($"I{nameRoot}Listener")
-                {
-                    AccessModifier = AccessModifier.Public
-                };
-                var method = new Method(BuiltInDataType.Void, $"On{nameRoot}Changed")
-                {
-                    Parameters = new List<Parameter>(),
-                    WithoutBody = true
-                };
-
-                foreach (var fieldInfo in eventComponentType.GetFields())
-                {
-                    if (fieldInfo.Name == "IsDirty" || fieldInfo.GetAttributes().All(attr => !attr.IsAttribute(MarkDirtyAttributeType)))
-                    {
-                        continue;
-                    }
-
-                    method.Parameters.Add(new Parameter()
-                    {
-                        CustomDataType = fieldInfo.Type.Name,
-                        Name = fieldInfo.Name.LowerFirst()
-                    });
-                }
-
-                interfaceModel.Methods.Add(method);
-
-                return interfaceModel;
-            }
+            return null;
         }
 
-        return null;
-    }
+        var nameRoot = GetNameRootFromEventComponentType(eventComponentType);
 
+        var interfaceModel = new InterfaceModel($"I{nameRoot}Listener")
+        {
+            AccessModifier = AccessModifier.Public
+        };
+        var method = new Method(BuiltInDataType.Void, $"On{nameRoot}Changed")
+        {
+            Parameters = new List<Parameter>(),
+            WithoutBody = true
+        };
+
+        foreach (var fieldInfo in eventComponentType.GetFields())
+        {
+            if (fieldInfo.Name == "IsDirty" || fieldInfo.GetAttributes().All(attr => !attr.IsAttribute(MarkDirtyAttributeType)))
+            {
+                continue;
+            }
+
+            method.Parameters.Add(new Parameter()
+            {
+                CustomDataType = fieldInfo.Type.Name,
+                Name = fieldInfo.Name.LowerFirst()
+            });
+        }
+
+        interfaceModel.Methods.Add(method);
+        return interfaceModel;
+    }
 
     // Generate listeners required for ComponentData removed event, this is used in ViewClasses to receive events
     private static InterfaceModel GenerateComponentRemovedEventInterfaceModel(ITypeSymbol eventComponentType)
     {
-        var nameRoot = GetNameRootFromEventComponentType(eventComponentType);
-
-        foreach (var attribute in eventComponentType.GetCustomAttributes(true))
+        var hasMarker = eventComponentType.GetCustomAttributes(true).Any(attribute => attribute.IsAttribute(ComponentRemovedEventAttributeType));
+        if (!hasMarker)
         {
-            if (attribute.IsAttribute(ComponentRemovedEventAttributeType))
-            {
-                var interfaceModel = new InterfaceModel($"I{nameRoot}RemovedListener")
-                {
-                    AccessModifier = AccessModifier.Public,
-                    Methods = new List<Method>
-                        {
-                            new Method(BuiltInDataType.Void, $"On{nameRoot}Removed")
-                            {
-                                Parameters = new List<Parameter>(),
-                                WithoutBody = true
-                            }
-                        }
-                };
-
-                return interfaceModel;
-            }
+            return null;
         }
 
-        return null;
+        var nameRoot = GetNameRootFromEventComponentType(eventComponentType);
+        var interfaceModel = new InterfaceModel($"I{nameRoot}RemovedListener")
+        {
+            AccessModifier = AccessModifier.Public,
+            Methods = new List<Method>
+            {
+                new Method(BuiltInDataType.Void, $"On{nameRoot}Removed")
+                {
+                    Parameters = new List<Parameter>(),
+                    WithoutBody = true
+                }
+            }
+        };
+
+        return interfaceModel;
     }
 
     // Generate listeners required for ComponentData added event, this is used in ViewClasses to receive events
     private static InterfaceModel GenerateComponentAddedEventInterface(ITypeSymbol eventComponentType)
     {
-        var nameRoot = GetNameRootFromEventComponentType(eventComponentType);
-
-        foreach (var attribute in eventComponentType.GetCustomAttributes(true))
+        var hasMarker = eventComponentType.GetCustomAttributes(true).Any(attribute => attribute.IsAttribute(ComponentAddedEventAttributeType));
+        if (!hasMarker)
         {
-            if (attribute.IsAttribute(ComponentAddedEventAttributeType))
-            {
-                var interfaceModel = new InterfaceModel($"I{nameRoot}AddedListener")
-                {
-                    AccessModifier = AccessModifier.Public,
-                    Methods = new List<Method>
-                        {
-                            new Method(BuiltInDataType.Void, $"On{nameRoot}Added")
-                            {
-                                Parameters = new List<Parameter>(),
-                                WithoutBody = true
-                            }
-                        }
-                };
-
-                return interfaceModel;
-            }
+            return null;
         }
 
-        return null;
+        var nameRoot = GetNameRootFromEventComponentType(eventComponentType);
+        var interfaceModel = new InterfaceModel($"I{nameRoot}AddedListener")
+        {
+            AccessModifier = AccessModifier.Public,
+            Methods = new List<Method>
+            {
+                new Method(BuiltInDataType.Void, $"On{nameRoot}Added")
+                {
+                    Parameters = new List<Parameter>(),
+                    WithoutBody = true
+                }
+            }
+        };
+
+        return interfaceModel;
     }
 
     private static string GetFullyQualifiedName(ITypeSymbol typeSymbol)
@@ -1122,59 +1117,6 @@ public class Generator : ISourceGenerator
         var typeOfExpressions = attributeSyntax.ArgumentList.Arguments.Select(_ => _.Expression).OfType<TypeOfExpressionSyntax>();
         var validTypes = typeOfExpressions.Select(typeOfExpression => model.GetTypeInfo(typeOfExpression.Type)).Where(_ => _.Type != null).Select(_ => _.Type!);
         return validTypes;
-    }
-
-    private static void GenerateEventStructModel(ITypeSymbol typeSymbol, IndentedStringBuilder builder, IEnumerable<IFieldSymbol> fields)
-    {
-        var name = typeSymbol.Name;
-        builder.AppendLine($@"public partial struct {name}");
-        builder.OpenBraces();
-        builder.AppendLine($@"public bool IsDirty {{ get; set; }}");
-        var parameters = string.Join(", ", fields.Select(f => $"{f.Type.ToDisplayString()} {LowercaseName(f.Name)}"));
-        builder.AppendLine($@"public {typeSymbol.ToDisplayString()} Update({parameters})");
-        builder.OpenBraces();
-        var comparison = string.Join(" && ", fields.Select(f => $"{f.Name}.Equals({LowercaseName(f.Name)})"));
-        builder.AppendLine($@"if({comparison}) return this;");
-        builder.AppendLine();
-        builder.AppendLine("IsDirty = true;");
-        foreach (var field in fields)
-        {
-            builder.AppendLine($"{field.Name} = {LowercaseName(field.Name)};");
-        }
-
-        builder.AppendLine();
-        builder.AppendLine("return this;");
-        builder.CloseBraces();
-
-        builder.CloseBraces();
-    }
-
-    private static void GenerateComponentDirtyEventInterfaceModel(ITypeSymbol typeSymbol, IndentedStringBuilder builder, IEnumerable<IFieldSymbol> fields)
-    {
-        var nameRoot = GetNameRootFromEventComponentType(typeSymbol);
-        builder.AppendLine($@"public interface I{nameRoot}Listener");
-        builder.OpenBraces();
-        var parameters = string.Join(", ", fields.Select(f => $"{f.Type.ToDisplayString()} {LowercaseName(f.Name)}"));
-        builder.AppendLine($@"public void On{nameRoot}Changed({parameters});");
-        builder.CloseBraces();
-    }
-
-    private static void GenerateComponentRemovedEventInterfaceModel(ITypeSymbol typeSymbol, IndentedStringBuilder builder)
-    {
-        var nameRoot = GetNameRootFromEventComponentType(typeSymbol);
-        builder.AppendLine($@"public interface I{nameRoot}RemovedListener");
-        builder.OpenBraces();
-        builder.AppendLine($@"public void On{nameRoot}Removed();");
-        builder.CloseBraces();
-    }
-
-    private static void GenerateComponentAddedEventInterfaceModel(ITypeSymbol typeSymbol, IndentedStringBuilder builder)
-    {
-        var nameRoot = GetNameRootFromEventComponentType(typeSymbol);
-        builder.AppendLine($@"public interface I{nameRoot}AddedListener");
-        builder.OpenBraces();
-        builder.AppendLine($@"public void On{nameRoot}Added();");
-        builder.CloseBraces();
     }
 
     /// <inheritdoc/>
