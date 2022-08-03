@@ -56,14 +56,8 @@ internal static class SymbolExtensions
 
     public static string GetFieldValue(this AttributeData attributeData, string fieldName)
     {
-        var fieldPair = attributeData.NamedArguments.FirstOrDefault(_ => _.Key == fieldName);
-        if (fieldPair.Key == null)
-        {
-            return null;
-        }
-
-        var field = fieldPair.Value;
-        return field.Value.ToString();
+        var field = attributeData.ConstructorArguments.FirstOrDefault();
+        return ((byte)field.Value) == 0 ? "SERVER_TO_CLIENT" : "CLIENT_TO_SERVER";
     }
 
     public static IEnumerable<IFieldSymbol> GetFields(this ITypeSymbol typeSymbol)

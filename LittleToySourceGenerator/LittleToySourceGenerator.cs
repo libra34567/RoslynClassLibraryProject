@@ -603,14 +603,33 @@ public class Generator : ISourceGenerator
         return null;
     }
 
+    private static string GetFullyQualifiedName(ITypeSymbol typeSymbol)
+    {
+        return typeSymbol.SpecialType switch
+        {
+            SpecialType.System_Byte => "System.Byte",
+            SpecialType.System_SByte => "System.SByte",
+            SpecialType.System_Single => "System.Single",
+            SpecialType.System_Double => "System.Double",
+            SpecialType.System_Decimal => "System.Decimal",
+            SpecialType.System_Int16 => "System.Int16",
+            SpecialType.System_Int32 => "System.Int32",
+            SpecialType.System_Int64 => "System.Int64",
+            SpecialType.System_UInt16 => "System.UInt16",
+            SpecialType.System_UInt32 => "System.UInt32",
+            SpecialType.System_UInt64 => "System.UInt64",
+            _ => typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+        };
+    }
+
     private static bool IsDotsnetType(ITypeSymbol typeSymbol)
     {
-        return _systemToDotsnetTypeDictionary.ContainsKey(typeSymbol.ToDisplayString());
+        return _systemToDotsnetTypeDictionary.ContainsKey(GetFullyQualifiedName(typeSymbol));
     }
 
     private static string GetDotsnetTypeName(ITypeSymbol typeSymbol)
     {
-        return _systemToDotsnetTypeDictionary[typeSymbol.ToDisplayString()];
+        return _systemToDotsnetTypeDictionary[GetFullyQualifiedName(typeSymbol)];
     }
 
     private static void GenerateEventSystemFiles(GeneratorExecutionContext context, SyntaxReceiver receiver)
@@ -1246,10 +1265,12 @@ public class Generator : ISourceGenerator
             if (context is StructDeclarationSyntax structDeclarationSyntax
                 && structDeclarationSyntax.AttributeLists.Count > 0)
             {
-                var componentDirtyEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute("ComponentDirtyEvent");
-                var componentRemovedEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute("ComponentRemovedEvent");
-                var componentAddedEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute("ComponentAddedEvent");
-                if (componentDirtyEventAttribute != null || componentRemovedEventAttribute != null || componentAddedEventAttribute != null)
+                var componentDirtyEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute(ComponentDirtyEventAttributeType);
+                var componentRemovedEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute(ComponentRemovedEventAttributeType);
+                var componentAddedEventAttribute = structDeclarationSyntax.AttributeLists.FindAttribute(ComponentAddedEventAttributeType);
+                var codeGenNetComponentAttribute = structDeclarationSyntax.AttributeLists.FindAttribute(CodeGenNetComponentAttributeType);
+                if (componentDirtyEventAttribute != null || codeGenNetComponentAttribute != null
+                    || componentRemovedEventAttribute != null || componentAddedEventAttribute != null)
                 {
                     this.ComponentDirtyEventStructs.Add(structDeclarationSyntax);
                 }
