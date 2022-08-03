@@ -55,6 +55,22 @@ namespace DOTSNET
         SERVER_TO_CLIENT,
         CLIENT_TO_SERVER
     }
+
+    public struct long3 {}
+}
+
+namespace Unity.Mathematics
+{
+    public struct int2 {}
+    public struct int3 {}
+    public struct int4 {}
+    public struct float2 {}
+    public struct float3 {}
+    public struct float4 {}
+    public struct double2 {}
+    public struct double3 {}
+    public struct double4 {}
+    public struct quaternion {}
 }
 
 namespace Plugins.basegame.Events

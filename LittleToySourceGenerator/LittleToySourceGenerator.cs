@@ -560,6 +560,7 @@ public class Generator : ISourceGenerator
         return typeSymbol.SpecialType switch
         {
             SpecialType.System_Byte => "System.Byte",
+            SpecialType.System_Boolean => "System.Boolean",
             SpecialType.System_SByte => "System.SByte",
             SpecialType.System_Single => "System.Single",
             SpecialType.System_Double => "System.Double",
@@ -570,7 +571,7 @@ public class Generator : ISourceGenerator
             SpecialType.System_UInt16 => "System.UInt16",
             SpecialType.System_UInt32 => "System.UInt32",
             SpecialType.System_UInt64 => "System.UInt64",
-            _ => typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            _ => typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty),
         };
     }
 
