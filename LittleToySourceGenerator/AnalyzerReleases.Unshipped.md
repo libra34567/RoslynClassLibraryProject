@@ -6,3 +6,4 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
 LT0001  | LittleToy |  Error   | LT0001_AnalyzerName, [Documentation](CA1000_Documentation_Link)
+LT0002  | LittleToy |  Error   | LT0001_AnalyzerName, [Documentation](CA1000_Documentation_Link)

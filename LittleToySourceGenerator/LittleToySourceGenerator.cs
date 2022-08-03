@@ -14,10 +14,10 @@ namespace LittleToySourceGenerator;
 [Generator]
 public class Generator : ISourceGenerator
 {
-    public bool EnableEventDataGeneration { get; set; } = true;
-    public bool GenerateEventSystem { get; set; } = true;
-    public bool GenerateEventViewInterface { get; set; } = true;
-    public bool GenerateReadWriteEcs { get; set; } = true;
+    public bool EnableEventDataGeneration { get; set; } = false;
+    public bool GenerateEventSystem { get; set; } = false;
+    public bool GenerateEventViewInterface { get; set; } = false;
+    public bool GenerateReadWriteEcs { get; set; } = false;
 
     public const string ComponentDirtyEventAttributeType = "ComponentDirtyEvent";
 
@@ -43,6 +43,13 @@ public class Generator : ISourceGenerator
         "LT0001",
         "Field type should be known to DOTSNET", 
         "Cannot convert field type {0} to dotsnet read/write methods",
+        "LittleToy",
+        DiagnosticSeverity.Error, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
+
+    private static DiagnosticDescriptor NetComponentShouldHaveSyncField = new DiagnosticDescriptor(
+        "LT0002",
+        "Net component should have SyncField",
+        "Type {0} does not have any field marked with SyncFieldAttribute",
         "LittleToy",
         DiagnosticSeverity.Error, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
 
@@ -339,6 +346,12 @@ public class Generator : ISourceGenerator
                         fieldWithSyncFieldAndMarkDirtyAttribute.Add(fieldInfo);
                     }
                 }
+            }
+
+            if (fieldWithSyncFieldAttribute.Count == 0)
+            {
+                var err = Diagnostic.Create(NetComponentShouldHaveSyncField, location: syntaxNode.GetLocation(), eventComponentType.Name);
+                context.ReportDiagnostic(err);
             }
 
             var serializeMethodModel = new Method(BuiltInDataType.Bool, "Serialize")
