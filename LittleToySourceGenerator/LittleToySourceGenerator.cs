@@ -19,6 +19,7 @@ public class Generator : ISourceGenerator
     public bool GenerateEventViewInterfaceGeneration { get; set; } = true;
     public bool EnableReadWriteEcsGeneration { get; set; } = true;
     public bool EnableNetMessageGeneration { get; set; } = true;
+    public bool EnableNetworkComponentGeneration { get; set; } = true;
 
     public const string ComponentDirtyEventAttributeType = "ComponentDirtyEvent";
 
@@ -112,6 +113,7 @@ public class Generator : ISourceGenerator
         GenerateEventViewInterfaceGeneration = false;
         EnableReadWriteEcsGeneration = false;
         EnableNetMessageGeneration = false;
+        EnableNetworkComponentGeneration = false;
     }
 
     /// <inheritdoc/>
@@ -147,6 +149,11 @@ public class Generator : ISourceGenerator
         if (EnableNetMessageGeneration)
         {
             GenerateNetMessageFiles(context, receiver);
+        }
+
+        if (EnableNetworkComponentGeneration)
+        {
+            GenerateNetworkComponentFiles(context, receiver);
         }
     }
 
@@ -1475,6 +1482,55 @@ public class Generator : ISourceGenerator
 
         file.Structs.Add(netMessageStructModel);
         return file;
+    }
+
+    private static void GenerateNetworkComponentFiles(GeneratorExecutionContext context, SyntaxReceiver receiver)
+    {
+        foreach (var type in receiver.ComponentDirtyEventStructs)
+        {
+            var model = context.Compilation.GetSemanticModel(type.SyntaxTree);
+            var typeSymbol = model.GetDeclaredSymbol(type) as ITypeSymbol;
+            if (!typeSymbol.HasAttribute(CodeGenNetComponentAttributeType))
+            {
+                continue;
+            }
+
+            var file = GenerateNetworkComponent(typeSymbol);
+
+            context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
+        }
+    }
+
+    private static FileModel GenerateNetworkComponent(ITypeSymbol eventComponentDataType)
+    {
+        var file = new FileModel(eventComponentDataType.Name + "Serializer")
+        {
+            UsingDirectives = new List<string>
+            {
+                "Unity.Jobs;"
+            },
+            Header = FileHeader,
+            Namespace = eventComponentDataType.ContainingNamespace?.Name ?? "",
+        };
+
+        file.Classes.Add(GenerateNetworkComponentSerializerClassModel(eventComponentDataType));
+        return file;
+    }
+
+    private static ClassModel GenerateNetworkComponentSerializerClassModel(ITypeSymbol eventComponentDataType)
+    {
+        var networkComponentSerializerClassModel = new ClassModel($"{eventComponentDataType.Name}Serializer")
+        {
+            BaseClass = $"DOTSNetworkComponentSerializer<{eventComponentDataType.Name}>",
+            AccessModifier = AccessModifier.Public,
+            Attributes = new List<AttributeModel>
+            {
+                new($"assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<{eventComponentDataType.Name}>.NetworkComponentSerializerJob))"),
+                new($"assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<{eventComponentDataType.Name}>.NetworkComponentDeserializerJob))")
+            }
+        };
+
+        return networkComponentSerializerClassModel;
     }
 
     private static IEnumerable<ITypeSymbol> ExtractTypesFromAttribute(AttributeSyntax attributeSyntax, SemanticModel model)
