@@ -10,6 +10,8 @@ public class GenerateEventSystemTests : CodeGenerationTestBase
     public void ComponentDirtyEvent()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -27,7 +29,7 @@ public partial class TransformView : LinkedView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventSystem = true;
+        generator.EnableEventSystemGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -52,8 +54,9 @@ public partial class Position3EventSystem : SystemBase
 {
     private EntityQuery _entityWithTransformViewAndPosition3DataQuery;
     private EntityQuery _entityWithPosition3DataQuery;
-    private ComponentTypeHandle<Position3Data> _Position3DataROComponentTypeHandle;
-    private ComponentTypeHandle<Position3Data> _Position3DataRWComponentTypeHandle;
+    private ComponentTypeHandle<Position3Data> _position3DataROComponentTypeHandle;
+    private ComponentTypeHandle<Position3Data> _position3DataRWComponentTypeHandle;
+
 
     protected override void OnCreate()
     {
@@ -67,7 +70,7 @@ public partial class Position3EventSystem : SystemBase
             }
         });
         _entityWithTransformViewAndPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
-
+        
         _entityWithPosition3DataQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new []
@@ -76,29 +79,32 @@ public partial class Position3EventSystem : SystemBase
             }
         });
         _entityWithPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
-        _Position3DataROComponentTypeHandle = GetComponentTypeHandle<Position3Data>(true);
-        _Position3DataRWComponentTypeHandle = GetComponentTypeHandle<Position3Data>(false);
+        
+        _position3DataROComponentTypeHandle = GetComponentTypeHandle<Position3Data>(true);
+        _position3DataRWComponentTypeHandle = GetComponentTypeHandle<Position3Data>(false);
+        
     }
 
     protected override void OnUpdate()
     {
-        _Position3DataROComponentTypeHandle.Update(this);
+        _position3DataROComponentTypeHandle.Update(this);
         var notifyTransformViewPosition3DataDirtyJob = new NotifyPosition3DataDirtyJob<TransformView>
         {
             EntityManager = this.EntityManager,
-            DataTypeHandle = _Position3DataROComponentTypeHandle,
-            ListenerTypeHandle = EntityManager.GetComponentTypeHandle<TransformView>(false)
+            DataTypeHandle = _position3DataROComponentTypeHandle,
+            ListenerTypeHandle = EntityManager.GetComponentTypeHandle<TransformView>(false),
         };
         CompleteDependency();
         JobEntityBatchExtensions.RunWithoutJobs(ref notifyTransformViewPosition3DataDirtyJob, _entityWithTransformViewAndPosition3DataQuery);
-
-        _Position3DataRWComponentTypeHandle.Update(this);
-        var jobPosition3DataResetDirty = new Position3DataResetDirtyJob
+        
+        _position3DataRWComponentTypeHandle.Update(this);
+        var position3DataResetDirtyJob = new Position3DataResetDirtyJob
         {
-            DataTypeHandle = _Position3DataRWComponentTypeHandle,
+            DataTypeHandle = _position3DataRWComponentTypeHandle
         };
         CompleteDependency();
-        JobEntityBatchExtensions.RunWithoutJobs(ref jobPosition3DataResetDirty, _entityWithPosition3DataQuery);
+        JobEntityBatchExtensions.RunWithoutJobs(ref position3DataResetDirtyJob, _entityWithPosition3DataQuery);
+        
     }
 
     private struct NotifyPosition3DataDirtyJob<T> : IJobEntityBatch where T : class, IPosition3Listener
@@ -106,6 +112,7 @@ public partial class Position3EventSystem : SystemBase
         public EntityManager EntityManager;
         public ComponentTypeHandle<Position3Data> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
+
 
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -126,6 +133,7 @@ public partial class Position3EventSystem : SystemBase
     private struct Position3DataResetDirtyJob : IJobEntityBatch
     {
         public ComponentTypeHandle<Position3Data> DataTypeHandle;
+
 
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -149,6 +157,8 @@ public partial class Position3EventSystem : SystemBase
     public void MultipleParametersForComponentDirtyEvent()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -167,7 +177,7 @@ public partial class TransformView : LinkedView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventSystem = true;
+        generator.EnableEventSystemGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -192,8 +202,9 @@ public partial class Position3EventSystem : SystemBase
 {
     private EntityQuery _entityWithTransformViewAndPosition3DataQuery;
     private EntityQuery _entityWithPosition3DataQuery;
-    private ComponentTypeHandle<Position3Data> _Position3DataROComponentTypeHandle;
-    private ComponentTypeHandle<Position3Data> _Position3DataRWComponentTypeHandle;
+    private ComponentTypeHandle<Position3Data> _position3DataROComponentTypeHandle;
+    private ComponentTypeHandle<Position3Data> _position3DataRWComponentTypeHandle;
+
 
     protected override void OnCreate()
     {
@@ -207,7 +218,7 @@ public partial class Position3EventSystem : SystemBase
             }
         });
         _entityWithTransformViewAndPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
-
+        
         _entityWithPosition3DataQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new []
@@ -216,29 +227,32 @@ public partial class Position3EventSystem : SystemBase
             }
         });
         _entityWithPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
-        _Position3DataROComponentTypeHandle = GetComponentTypeHandle<Position3Data>(true);
-        _Position3DataRWComponentTypeHandle = GetComponentTypeHandle<Position3Data>(false);
+        
+        _position3DataROComponentTypeHandle = GetComponentTypeHandle<Position3Data>(true);
+        _position3DataRWComponentTypeHandle = GetComponentTypeHandle<Position3Data>(false);
+        
     }
 
     protected override void OnUpdate()
     {
-        _Position3DataROComponentTypeHandle.Update(this);
+        _position3DataROComponentTypeHandle.Update(this);
         var notifyTransformViewPosition3DataDirtyJob = new NotifyPosition3DataDirtyJob<TransformView>
         {
             EntityManager = this.EntityManager,
-            DataTypeHandle = _Position3DataROComponentTypeHandle,
-            ListenerTypeHandle = EntityManager.GetComponentTypeHandle<TransformView>(false)
+            DataTypeHandle = _position3DataROComponentTypeHandle,
+            ListenerTypeHandle = EntityManager.GetComponentTypeHandle<TransformView>(false),
         };
         CompleteDependency();
         JobEntityBatchExtensions.RunWithoutJobs(ref notifyTransformViewPosition3DataDirtyJob, _entityWithTransformViewAndPosition3DataQuery);
-
-        _Position3DataRWComponentTypeHandle.Update(this);
-        var jobPosition3DataResetDirty = new Position3DataResetDirtyJob
+        
+        _position3DataRWComponentTypeHandle.Update(this);
+        var position3DataResetDirtyJob = new Position3DataResetDirtyJob
         {
-            DataTypeHandle = _Position3DataRWComponentTypeHandle,
+            DataTypeHandle = _position3DataRWComponentTypeHandle
         };
         CompleteDependency();
-        JobEntityBatchExtensions.RunWithoutJobs(ref jobPosition3DataResetDirty, _entityWithPosition3DataQuery);
+        JobEntityBatchExtensions.RunWithoutJobs(ref position3DataResetDirtyJob, _entityWithPosition3DataQuery);
+        
     }
 
     private struct NotifyPosition3DataDirtyJob<T> : IJobEntityBatch where T : class, IPosition3Listener
@@ -246,6 +260,7 @@ public partial class Position3EventSystem : SystemBase
         public EntityManager EntityManager;
         public ComponentTypeHandle<Position3Data> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
+
 
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -266,6 +281,7 @@ public partial class Position3EventSystem : SystemBase
     private struct Position3DataResetDirtyJob : IJobEntityBatch
     {
         public ComponentTypeHandle<Position3Data> DataTypeHandle;
+
 
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -290,6 +306,8 @@ public partial class Position3EventSystem : SystemBase
     public void ComponentAddedEvent()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentAddedEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -306,7 +324,7 @@ public partial class TransformView : LinkedView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventSystem = true;
+        generator.EnableEventSystemGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -332,6 +350,7 @@ public partial class Position3EventSystem : SystemBase
     private EntityQuery _entityWithTransformViewAndAddedComponentArrayDataQuery;
     private ComponentTypeHandle<AddedComponentArrayData> _addedComponentArrayDataROComponentTypeHandle;
 
+
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -343,14 +362,13 @@ public partial class Position3EventSystem : SystemBase
                 ComponentType.ReadOnly<AddedComponentArrayData>(),
             }
         });
-
         _addedComponentArrayDataROComponentTypeHandle = GetComponentTypeHandle<AddedComponentArrayData>(true);
+        
     }
 
     protected override void OnUpdate()
     {
         _addedComponentArrayDataROComponentTypeHandle.Update(this);
-
         var notifyTransformViewAddPosition3DataJob = new NotifyAddPosition3DataJob<TransformView>
         {
             EntityManager = this.EntityManager,
@@ -359,6 +377,7 @@ public partial class Position3EventSystem : SystemBase
         };
         CompleteDependency();
         JobEntityBatchExtensions.RunWithoutJobs(ref notifyTransformViewAddPosition3DataJob, _entityWithTransformViewAndAddedComponentArrayDataQuery);
+        
     }
 
     private struct NotifyAddPosition3DataJob<T> : IJobEntityBatch where T : class, IPosition3AddedListener
@@ -366,6 +385,7 @@ public partial class Position3EventSystem : SystemBase
         public EntityManager EntityManager;
         public ComponentTypeHandle<AddedComponentArrayData> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
+
 
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -410,7 +430,7 @@ public partial class TransformView : LinkedView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventSystem = true;
+        generator.EnableEventSystemGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -436,6 +456,7 @@ public partial class Position3EventSystem : SystemBase
     private EntityQuery _entityWithTransformViewAndRemovedComponentArrayDataQuery;
     private ComponentTypeHandle<RemovedComponentArrayData> _removedComponentArrayDataROComponentTypeHandle;
 
+
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -447,14 +468,13 @@ public partial class Position3EventSystem : SystemBase
                 ComponentType.ReadOnly<RemovedComponentArrayData>(),
             }
         });
-
         _removedComponentArrayDataROComponentTypeHandle = GetComponentTypeHandle<RemovedComponentArrayData>(true);
+        
     }
 
     protected override void OnUpdate()
     {
         _removedComponentArrayDataROComponentTypeHandle.Update(this);
-
         var notifyTransformViewRemovePosition3DataJob = new NotifyRemovePosition3DataJob<TransformView>
         {
             EntityManager = this.EntityManager,
@@ -463,6 +483,7 @@ public partial class Position3EventSystem : SystemBase
         };
         CompleteDependency();
         JobEntityBatchExtensions.RunWithoutJobs(ref notifyTransformViewRemovePosition3DataJob, _entityWithTransformViewAndRemovedComponentArrayDataQuery);
+        
     }
 
     private struct NotifyRemovePosition3DataJob<T> : IJobEntityBatch where T : class, IPosition3RemovedListener
@@ -470,6 +491,7 @@ public partial class Position3EventSystem : SystemBase
         public EntityManager EntityManager;
         public ComponentTypeHandle<RemovedComponentArrayData> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
+
 
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {

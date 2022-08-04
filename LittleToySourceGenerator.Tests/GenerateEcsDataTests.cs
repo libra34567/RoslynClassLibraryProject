@@ -10,6 +10,8 @@ public class GenerateEcsDataTests : CodeGenerationTestBase
     public void ReadWriteEcsComponents()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -29,7 +31,7 @@ public partial class HUDView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateReadWriteEcs = true;
+        generator.EnableReadWriteEcsGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -41,11 +43,7 @@ public partial class HUDView
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
-using System;
-using Unity.Entities;
-using Unity.Mathematics;
-using Plugins.basegame.Events;
-using DOTSNET;
+
 
 public partial class HUDView
 {
@@ -54,6 +52,7 @@ public partial class HUDView
         get => EntityManager.GetComponentData<Position3Data>(LinkedEntity);
         set => EntityManager.SetComponentData(LinkedEntity, value);
     }
+
     public RotationQuaternionData RotationQuaternionData
     {
         get => EntityManager.GetComponentData<RotationQuaternionData>(LinkedEntity);
@@ -68,6 +67,8 @@ public partial class HUDView
     public void ReadWriteEcsHasComponents()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -87,7 +88,7 @@ public partial class HUDView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateReadWriteEcs = true;
+        generator.EnableReadWriteEcsGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -99,16 +100,19 @@ public partial class HUDView
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
-using System;
-using Unity.Entities;
-using Unity.Mathematics;
-using Plugins.basegame.Events;
-using DOTSNET;
+
 
 public partial class HUDView
 {
-    public bool HasPosition3Data => EntityManager.HasComponent<Position3Data>(LinkedEntity);
-    public bool HasRotationQuaternionData => EntityManager.HasComponent<RotationQuaternionData>(LinkedEntity);
+    public bool HasPosition3Data
+    {
+        get => EntityManager.HasComponent<Position3Data>(LinkedEntity);
+    }
+
+    public bool HasRotationQuaternionData
+    {
+        get => EntityManager.HasComponent<RotationQuaternionData>(LinkedEntity);
+    }
 }
 ";
         Assert.AreEqual(expectedOutput, output);

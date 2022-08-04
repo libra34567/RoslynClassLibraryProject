@@ -54,16 +54,28 @@ internal static class SymbolExtensions
         }
     }
 
+    public static AttributeData GetCustomAttribute(this ITypeSymbol typeSymbol, string searchAttributeName, bool inherit)
+    {
+        return typeSymbol.GetCustomAttributes(inherit).FirstOrDefault(_ => _.IsAttribute(searchAttributeName));
+    }
+
     public static string GetFieldValue(this AttributeData attributeData, string fieldName)
     {
         var field = attributeData.ConstructorArguments.FirstOrDefault();
         return ((byte)field.Value) == 0 ? "SERVER_TO_CLIENT" : "CLIENT_TO_SERVER";
     }
 
+    public static ITypeSymbol[] GetFieldValueTypes(this AttributeData attributeData, string fieldName)
+    {
+        var field = attributeData.ConstructorArguments.FirstOrDefault();
+        return field.Values.Select(_ => (ITypeSymbol)_.Value).ToArray();
+    }
+
     public static IEnumerable<IFieldSymbol> GetFields(this ITypeSymbol typeSymbol)
     {
         return typeSymbol.GetMembers().OfType<IFieldSymbol>();
     }
+
     private static bool AttributeCanBeInherited(this AttributeData attribute)
     {
         if (attribute.AttributeClass == null)

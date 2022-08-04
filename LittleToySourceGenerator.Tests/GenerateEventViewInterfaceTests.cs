@@ -10,6 +10,8 @@ public class GenerateEventViewInterfaceTests : CodeGenerationTestBase
     public void DirtyEventViewInterfaces()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -38,7 +40,7 @@ public partial class TransformView : LinkedView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventViewInterface = true;
+        generator.GenerateEventViewInterfaceGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -50,11 +52,7 @@ public partial class TransformView : LinkedView
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
-using System;
-using Unity.Entities;
-using Unity.Mathematics;
-using Plugins.basegame.Events;
-using DOTSNET;
+
 
 public partial class TransformView : IPosition3Listener, IRotationQuaternionListener
 {
@@ -67,6 +65,8 @@ public partial class TransformView : IPosition3Listener, IRotationQuaternionList
     public void OnAddedEventViewInterfaces()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -93,7 +93,7 @@ public partial class TransformView : LinkedView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventViewInterface = true;
+        generator.GenerateEventViewInterfaceGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -105,11 +105,7 @@ public partial class TransformView : LinkedView
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
-using System;
-using Unity.Entities;
-using Unity.Mathematics;
-using Plugins.basegame.Events;
-using DOTSNET;
+
 
 public partial class TransformView : IPosition3AddedListener, IRotationQuaternionAddedListener
 {
@@ -122,6 +118,8 @@ public partial class TransformView : IPosition3AddedListener, IRotationQuaternio
     public void OnRemovedEventViewInterfaces()
     {
         string source = @"
+using Plugins.basegame.Events;
+
 [Plugins.basegame.Events.ComponentDirtyEvent]
 public partial struct Position3Data : Unity.Entities.IComponentData
 {
@@ -148,7 +146,7 @@ public partial class TransformView : LinkedView
 ";
         var generator = new Generator();
         generator.DisableAllGeneration();
-        generator.GenerateEventViewInterface = true;
+        generator.GenerateEventViewInterfaceGeneration = true;
         string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
 
         Assert.IsNotNull(output);
@@ -160,11 +158,7 @@ public partial class TransformView : LinkedView
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
-using System;
-using Unity.Entities;
-using Unity.Mathematics;
-using Plugins.basegame.Events;
-using DOTSNET;
+
 
 public partial class TransformView : IPosition3RemovedListener, IRotationQuaternionRemovedListener
 {
