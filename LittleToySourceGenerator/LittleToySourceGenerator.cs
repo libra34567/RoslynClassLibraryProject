@@ -60,6 +60,12 @@ public class Generator : ISourceGenerator
         "LittleToy",
         DiagnosticSeverity.Error, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
 
+    private static DiagnosticDescriptor EventSystemTypesShouldHaveAttribute = new DiagnosticDescriptor(
+        "LT0003",
+        "EventSystem types should use appropriate types",
+        "Type {0} used with {1} attribute but do not marked with {2}.",
+        "LittleToy",
+        DiagnosticSeverity.Warning, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
 
     private static Dictionary<string, string> _systemToDotsnetTypeDictionary = new Dictionary<string, string>()
     {
@@ -598,13 +604,39 @@ public class Generator : ISourceGenerator
         {
             var model = context.Compilation.GetSemanticModel(type.SyntaxTree);
             var typeSymbol = model.GetDeclaredSymbol(type) as ITypeSymbol;
-            var file = GenerateEventSystem(context, receiver, typeSymbol, context.Compilation.AssemblyName != "Assembly-CSharp-firstpass" ? string.Empty : "BaseGame");
+            var file = GenerateEventSystem(context, receiver, type, typeSymbol, context.Compilation.AssemblyName != "Assembly-CSharp-firstpass" ? string.Empty : "BaseGame");
             
             context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
         }
+
+        foreach (var type in receiver.ComponentWithEventStructs)
+        {
+            var model = context.Compilation.GetSemanticModel(type.SyntaxTree);
+            var typeSymbol = model.GetDeclaredSymbol(type) as ITypeSymbol;
+            Validate(OnDirtyEventViewAttributeType, ComponentDirtyEventAttributeType);
+            Validate(OnAddedEventViewAttributeType, ComponentAddedEventAttributeType);
+            Validate(OnRemovedEventViewAttributeType, ComponentRemovedEventAttributeType);
+
+            void Validate(string marker, string expectedAttribute)
+            {
+                var onDirtyEventViewAttribute = typeSymbol.GetCustomAttribute(marker);
+                if (onDirtyEventViewAttribute != null)
+                {
+                    var typesToCheck = onDirtyEventViewAttribute.GetFieldValueTypes("Types");
+                    foreach (var componentDirtyType in typesToCheck)
+                    {
+                        if (!componentDirtyType.HasAttribute(expectedAttribute))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(EventSystemTypesShouldHaveAttribute, location: type.GetLocation(), componentDirtyType.Name, marker, expectedAttribute));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private static FileModel GenerateEventSystem(GeneratorExecutionContext context, SyntaxReceiver receiver, ITypeSymbol eventComponentType, string classAddonName)
+    private static FileModel GenerateEventSystem(GeneratorExecutionContext context, SyntaxReceiver receiver, SyntaxNode syntaxNode, ITypeSymbol eventComponentType, string classAddonName)
     {
         var usingDirectives = new List<string>
         {
@@ -623,11 +655,11 @@ public class Generator : ISourceGenerator
         file.LoadUsingDirectives(usingDirectives);
 
         //the class model used for code generation
-        file.Classes.Add(GenerateEventSystemClassModel(context, receiver, eventComponentType, classAddonName));
+        file.Classes.Add(GenerateEventSystemClassModel(context, receiver, syntaxNode, eventComponentType, classAddonName));
         return file;
     }
 
-    private static ClassModel GenerateEventSystemClassModel(GeneratorExecutionContext context, SyntaxReceiver receiver, ITypeSymbol eventComponentType, string classAddonName)
+    private static ClassModel GenerateEventSystemClassModel(GeneratorExecutionContext context, SyntaxReceiver receiver, SyntaxNode syntaxNode, ITypeSymbol eventComponentType, string classAddonName)
     {
         var nameRoot = GetNameRootFromEventComponentType(eventComponentType);
         var classModel = new ClassModel($"{nameRoot}EventSystem" + classAddonName)
@@ -664,12 +696,17 @@ public class Generator : ISourceGenerator
         classModel.Methods.Add(onUpdateMethodModel);
 
         List<ClassDeclarationSyntax> classCandidates = receiver.ComponentWithEventStructs;
-        var dirtyEventViewTypes = GetDirtyTypes(context.Compilation, eventComponentType, classCandidates, "OnDirtyEventView");
+        var dirtyEventViewTypes = GetDirtyTypes(context.Compilation, eventComponentType, classCandidates, OnDirtyEventViewAttributeType);
         var hasDirtyEventViewTypes = dirtyEventViewTypes.Count > 0;
-        var addedEventViewTypes = GetDirtyTypes(context.Compilation, eventComponentType, classCandidates, "OnAddedEventView");
+        var addedEventViewTypes = GetDirtyTypes(context.Compilation, eventComponentType, classCandidates, OnAddedEventViewAttributeType);
         var hasAddedEventViewTypes = addedEventViewTypes.Count > 0;
-        var removedEventViewTypes = GetDirtyTypes(context.Compilation, eventComponentType, classCandidates, "OnRemovedEventView");
+        var removedEventViewTypes = GetDirtyTypes(context.Compilation, eventComponentType, classCandidates, OnRemovedEventViewAttributeType);
         var hasRemovedEventViewTypes = removedEventViewTypes.Count > 0;
+
+        if (!hasDirtyEventViewTypes && !hasAddedEventViewTypes && !hasRemovedEventViewTypes)
+        {
+            return null;
+        }
 
         if (hasDirtyEventViewTypes)
         {
@@ -871,7 +908,7 @@ public class Generator : ISourceGenerator
         });
     }
 
-    private static List<ITypeSymbol> GetDirtyTypes(Compilation compilation, ITypeSymbol typeSymbol, List<ClassDeclarationSyntax> classCandidates, string SearchAttributeName)
+    private static List<ITypeSymbol> GetDirtyTypes(Compilation compilation, ITypeSymbol typeSymbol, IEnumerable<TypeDeclarationSyntax> classCandidates, string SearchAttributeName)
     {        
         return classCandidates.Where(eventType =>
         {
@@ -1403,9 +1440,9 @@ public class Generator : ISourceGenerator
             if (context is ClassDeclarationSyntax classtDeclarationSyntax
                 && classtDeclarationSyntax.AttributeLists.Count > 0)
             {
-                var onAddedEventViewAttribute = classtDeclarationSyntax.AttributeLists.FindAttribute("OnAddedEventView");
-                var onRemovedEventViewAttribute = classtDeclarationSyntax.AttributeLists.FindAttribute("OnRemovedEventView");
-                var onDirtyEventViewAttribute = classtDeclarationSyntax.AttributeLists.FindAttribute("OnDirtyEventView");
+                var onAddedEventViewAttribute = classtDeclarationSyntax.AttributeLists.FindAttribute(OnAddedEventViewAttributeType);
+                var onRemovedEventViewAttribute = classtDeclarationSyntax.AttributeLists.FindAttribute(OnRemovedEventViewAttributeType);
+                var onDirtyEventViewAttribute = classtDeclarationSyntax.AttributeLists.FindAttribute(OnDirtyEventViewAttributeType);
                 if (onAddedEventViewAttribute != null || onRemovedEventViewAttribute != null || onDirtyEventViewAttribute != null)
                 {
                     this.ComponentWithEventStructs.Add(classtDeclarationSyntax);
