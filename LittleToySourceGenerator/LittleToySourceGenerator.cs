@@ -272,19 +272,25 @@ public class Generator : ISourceGenerator
             // The body of the update method
             foreach (var fieldInfo in fieldsWithMarkDirtyAndWithoutSyncField)
             {
+                string parameterName = fieldInfo.Name.LowerFirst();
+                if (parameterName == fieldInfo.Name)
+                {
+                    parameterName += "_";
+                }
+
                 method.Parameters.Add(new Parameter()
                 {
                     CustomDataType = fieldInfo.Type.Name,
-                    Name = fieldInfo.Name.LowerFirst()
+                    Name = parameterName
                 });
 
                 if (!isFirst)
                     method.BodyLines[0] += " && ";
 
-                method.BodyLines[0] += $"{fieldInfo.Name}.Equals({fieldInfo.Name.LowerFirst()})";
+                method.BodyLines[0] += $"{fieldInfo.Name}.Equals({parameterName})";
                 isFirst = false;
 
-                method.BodyLines.Add($"{fieldInfo.Name} = {fieldInfo.Name.LowerFirst()};");
+                method.BodyLines.Add($"{fieldInfo.Name} = {parameterName};");
             }
 
             method.BodyLines[0] += ") return this;";
