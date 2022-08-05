@@ -1535,7 +1535,7 @@ public class Generator : ISourceGenerator
 
     private static IEnumerable<ITypeSymbol> ExtractTypesFromAttribute(AttributeSyntax attributeSyntax, SemanticModel model)
     {
-        if (attributeSyntax == null)
+        if (attributeSyntax == null || attributeSyntax.ArgumentList == null)
         {
             return Array.Empty<ITypeSymbol>();
         }

@@ -696,4 +696,34 @@ public partial class TransformView : LinkedView
         Assert.AreEqual("LT0003", value.Id);
         Assert.AreEqual($"(9,1): warning LT0003: Type Scale3Data used with {marker} attribute but do not marked with {expectedAtribute}.", value.ToString());
     }
+
+    [TestMethod]
+    public void ReportWhenNoTypesGiven()
+    {
+        string source = @"
+using Plugins.basegame.Events;
+
+[ComponentDirtyEvent]
+public partial struct Scale3Data : Unity.Entities.IComponentData
+{
+    [MarkDirty] public Unity.Mathematics.float3 Value;
+}
+
+[OnDirtyEventView]
+[OnAddedEventView(typeof(Scale3Data))]
+[OnRemovedEventView]
+public partial class TransformView : LinkedView
+{{
+}}
+";
+        var generator = new Generator();
+        generator.DisableAllGeneration();
+        generator.EnableEventSystemGeneration = true;
+        var diagnostics = this.GetDiagnosticsFromGenerator(source, generator, NullableContextOptions.Disable);
+
+        Diagnostic? value = diagnostics.FirstOrDefault();
+        Assert.IsNotNull(value);
+        Assert.AreEqual("LT0003", value.Id);
+        Assert.AreEqual($"(10,1): warning LT0003: Type Scale3Data used with OnAddedEventView attribute but do not marked with ComponentAddedEvent.", value.ToString());
+    }
 }
