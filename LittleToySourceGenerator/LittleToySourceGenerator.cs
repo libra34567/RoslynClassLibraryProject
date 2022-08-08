@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -621,10 +622,29 @@ public class Generator : ISourceGenerator
 
     private static void GenerateEventSystemFiles(GeneratorExecutionContext context, SyntaxReceiver receiver)
     {
-        foreach (var type in receiver.ComponentDirtyEventStructs)
+        Dictionary<ITypeSymbol, SyntaxNode> componentUserFiles = new();
+        foreach (var type in receiver.ComponentWithEventStructs)
         {
             var model = context.Compilation.GetSemanticModel(type.SyntaxTree);
             var typeSymbol = model.GetDeclaredSymbol(type) as ITypeSymbol;
+            foreach (var attribute in typeSymbol.GetCustomAttributes(true)
+                .Where(a => a.IsAttribute(OnDirtyEventViewAttributeType) || a.IsAttribute(OnAddedEventViewAttributeType) || a.IsAttribute(OnRemovedEventViewAttributeType)))
+            {
+                var fieldTypes = attribute.GetFieldValueTypes("Types");
+                foreach (var componentTypeCandidate in fieldTypes)
+                {
+                    if (!componentUserFiles.ContainsKey(componentTypeCandidate))
+                    {
+                        componentUserFiles.Add(componentTypeCandidate, type);
+                    }
+                }
+            }
+        }
+
+        foreach (var pair in componentUserFiles)
+        {
+            var typeSymbol = pair.Key;
+            var type = pair.Value;
             var file = GenerateEventSystem(context, receiver, type, typeSymbol, context.Compilation.AssemblyName != "Assembly-CSharp-firstpass" ? string.Empty : "BaseGame");
             
             context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
@@ -640,7 +660,7 @@ public class Generator : ISourceGenerator
 
             void Validate(string marker, string expectedAttribute)
             {
-                var onDirtyEventViewAttribute = typeSymbol.GetCustomAttribute(marker);
+                var onDirtyEventViewAttribute = typeSymbol.GetCustomAttribute(marker, true);
                 if (onDirtyEventViewAttribute != null)
                 {
                     var typesToCheck = onDirtyEventViewAttribute.GetFieldValueTypes("Types");
@@ -724,28 +744,79 @@ public class Generator : ISourceGenerator
         var removedEventViewTypes = GetDirtyTypes(context.Compilation, eventComponentType, classCandidates, OnRemovedEventViewAttributeType);
         var hasRemovedEventViewTypes = removedEventViewTypes.Count > 0;
 
-        if (!hasDirtyEventViewTypes && !hasAddedEventViewTypes && !hasRemovedEventViewTypes)
+        var ifDirty = classCandidates.Any(viewType =>
         {
-            return null;
-        }
+            var viewTypeSymbol = (ITypeSymbol)context.Compilation.GetSemanticModel(viewType.SyntaxTree).GetDeclaredSymbol(viewType);
+            foreach (var a in viewTypeSymbol.GetCustomAttributes(true))
+            {
+                if (a.IsAttribute(OnDirtyEventViewAttributeType))
+                {
+                    if (a.GetFieldValueTypes("Types").Contains(eventComponentType))
+                    {
+                        return true;
+                    }
+                }
+            }
 
-        if (hasDirtyEventViewTypes)
+            return false;
+        });
+
+        if (ifDirty)
         {
             GenerateEventSystemOnDirtyEvents(dirtyEventViewTypes, eventComponentType, classModel, onCreateMethodModel, onUpdateMethodModel);
             GenerateEventSystemOnDirtyEventJobs(eventComponentType, classModel);
             GenerateEventSystemDirtyResetJobs(eventComponentType, classModel);
         }
 
-        if (hasAddedEventViewTypes)
+        var ifAdd = classCandidates.Any(viewType =>
+        {
+            var viewTypeSymbol = (ITypeSymbol)context.Compilation.GetSemanticModel(viewType.SyntaxTree).GetDeclaredSymbol(viewType);
+            foreach (var a in viewTypeSymbol.GetCustomAttributes(true))
+            {
+                if (a.IsAttribute(OnAddedEventViewAttributeType))
+                {
+                    if (a.GetFieldValueTypes("Types").Contains(eventComponentType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        if (ifAdd)
         {
             GenerateEventSystemOnAddedEvents(addedEventViewTypes, eventComponentType, classModel, onCreateMethodModel, onUpdateMethodModel);
             GenerateEventSystemOnAddedEventJobs(eventComponentType, classModel);
         }
 
-        if (hasRemovedEventViewTypes)
+        var ifRemove = classCandidates.Any(viewType =>
+        {
+            var viewTypeSymbol = (ITypeSymbol)context.Compilation.GetSemanticModel(viewType.SyntaxTree).GetDeclaredSymbol(viewType);
+            foreach (var a in viewTypeSymbol.GetCustomAttributes(true))
+            {
+                if (a.IsAttribute(OnRemovedEventViewAttributeType))
+                {
+                    if (a.GetFieldValueTypes("Types").Contains(eventComponentType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        if (ifRemove)
         {
             GenerateEventSystemOnRemovedEvents(removedEventViewTypes, eventComponentType, classModel, onCreateMethodModel, onUpdateMethodModel);
             GenerateEventSystemOnRemovedEventJobs(eventComponentType, classModel);
+        }
+
+        if (!ifDirty && !ifAdd && !ifRemove)
+        {
+            //return null;
         }
 
         return classModel;
