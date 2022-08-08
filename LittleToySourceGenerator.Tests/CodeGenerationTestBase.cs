@@ -12,9 +12,9 @@ public class CodeGenerationTestBase
 {
     private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
 
-    protected string GetGeneratedOutput(string source, Generator generator, NullableContextOptions nullableContextOptions)
+    protected string GetGeneratedOutput(string source, Generator generator, NullableContextOptions nullableContextOptions, string assemblyName = "Assembly-CSharp")
     {
-        CSharpCompilation compilation = CreateCompilation(source, nullableContextOptions);
+        CSharpCompilation compilation = CreateCompilation(source, nullableContextOptions, assemblyName);
 
         // var compileDiagnostics = compilation.GetDiagnostics();
         // Assert.IsFalse(compileDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), "Failed: " + compileDiagnostics.FirstOrDefault()?.GetMessage());
@@ -32,7 +32,7 @@ public class CodeGenerationTestBase
 
     protected IEnumerable<Diagnostic> GetDiagnosticsFromGenerator(string source, Generator generator, NullableContextOptions nullableContextOptions)
     {
-        CSharpCompilation compilation = CreateCompilation(source, nullableContextOptions);
+        CSharpCompilation compilation = CreateCompilation(source, nullableContextOptions, "Assembly-CSharp");
 
         // var compileDiagnostics = compilation.GetDiagnostics();
         // Assert.IsFalse(compileDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), "Failed: " + compileDiagnostics.FirstOrDefault()?.GetMessage());
@@ -42,7 +42,7 @@ public class CodeGenerationTestBase
         return generateDiagnostics;
     }
 
-    private static CSharpCompilation CreateCompilation(string source, NullableContextOptions nullableContextOptions)
+    private static CSharpCompilation CreateCompilation(string source, NullableContextOptions nullableContextOptions, string assemblyName)
     {
         var fakeCode = @"
 using System;
@@ -91,6 +91,65 @@ namespace Plugins.basegame.Events
 {
     using DOTSNET;
 
+    [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true)]
+    public class ComponentDirtyEventAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true)]
+    public class ComponentRemovedEventAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true)]
+    public class ComponentAddedEventAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class MarkDirtyAttribute : Attribute
+    {
+        
+    }
+    
+    [AttributeUsage(AttributeTargets.Field)]
+    public class SyncFieldAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class OnAddedEventViewAttribute : Attribute
+    {
+        public readonly Type[] Types;
+
+        public OnAddedEventViewAttribute(params Type[] types)
+        {
+            Types = types;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class OnDirtyEventViewAttribute : Attribute
+    {
+        public readonly Type[] Types;
+        
+        public OnDirtyEventViewAttribute(params Type[] types)
+        {
+            Types = types;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class OnRemovedEventViewAttribute : Attribute
+    {
+        public readonly Type[] Types;
+
+        public OnRemovedEventViewAttribute(params Type[] types)
+        {
+            Types = types;
+        }
+    }
+
     [System.AttributeUsage(AttributeTargets.Struct)]
     public class CodeGenNetComponentAttribute : System.Attribute
     {
@@ -99,6 +158,28 @@ namespace Plugins.basegame.Events
         public CodeGenNetComponentAttribute(SyncDirection syncDirection)
         {
             SyncDirection = syncDirection;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ReadWriteEcsAttribute : Attribute
+    {
+        public readonly Type[] Types;
+
+        public ReadWriteEcsAttribute(params Type[] types)
+        {
+            Types = types;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class HasComponentEcsAttribute : Attribute
+    {
+        public readonly Type[] Types;
+
+        public HasComponentEcsAttribute(params Type[] types)
+        {
+            Types = types;
         }
     }
 }
@@ -127,7 +208,7 @@ namespace Plugins.basegame.Events
         references.Add(fakeCompilation.ToMetadataReference());
 
         var compilation = CSharpCompilation.Create(
-            "foo",
+            assemblyName,
             new SyntaxTree[] { syntaxTree },
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: nullableContextOptions));
