@@ -1,6 +1,6 @@
 ﻿namespace CsCodeGenerator
 {
-    public static class EnumExtensions
+    internal static class EnumExtensions
     {
         /// <summary>
         /// Convert string to Lowercase first, then replaces underscore '_' with space ' ', and  optionally adds append string.

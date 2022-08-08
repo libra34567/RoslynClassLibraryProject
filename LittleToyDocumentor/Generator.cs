@@ -31,20 +31,29 @@ public class Generator : ISourceGenerator
             return;
         }
 
+        if (context.Compilation.AssemblyName.StartsWith("Unity.", StringComparison.InvariantCultureIgnoreCase)
+            || context.Compilation.AssemblyName.StartsWith("UnityEngine.", StringComparison.InvariantCultureIgnoreCase)
+            || context.Compilation.AssemblyName.StartsWith("UnityEditor.", StringComparison.InvariantCultureIgnoreCase)
+            || context.Compilation.AssemblyName.Equals("Unity", StringComparison.InvariantCultureIgnoreCase)
+            || context.Compilation.AssemblyName.StartsWith("DOTSNET.", StringComparison.InvariantCultureIgnoreCase)
+            || context.Compilation.AssemblyName.Equals("DOTSNET", StringComparison.InvariantCultureIgnoreCase))
+        {
+            // Ignore Unity and DOTSNET assemblies, mostly useful for debugging. Can unlock this, if need to generate docs on their classes.
+            return;
+        }
+
         var symbols = GetSymbols(context.Compilation, receiver.MemberAccessExpressionSyntaxes).Distinct().ToList();
         foreach (var typeInformation in symbols.GroupBy(s => s.Type))
         {
+            var typeDeclarationSytaxes = typeInformation.Key.DeclaringSyntaxReferences.Select(_ => _.GetSyntax() as TypeDeclarationSyntax);
+            var isPartial = typeDeclarationSytaxes.All(typeDeclarationSyntax => typeDeclarationSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)));
+            if (!isPartial)
+            {
+                continue;
+            }
+
             var file = new FileModel(typeInformation.Key.Name + "Documentation")
             {
-                UsingDirectives = new List<string>
-            {
-                "System;",
-                "Unity.Entities;",
-                "Unity.Mathematics;",
-                "Plugins.basegame.Events;",
-                "DOTSNET;",
-                "Unity.Collections;"
-            },
                 Header = FileHeader,
                 Namespace = typeInformation.Key.ContainingNamespace?.Name ?? "",
             };
@@ -76,12 +85,24 @@ public class Generator : ISourceGenerator
                 firstOperation = false;
             }
 
-            file.Classes.Add(new ClassModel(typeInformation.Key.Name)
+            if (typeInformation.Key.IsValueType)
             {
-                Comment = comment.ToString(),
-                UseXmlDocCommentStyle = true,
-                SingleKeyWord = KeyWord.Partial,
-            });
+                file.Structs.Add(new StructModel(typeInformation.Key.Name)
+                {
+                    Comment = comment.ToString(),
+                    UseXmlDocCommentStyle = true,
+                    SingleKeyWord = KeyWord.Partial,
+                });
+            }
+            else
+            {
+                file.Classes.Add(new ClassModel(typeInformation.Key.Name)
+                {
+                    Comment = comment.ToString(),
+                    UseXmlDocCommentStyle = true,
+                    SingleKeyWord = KeyWord.Partial,
+                });
+            }
             context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
         }
     }
@@ -107,7 +128,8 @@ public class Generator : ISourceGenerator
             }
             else
             {
-                throw new NotImplementedException();
+                continue;
+                // throw new NotImplementedException();
             }
         }    
     }
