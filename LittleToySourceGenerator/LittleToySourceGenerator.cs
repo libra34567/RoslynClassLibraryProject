@@ -647,6 +647,11 @@ public class Generator : ISourceGenerator
             var type = pair.Value;
             var file = GenerateEventSystem(context, receiver, type, typeSymbol, context.Compilation.AssemblyName != "Assembly-CSharp-firstpass" ? string.Empty : "BaseGame");
             
+            if (file.Classes[0] == null)
+            {
+                continue;
+            }
+
             context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
         }
 
@@ -816,7 +821,7 @@ public class Generator : ISourceGenerator
 
         if (!ifDirty && !ifAdd && !ifRemove)
         {
-            //return null;
+            return null;
         }
 
         return classModel;
