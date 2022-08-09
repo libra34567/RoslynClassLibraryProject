@@ -109,6 +109,10 @@ namespace Unity.Entities
     }
 }
 
+public partial struct ExternalComponentData : IComponentData
+{
+}
+
 ";
         List<MetadataReference> returnList = new();
         returnList.Add(CorlibReference);

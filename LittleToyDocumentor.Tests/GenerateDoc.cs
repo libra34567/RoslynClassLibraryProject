@@ -566,4 +566,25 @@ public partial class Position3Data: SystemBase
 
         Assert.AreEqual(0, generatedTree.Count());
     }
+
+    [TestMethod]
+    public void DoNotDocumentExternalComponentData()
+    {
+        string source = @"
+using Unity.Entities;
+
+public partial class Position3Data: SystemBase
+{
+    protected override void OnUpdate()
+    {
+        var entity = EntityManager.CreateEntity();
+        EntityManager.AddComponent<ExternalComponentData>(entity);
+    }
+}
+";
+        var generator = new Generator();
+        var syntaxes = this.GetGeneratedSyntaxTrees(source, generator, NullableContextOptions.Disable);
+
+        Assert.AreEqual(0, syntaxes.Count());
+    }
 }

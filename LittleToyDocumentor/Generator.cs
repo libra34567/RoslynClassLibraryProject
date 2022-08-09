@@ -52,6 +52,12 @@ public class Generator : ISourceGenerator
                 continue;
             }
 
+            if (typeInformation.Key.ContainingAssembly != context.Compilation.Assembly)
+            {
+                // Skip type definitions from other assemblies, since we cannot generate anything for them.
+                continue;
+            }
+
             var file = new FileModel(typeInformation.Key.Name + "Documentation")
             {
                 Header = FileHeader,
