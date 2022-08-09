@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace LittleToyDocumentor;
 
@@ -45,16 +46,8 @@ public class Generator : ISourceGenerator
         var symbols = GetSymbols(context.Compilation, receiver.MemberAccessExpressionSyntaxes).Distinct().ToList();
         foreach (var typeInformation in symbols.GroupBy(s => s.Type))
         {
-            var typeDeclarationSytaxes = typeInformation.Key.DeclaringSyntaxReferences.Select(_ => _.GetSyntax() as TypeDeclarationSyntax);
-            var isPartial = typeDeclarationSytaxes.All(typeDeclarationSyntax => typeDeclarationSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)));
-            if (!isPartial)
+            if (typeInformation.Key.TypeKind == TypeKind.TypeParameter)
             {
-                continue;
-            }
-
-            if (typeInformation.Key.ContainingAssembly != context.Compilation.Assembly)
-            {
-                // Skip type definitions from other assemblies, since we cannot generate anything for them.
                 continue;
             }
 
@@ -63,53 +56,79 @@ public class Generator : ISourceGenerator
                 Header = FileHeader,
                 Namespace = typeInformation.Key.ContainingNamespace?.Name ?? "",
             };
-            StringBuilder comment = new StringBuilder();
-            bool firstOperation = true;
-            foreach (var operationInformation in typeInformation.GroupBy(ti => ti.OperationName))
+            try
             {
-                if (!firstOperation)
+                var typeDeclarationSytaxes = typeInformation.Key.DeclaringSyntaxReferences.Select(_ => _.GetSyntax() as TypeDeclarationSyntax);
+                var isPartial = typeDeclarationSytaxes.All(typeDeclarationSyntax => typeDeclarationSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)));
+                if (!isPartial)
                 {
-                    comment.AppendLine();
+                    continue;
                 }
 
-                bool firstLine = true;
-                var callSites = operationInformation.Select(_ => (_.Method.Name, _.Method.ReceiverType));
-                foreach (var callSiteInformation in callSites.OrderBy(type => type.ReceiverType.Name).GroupBy(_ => _.ReceiverType))
+                if (typeInformation.Key.ContainingAssembly != context.Compilation.Assembly)
                 {
-                    var usedMethods = callSiteInformation.Select(_ => _.Name).OrderBy(_ => _);
-                    if (firstLine)
-                    {
-                        comment.AppendLine($"{operationInformation.Key} in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
-                        firstLine = false;
-                    }
-                    else
-                    {
-                        comment.AppendLine($"     in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
-                    }
+                    // Skip type definitions from other assemblies, since we cannot generate anything for them.
+                    continue;
                 }
 
-                firstOperation = false;
-            }
-
-            if (typeInformation.Key.IsValueType)
-            {
-                file.Structs.Add(new StructModel(typeInformation.Key.Name)
+                StringBuilder comment = new StringBuilder();
+                bool firstOperation = true;
+                foreach (var operationInformation in typeInformation.GroupBy(ti => ti.OperationName))
                 {
-                    Comment = comment.ToString(),
-                    UseXmlDocCommentStyle = true,
-                    SingleKeyWord = KeyWord.Partial,
-                });
+                    if (!firstOperation)
+                    {
+                        comment.AppendLine();
+                    }
+
+                    bool firstLine = true;
+                    var callSites = operationInformation.Select(_ => (_.Method.Name, _.Method.ReceiverType));
+                    foreach (var callSiteInformation in callSites.OrderBy(type => type.ReceiverType.Name).GroupBy(_ => _.ReceiverType))
+                    {
+                        var usedMethods = callSiteInformation.Select(_ => _.Name).OrderBy(_ => _);
+                        if (firstLine)
+                        {
+                            comment.AppendLine($"{operationInformation.Key} in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
+                            firstLine = false;
+                        }
+                        else
+                        {
+                            comment.AppendLine($"     in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
+                        }
+                    }
+
+                    firstOperation = false;
+                }
+
+                if (typeInformation.Key.IsValueType)
+                {
+                    file.Structs.Add(new StructModel(typeInformation.Key.Name)
+                    {
+                        Comment = comment.ToString(),
+                        UseXmlDocCommentStyle = true,
+                        SingleKeyWord = KeyWord.Partial,
+                    });
+                }
+                else
+                {
+                    file.Classes.Add(new ClassModel(typeInformation.Key.Name)
+                    {
+                        Comment = comment.ToString(),
+                        UseXmlDocCommentStyle = true,
+                        SingleKeyWord = KeyWord.Partial,
+                    });
+                }
+                context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
             }
-            else
+            catch (Exception ex)
             {
                 file.Classes.Add(new ClassModel(typeInformation.Key.Name)
                 {
-                    Comment = comment.ToString(),
+                    Comment = ex.ToString(),
                     UseXmlDocCommentStyle = true,
                     SingleKeyWord = KeyWord.Partial,
                 });
+                context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
             }
-            context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
         }
     }
 

@@ -638,4 +638,31 @@ namespace test
 ";
         Assert.AreEqual(expectedOutput, output);
     }
+
+    [TestMethod]
+    public void IgnoreGenericCalls()
+    {
+        string source = @"
+using Unity.Entities;
+
+namespace test
+{
+public partial struct SampleComponentData : IComponentData
+{
+    public int SampleComponentField;
+}
+
+public partial class Position3Data: SystemBase
+{
+    public static void UnLink<T>(EntityManager manager, Entity entity, T view) where T : IComponentData
+    {
+        manager.RemoveComponent<T>(entity);
+    }
+}
+}
+";
+        var generator = new Generator();
+        var syntaxTrees = this.GetGeneratedSyntaxTrees(source, generator, NullableContextOptions.Disable);
+        Assert.AreEqual(0, syntaxTrees.Count());
+    }
 }
