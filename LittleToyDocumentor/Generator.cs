@@ -65,7 +65,7 @@ public class Generator : ISourceGenerator
                     continue;
                 }
 
-                if (typeInformation.Key.ContainingAssembly != context.Compilation.Assembly)
+                if (!SymbolEqualityComparer.Default.Equals(typeInformation.Key.ContainingAssembly, context.Compilation.Assembly))
                 {
                     // Skip type definitions from other assemblies, since we cannot generate anything for them.
                     continue;
