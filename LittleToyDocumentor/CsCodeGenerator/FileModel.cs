@@ -46,7 +46,7 @@ namespace CsCodeGenerator
             var headerText = !string.IsNullOrWhiteSpace(Header) ? Header + Util.NewLine : "";
             string result = headerText + usingText + String.Join(Util.NewLine + usingText, UsingDirectives);
             result += string.IsNullOrEmpty(Namespace) ? "" : Util.NewLineDouble + Util.Namespace + " " + Namespace;
-            result += Util.NewLine + "{";
+            result += string.IsNullOrEmpty(Namespace) ? "" : (Util.NewLine + "{");
             if (string.IsNullOrEmpty(Namespace))
             {
                 Enums.ForEach(ReduceIndent);

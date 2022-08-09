@@ -61,7 +61,7 @@ namespace CsCodeGenerator
             var lines = Comment.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             if (UseXmlDocCommentStyle)
             {
-                return Util.NewLine + "/// <summary>" + string.Join(string.Empty, lines.Select(_ => Util.NewLine + Indent + "/// " + _)) + Util.NewLine + "/// </summary>";
+                return Util.NewLine + Indent + "/// <summary>" + string.Join(string.Empty, lines.Select(_ => Util.NewLine + Indent + "/// " + _)) + Util.NewLine + Indent + "/// </summary>";
             }
             else
             {

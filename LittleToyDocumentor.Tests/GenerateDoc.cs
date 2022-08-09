@@ -628,9 +628,9 @@ public partial class Position3Data: SystemBase
 namespace test
 {
 
-/// <summary>
+    /// <summary>
     /// Added in OnUpdate of Position3Data
-/// </summary>
+    /// </summary>
     public partial struct SampleComponentData
     {
     }
