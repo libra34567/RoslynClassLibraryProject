@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>2178ddf0-53bc-4e05-9c3d-634587c022b5</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>CsCodeGenerator</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AttributeModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BaseElement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ClassModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Constructor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CsGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EnumModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\AccessModifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\BuiltInDataType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\CommonDataType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\EnumExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\IndentType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\KeyWord.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Field.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InterfaceModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Method.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parameter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Property.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StructModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
+  </ItemGroup>
+</Project>
