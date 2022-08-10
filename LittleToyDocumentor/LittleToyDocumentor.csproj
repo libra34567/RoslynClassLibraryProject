@@ -9,4 +9,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis" Version="3.8" />
   </ItemGroup>
 
+  <Import Project="..\CsCodeGenerator\CsCodeGenerator.projitems" Label="Shared" />
+
 </Project>
