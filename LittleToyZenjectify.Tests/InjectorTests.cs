@@ -35,7 +35,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
     [SceneObjectsOnly]
@@ -86,7 +86,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
     [AssetsOnly]
@@ -138,7 +138,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     private void InstallClassesWithoutInstance()
     {
@@ -184,7 +184,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     private void InstallClassesWithoutInstance()
     {
@@ -230,7 +230,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     private void InstallClassesWithoutInstance()
     {
@@ -276,7 +276,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     private void InstallSignals()
     {
@@ -322,7 +322,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
     [AssetsOnly]
@@ -386,7 +386,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SomeNewInstaller : MonoInstaller
+public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
     [AssetsOnly]
@@ -446,7 +446,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class AnotherNewInstaller : MonoInstaller
+public partial class AnotherNewInstaller : MonoInstaller
 {
     private void InstallSignals()
     {
@@ -492,7 +492,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
-public class SoundTestInstaller : MonoInstaller
+public partial class SoundTestInstaller : MonoInstaller
 {
     private void InstallSignals()
     {

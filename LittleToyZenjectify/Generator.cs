@@ -78,6 +78,7 @@ public class Generator : ISourceGenerator
         var classModel = new ClassModel(installerName)
         {
             BaseClass = "MonoInstaller",
+            KeyWords = new() { KeyWord.Partial }
         };
         foreach (var service in monoClassesWithSceneObjInstance)
         {
