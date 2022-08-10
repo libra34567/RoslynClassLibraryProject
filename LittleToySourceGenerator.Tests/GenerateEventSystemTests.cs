@@ -54,6 +54,7 @@ public partial class Position3EventSystem : SystemBase
 {
     private EntityQuery _entityWithTransformViewAndPosition3DataQuery;
     private EntityQuery _entityWithPosition3DataQuery;
+    [ReadOnly]
     private ComponentTypeHandle<Position3Data> _position3DataROComponentTypeHandle;
     private ComponentTypeHandle<Position3Data> _position3DataRWComponentTypeHandle;
 
@@ -110,6 +111,7 @@ public partial class Position3EventSystem : SystemBase
     private struct NotifyPosition3DataDirtyJob<T> : IJobEntityBatch where T : class, IPosition3Listener
     {
         public EntityManager EntityManager;
+        [ReadOnly]
         public ComponentTypeHandle<Position3Data> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
 
@@ -203,6 +205,7 @@ public partial class Position3EventSystem : SystemBase
 {
     private EntityQuery _entityWithTransformViewAndPosition3DataQuery;
     private EntityQuery _entityWithPosition3DataQuery;
+    [ReadOnly]
     private ComponentTypeHandle<Position3Data> _position3DataROComponentTypeHandle;
     private ComponentTypeHandle<Position3Data> _position3DataRWComponentTypeHandle;
 
@@ -259,6 +262,7 @@ public partial class Position3EventSystem : SystemBase
     private struct NotifyPosition3DataDirtyJob<T> : IJobEntityBatch where T : class, IPosition3Listener
     {
         public EntityManager EntityManager;
+        [ReadOnly]
         public ComponentTypeHandle<Position3Data> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
 
@@ -349,6 +353,7 @@ using DOTSNET;
 public partial class Position3EventSystem : SystemBase
 {
     private EntityQuery _entityWithTransformViewAndAddedComponentArrayDataQuery;
+    [ReadOnly]
     private ComponentTypeHandle<AddedComponentArrayData> _addedComponentArrayDataROComponentTypeHandle;
 
 
@@ -384,6 +389,7 @@ public partial class Position3EventSystem : SystemBase
     private struct NotifyAddPosition3DataJob<T> : IJobEntityBatch where T : class, IPosition3AddedListener
     {
         public EntityManager EntityManager;
+        [ReadOnly]
         public ComponentTypeHandle<AddedComponentArrayData> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
 
@@ -457,6 +463,7 @@ using DOTSNET;
 public partial class Position3EventSystem : SystemBase
 {
     private EntityQuery _entityWithTransformViewAndRemovedComponentArrayDataQuery;
+    [ReadOnly]
     private ComponentTypeHandle<RemovedComponentArrayData> _removedComponentArrayDataROComponentTypeHandle;
 
 
@@ -492,6 +499,7 @@ public partial class Position3EventSystem : SystemBase
     private struct NotifyRemovePosition3DataJob<T> : IJobEntityBatch where T : class, IPosition3RemovedListener
     {
         public EntityManager EntityManager;
+        [ReadOnly]
         public ComponentTypeHandle<RemovedComponentArrayData> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
 
@@ -567,6 +575,7 @@ public partial class Position3EventSystemBaseGame : SystemBase
 {
     private EntityQuery _entityWithTransformViewAndPosition3DataQuery;
     private EntityQuery _entityWithPosition3DataQuery;
+    [ReadOnly]
     private ComponentTypeHandle<Position3Data> _position3DataROComponentTypeHandle;
     private ComponentTypeHandle<Position3Data> _position3DataRWComponentTypeHandle;
 
@@ -623,6 +632,7 @@ public partial class Position3EventSystemBaseGame : SystemBase
     private struct NotifyPosition3DataDirtyJob<T> : IJobEntityBatch where T : class, IPosition3Listener
     {
         public EntityManager EntityManager;
+        [ReadOnly]
         public ComponentTypeHandle<Position3Data> DataTypeHandle;
         public ComponentTypeHandle<T> ListenerTypeHandle;
 

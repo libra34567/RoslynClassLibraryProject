@@ -835,7 +835,11 @@ public class Generator : ISourceGenerator
             classModel.Fields.Add(new Field("EntityQuery", $"_entityWith{eventViewType.Name}AndAddedComponentArrayDataQuery") {AccessModifier = AccessModifier.Private});
         }
             
-        classModel.Fields.Add(new Field($"ComponentTypeHandle<AddedComponentArrayData>", $"_addedComponentArrayDataROComponentTypeHandle") {AccessModifier = AccessModifier.Private});
+        classModel.Fields.Add(new Field($"ComponentTypeHandle<AddedComponentArrayData>", $"_addedComponentArrayDataROComponentTypeHandle")
+        {
+            AccessModifier = AccessModifier.Private,
+            Attributes = new List<AttributeModel> { new AttributeModel("ReadOnly") }
+        });
 
         foreach (var eventViewType in onAddedEventViewTypes)
         {
@@ -884,7 +888,11 @@ public class Generator : ISourceGenerator
             classModel.Fields.Add(new Field("EntityQuery", $"_entityWith{eventViewType.Name}AndRemovedComponentArrayDataQuery") {AccessModifier = AccessModifier.Private});
         }
             
-        classModel.Fields.Add(new Field($"ComponentTypeHandle<RemovedComponentArrayData>", $"_removedComponentArrayDataROComponentTypeHandle") {AccessModifier = AccessModifier.Private});
+        classModel.Fields.Add(new Field($"ComponentTypeHandle<RemovedComponentArrayData>", $"_removedComponentArrayDataROComponentTypeHandle")
+        {
+            AccessModifier = AccessModifier.Private,
+            Attributes = new List<AttributeModel> { new AttributeModel("ReadOnly") }
+        });
 
         foreach (var eventViewType in onRemovedEventViewTypes)
         {
@@ -935,7 +943,11 @@ public class Generator : ISourceGenerator
         }
             
         classModel.Fields.Add(new Field("EntityQuery", $"_entityWith{eventComponentType.Name}Query") {AccessModifier = AccessModifier.Private});
-        classModel.Fields.Add(new Field($"ComponentTypeHandle<{eventComponentType.Name}>", $"_{eventComponentNameCamel}ROComponentTypeHandle") {AccessModifier = AccessModifier.Private});
+        classModel.Fields.Add(new Field($"ComponentTypeHandle<{eventComponentType.Name}>", $"_{eventComponentNameCamel}ROComponentTypeHandle")
+        {
+            AccessModifier = AccessModifier.Private,
+            Attributes = new List<AttributeModel> { new AttributeModel("ReadOnly") }
+        });
         classModel.Fields.Add(new Field($"ComponentTypeHandle<{eventComponentType.Name}>", $"_{eventComponentNameCamel}RWComponentTypeHandle") {AccessModifier = AccessModifier.Private});
 
         foreach (var eventViewType in dirtyEventViewTypes)
