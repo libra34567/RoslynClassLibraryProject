@@ -65,6 +65,9 @@ public class Generator : ISourceGenerator
 
         var monoClassesWithSceneObjInstance = services.Where(s => s.InjectionMethod == InjectionMethod.MonoClassWithSceneObjInstance).ToList();
         var monoClassesWithAssetInstance = services.Where(s => s.InjectionMethod == InjectionMethod.MonoClassWithAssetInstance).ToList();
+        var classesWithoutInstance = services.Where(s => s.InjectionMethod == InjectionMethod.ClassWithoutInstance).ToList();
+        var prefabs = services.Where(s => s.InjectionMethod == InjectionMethod.Prefab).ToList();
+        var signals = services.Where(s => s.InjectionMethod == InjectionMethod.Signal).ToList();
 
         var classModel = new ClassModel(installerName)
         {
@@ -92,6 +95,17 @@ public class Generator : ISourceGenerator
             });
         }
 
+        foreach (var service in prefabs)
+        {
+            classModel.Fields.Add(new Field()
+            {
+                AccessModifier = AccessModifier.Private,
+                Attributes = new() { RequiredAttribute, AssetsOnlyAttribute, SerializeFieldAttribute },
+                Name = service.ServiceType.Name.LowerFirst(),
+                CustomDataType = service.ServiceType.ToDisplayString(),
+            });
+        }
+
         var installBindingsMethod = new Method()
         {
             AccessModifier = AccessModifier.Public,
@@ -103,8 +117,7 @@ public class Generator : ISourceGenerator
         };
         if (monoClassesWithSceneObjInstance.Count > 0)
         {
-            installBindingsMethod.BodyLines.Add("InstallMonoClassesWithSceneObjInstance();");
-            var installMonoClassesWithSceneObjInstanceMethod = new Method()
+            var installMethod = new Method()
             {
                 AccessModifier = AccessModifier.Private,
                 Parameters = new(),
@@ -112,20 +125,18 @@ public class Generator : ISourceGenerator
                 Name = "InstallMonoClassesWithSceneObjInstance",
                 BuiltInDataType = BuiltInDataType.Void,
             };
+            installBindingsMethod.BodyLines.Add(installMethod.Name + "();");
             foreach (var service in monoClassesWithSceneObjInstance)
             {
-                var bindMethod = service.BindInterfacesAndSelf ? "BindInterfacesAndSelf" : "Bind";
-                string loadMethod = service.IsLazyLoading ? "Lazy" : "NonLazy";
-                var call = $"Container.{bindMethod}<{service.ServiceType.ToDisplayString()}>().FromInstance({service.ServiceType.Name.LowerFirst()}).AsSingle().{loadMethod}(){service.Suffix};";
-                installMonoClassesWithSceneObjInstanceMethod.BodyLines.Add(call);
+                installMethod.BodyLines.Add(GenerateCall(service));
             }
 
-            classModel.Methods.Add(installMonoClassesWithSceneObjInstanceMethod);
+            classModel.Methods.Add(installMethod);
         }
+
         if (monoClassesWithAssetInstance.Count > 0)
         {
-            installBindingsMethod.BodyLines.Add("InstallMonoClassesWithAssetInstance();");
-            var installMonoClassesWithAssetInstanceMethod = new Method()
+            var installMethod = new Method()
             {
                 AccessModifier = AccessModifier.Private,
                 Parameters = new(),
@@ -133,19 +144,92 @@ public class Generator : ISourceGenerator
                 Name = "InstallMonoClassesWithAssetInstance",
                 BuiltInDataType = BuiltInDataType.Void,
             };
+            installBindingsMethod.BodyLines.Add(installMethod.Name + "();");
             foreach (var service in monoClassesWithAssetInstance)
             {
-                var bindMethod = service.BindInterfacesAndSelf ? "BindInterfacesAndSelf" : "Bind";
-                string loadMethod = service.IsLazyLoading ? "Lazy" : "NonLazy";
-                var call = $"Container.{bindMethod}<{service.ServiceType.ToDisplayString()}>().FromInstance({service.ServiceType.Name.LowerFirst()}).AsSingle().{loadMethod}(){service.Suffix};";
-                installMonoClassesWithAssetInstanceMethod.BodyLines.Add(call);
+                installMethod.BodyLines.Add(GenerateCall(service));
             }
 
-            classModel.Methods.Add(installMonoClassesWithAssetInstanceMethod);
+            classModel.Methods.Add(installMethod);
+        }
+
+        if (classesWithoutInstance.Count > 0)
+        {
+            var installMethod = new Method()
+            {
+                AccessModifier = AccessModifier.Private,
+                Parameters = new(),
+                BodyLines = new(),
+                Name = "InstallClassesWithoutInstance",
+                BuiltInDataType = BuiltInDataType.Void,
+            };
+            installBindingsMethod.BodyLines.Add(installMethod.Name + "();");
+            foreach (var service in classesWithoutInstance)
+            {
+                installMethod.BodyLines.Add(GenerateCall(service));
+            }
+
+            classModel.Methods.Add(installMethod);
+        }
+
+        if (prefabs.Count > 0)
+        {
+            var installMethod = new Method()
+            {
+                AccessModifier = AccessModifier.Private,
+                Parameters = new(),
+                BodyLines = new(),
+                Name = "InstallPrefabs",
+                BuiltInDataType = BuiltInDataType.Void,
+            };
+            installBindingsMethod.BodyLines.Add(installMethod.Name + "();");
+            foreach (var service in prefabs)
+            {
+                var call = $"Container.BindFactory<{service.ServiceType.ToDisplayString()}, {service.ServiceType.ToDisplayString()}.Factory>().FromComponentInNewPrefab({service.ServiceType.Name.LowerFirst()}){service.Suffix};";
+                installMethod.BodyLines.Add(call);
+            }
+
+            classModel.Methods.Add(installMethod);
+        }
+
+        if (signals.Count > 0)
+        {
+            var installMethod = new Method()
+            {
+                AccessModifier = AccessModifier.Private,
+                Parameters = new(),
+                BodyLines = new(),
+                Name = "InstallSignals",
+                BuiltInDataType = BuiltInDataType.Void,
+            };
+            installBindingsMethod.BodyLines.Add(installMethod.Name + "();");
+            foreach (var service in signals)
+            {
+                installMethod.BodyLines.Add(GenerateCall(service));
+            }
+
+            classModel.Methods.Add(installMethod);
         }
 
         classModel.Methods.Add(installBindingsMethod);
         file.Classes.Add(classModel);
+
+        if (prefabs.Count > 0)
+        {
+            foreach (var service in prefabs)
+            {
+                var prefabClass = new ClassModel(service.ServiceType.ToDisplayString())
+                {
+                    SingleKeyWord = KeyWord.Partial,
+                };
+                var prefabFatory = new ClassModel("Factory")
+                {
+                    BaseClass = $"PlaceholderFactory<{service.ServiceType.ToDisplayString()}>",
+                };
+                prefabClass.NestedClasses.Add(prefabFatory);
+                file.Classes.Add(prefabClass);
+            }
+        }
         return file;
     }
 
@@ -153,6 +237,20 @@ public class Generator : ISourceGenerator
     public void Initialize(GeneratorInitializationContext context)
     {
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
+    }
+
+    private static string GenerateCall(ServiceDescriptor service)
+    {
+        if (service.InjectionMethod == InjectionMethod.Signal)
+        {
+            return $"Container.DeclareSignal<{service.ServiceType.ToDisplayString()}>(){service.Suffix};";
+        }
+
+        var bindMethod = service.BindInterfacesAndSelf ? "BindInterfacesAndSelf" : "Bind";
+        string loadMethod = service.IsLazyLoading ? "Lazy" : "NonLazy";
+        string optionalFromInstance = service.FromInstance ? $".FromInstance({service.ServiceType.Name.LowerFirst()})" : string.Empty;
+        var call = $"Container.{bindMethod}<{service.ServiceType.ToDisplayString()}>(){optionalFromInstance}.AsSingle().{loadMethod}(){service.Suffix};";
+        return call;
     }
 
     private static bool IsValidServiceClass(INamedTypeSymbol namedTypeSymbol)

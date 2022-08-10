@@ -10,4 +10,5 @@ internal class ServiceDescriptor
     public bool IsLazyLoading;
     public bool BindInterfacesAndSelf;
     public string Suffix;
+    public bool FromInstance => InjectionMethod == InjectionMethod.MonoClassWithSceneObjInstance || InjectionMethod == InjectionMethod.MonoClassWithAssetInstance;
 }
