@@ -687,6 +687,7 @@ public class Generator : ISourceGenerator
         var usingDirectives = new List<string>
         {
             "System;",
+            "Unity.Collections;",
             "Unity.Entities;",
             "Unity.Mathematics;",
             "Plugins.basegame.Events;",

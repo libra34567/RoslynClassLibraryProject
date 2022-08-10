@@ -42,6 +42,7 @@ public partial class TransformView : LinkedView
 #nullable enable
 #pragma warning disable 1591
 using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
@@ -193,6 +194,7 @@ public partial class TransformView : LinkedView
 #nullable enable
 #pragma warning disable 1591
 using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
@@ -342,6 +344,7 @@ public partial class TransformView : LinkedView
 #nullable enable
 #pragma warning disable 1591
 using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
@@ -452,6 +455,7 @@ public partial class TransformView : LinkedView
 #nullable enable
 #pragma warning disable 1591
 using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
@@ -563,6 +567,7 @@ public partial class TransformView : LinkedView
 #nullable enable
 #pragma warning disable 1591
 using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Plugins.basegame.Events;
