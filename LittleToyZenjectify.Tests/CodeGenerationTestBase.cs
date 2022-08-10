@@ -61,6 +61,7 @@ public enum InstallerNameEnum
 {
     AnotherNewInstaller = 1,
     SomeNewInstaller = 2,
+    SoundTest = 3,
 }
 
 [AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple = false, Inherited = false)]

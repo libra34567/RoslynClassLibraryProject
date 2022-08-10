@@ -45,6 +45,11 @@ public class Generator : ISourceGenerator
         foreach (var installerServices in serviceDescriptors.GroupBy(_ => _.TargetInstallerNameName))
         {
             string installerName = installerServices.Key;
+            if (!installerName.EndsWith("Installer"))
+            {
+                installerName += "Installer";
+            }
+
             var file = CreateInstallerFile(installerName, installerServices);
             context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
         }
