@@ -24,6 +24,7 @@ public class Generator : ISourceGenerator
     private const string ZenGenAttributeType = "ZenGen";
     private static readonly AttributeModel RequiredAttribute = new AttributeModel("Required");
     private static readonly AttributeModel SceneObjectsOnlyAttribute = new AttributeModel("SceneObjectsOnly");
+    private static readonly AttributeModel AssetsOnlyAttribute = new AttributeModel("AssetsOnly");
     private static readonly AttributeModel SerializeFieldAttribute = new AttributeModel("SerializeField");
 
     /// <inheritdoc/>
@@ -63,6 +64,7 @@ public class Generator : ISourceGenerator
         };
 
         var monoClassesWithSceneObjInstance = services.Where(s => s.InjectionMethod == InjectionMethod.MonoClassWithSceneObjInstance).ToList();
+        var monoClassesWithAssetInstance = services.Where(s => s.InjectionMethod == InjectionMethod.MonoClassWithAssetInstance).ToList();
 
         var classModel = new ClassModel(installerName)
         {
@@ -74,6 +76,17 @@ public class Generator : ISourceGenerator
             {
                 AccessModifier = AccessModifier.Private,
                 Attributes = new () { RequiredAttribute, SceneObjectsOnlyAttribute, SerializeFieldAttribute },
+                Name = service.ServiceType.Name.LowerFirst(),
+                CustomDataType = service.ServiceType.ToDisplayString(),
+            });
+        }
+
+        foreach (var service in monoClassesWithAssetInstance)
+        {
+            classModel.Fields.Add(new Field()
+            {
+                AccessModifier = AccessModifier.Private,
+                Attributes = new() { RequiredAttribute, AssetsOnlyAttribute, SerializeFieldAttribute },
                 Name = service.ServiceType.Name.LowerFirst(),
                 CustomDataType = service.ServiceType.ToDisplayString(),
             });
@@ -108,6 +121,27 @@ public class Generator : ISourceGenerator
             }
 
             classModel.Methods.Add(installMonoClassesWithSceneObjInstanceMethod);
+        }
+        if (monoClassesWithAssetInstance.Count > 0)
+        {
+            installBindingsMethod.BodyLines.Add("InstallMonoClassesWithAssetInstance();");
+            var installMonoClassesWithAssetInstanceMethod = new Method()
+            {
+                AccessModifier = AccessModifier.Private,
+                Parameters = new(),
+                BodyLines = new(),
+                Name = "InstallMonoClassesWithAssetInstance",
+                BuiltInDataType = BuiltInDataType.Void,
+            };
+            foreach (var service in monoClassesWithAssetInstance)
+            {
+                var bindMethod = service.BindInterfacesAndSelf ? "BindInterfacesAndSelf" : "Bind";
+                string loadMethod = service.IsLazyLoading ? "Lazy" : "NonLazy";
+                var call = $"Container.{bindMethod}<{service.ServiceType.ToDisplayString()}>().FromInstance({service.ServiceType.Name.LowerFirst()}).AsSingle().{loadMethod}(){service.Suffix};";
+                installMonoClassesWithAssetInstanceMethod.BodyLines.Add(call);
+            }
+
+            classModel.Methods.Add(installMonoClassesWithAssetInstanceMethod);
         }
 
         classModel.Methods.Add(installBindingsMethod);
