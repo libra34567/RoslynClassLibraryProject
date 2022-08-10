@@ -19,3 +19,11 @@ On any OS
 dotnet build -c Release
 cp LittleToyDocumentor/bin/Release/netstandard2.0/LittleToyDocumentor.dll ../RoslynTestProject/Assets/
 ```
+```
+
+## Zenject generator
+On any OS
+```
+dotnet build -c Release
+cp LittleToyDocumentor/bin/Release/netstandard2.0/LittleToyDocumentor.dll ../RoslynTestProject/Assets/
+```
