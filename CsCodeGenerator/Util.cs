@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace CsCodeGenerator
 {
-    public static class Util
+    internal static class Util
     {
         public static string Using = "using";
         public static string Namespace = "namespace";

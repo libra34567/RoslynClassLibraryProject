@@ -45,8 +45,8 @@ namespace CsCodeGenerator
             string usingText = UsingDirectives.Count > 0 ? Util.Using + " " : "";
             var headerText = !string.IsNullOrWhiteSpace(Header) ? Header + Util.NewLine : "";
             string result = headerText + usingText + String.Join(Util.NewLine + usingText, UsingDirectives);
-            //result += string.IsNullOrEmpty(Namespace) ? "" : Util.NewLineDouble + Util.Namespace + " " + Namespace;
-            //result += Util.NewLine + "{";
+            result += string.IsNullOrEmpty(Namespace) ? "" : Util.NewLineDouble + Util.Namespace + " " + Namespace;
+            result += string.IsNullOrEmpty(Namespace) ? "" : (Util.NewLine + "{");
             if (string.IsNullOrEmpty(Namespace))
             {
                 Enums.ForEach(ReduceIndent);
@@ -57,7 +57,7 @@ namespace CsCodeGenerator
 
             result += Util.NewLine;
             result += string.Join(Util.NewLine, GetSourceElements());
-            //result += Util.NewLine + "}";
+            result += string.IsNullOrEmpty(Namespace) ? "" : (Util.NewLine + "}");
             result += Util.NewLine;
             return result;
         }

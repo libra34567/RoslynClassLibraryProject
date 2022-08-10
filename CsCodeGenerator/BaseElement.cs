@@ -26,6 +26,8 @@ namespace CsCodeGenerator
 
         public virtual string Comment { get; set; }
 
+        public bool UseXmlDocCommentStyle { get; set; }
+
         public virtual bool HasAttributes => true;
         public virtual List<AttributeModel> Attributes { get; set; } = new List<AttributeModel>();
 
@@ -48,10 +50,23 @@ namespace CsCodeGenerator
 
         public override string ToString()
         {
-            string result = Comment != null ? (Util.NewLine + Indent + "// " + Comment) : "";
+            string result = Comment != null ? GetCommentString() : "";
             result += HasAttributes ? Attributes.ToStringList(Indent) : "";
             result += Util.NewLine + Signature;
             return result;
+        }
+
+        private string GetCommentString()
+        {
+            var lines = Comment.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (UseXmlDocCommentStyle)
+            {
+                return Util.NewLine + Indent + "/// <summary>" + string.Join(string.Empty, lines.Select(_ => Util.NewLine + Indent + "/// " + _)) + Util.NewLine + Indent + "/// </summary>";
+            }
+            else
+            {
+                return string.Join(string.Empty, lines.Select(_ => Util.NewLine + Indent + "// " + _));
+            }
         }
     }
 }
