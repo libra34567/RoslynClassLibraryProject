@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -185,7 +186,10 @@ public class Generator : ISourceGenerator
             installBindingsMethod.BodyLines.Add(installMethod.Name + "();");
             foreach (var service in prefabs)
             {
-                var call = $"Container.BindFactory<{service.ServiceType.ToDisplayString()}, {service.ServiceType.ToDisplayString()}.Factory>().FromComponentInNewPrefab({service.ServiceType.Name.LowerFirst()}){service.Suffix};";
+                var candidateConstructor = service.CandidateConstructors.FirstOrDefault();
+                var typeNames = candidateConstructor?.Parameters.Select(_ => _.Type.ToDisplayString()) ?? Array.Empty<string>();
+                var typeParameters = string.Join(", ", typeNames.Union(new[] { service.ServiceType.ToDisplayString() }));
+                var call = $"Container.BindFactory<{typeParameters}, {service.ServiceType.ToDisplayString()}.Factory>().FromComponentInNewPrefab({service.ServiceType.Name.LowerFirst()}){service.Suffix};";
                 installMethod.BodyLines.Add(call);
             }
 
@@ -218,13 +222,16 @@ public class Generator : ISourceGenerator
         {
             foreach (var service in prefabs)
             {
+                var candidateConstructor = service.CandidateConstructors.FirstOrDefault();
+                var typeNames = candidateConstructor?.Parameters.Select(_ => _.Type.ToDisplayString()) ?? Array.Empty<string>();
+                var typeParameters = string.Join(", ", typeNames.Union(new[] { service.ServiceType.ToDisplayString() }));
                 var prefabClass = new ClassModel(service.ServiceType.ToDisplayString())
                 {
                     SingleKeyWord = KeyWord.Partial,
                 };
                 var prefabFatory = new ClassModel("Factory")
                 {
-                    BaseClass = $"PlaceholderFactory<{service.ServiceType.ToDisplayString()}>",
+                    BaseClass = $"PlaceholderFactory<{typeParameters}>",
                 };
                 prefabClass.NestedClasses.Add(prefabFatory);
                 file.Classes.Add(prefabClass);
