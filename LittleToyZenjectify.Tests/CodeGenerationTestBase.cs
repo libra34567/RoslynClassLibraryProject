@@ -53,66 +53,78 @@ public class CodeGenerationTestBase
         // and operate on generic.
         var fakeCode = @"
 using System;
+using UnityEngine;
 
-namespace Plugins.basegame.Events
+// That's actually should be in user assembly.
+// here is for testing convenience
+public enum InstallerNameEnum
 {
-    using DOTSNET;
+    AnotherNewInstaller = 1,
+    SomeNewInstaller = 2,
+}
 
-    [System.AttributeUsage(AttributeTargets.Struct)]
-    public class CodeGenNetComponentAttribute : System.Attribute
+[AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+public class ZenGenAttribute : Attribute
+{
+    public InstallerNameEnum TargetInstallerNameName;
+    public ZenGenTypeEnum DiTypeName;
+    public bool IsLazyLoading;
+    public bool BindInterfacesAndSelf;
+    public string Suffix;
+    
+    public ZenGenAttribute( ZenGenTypeEnum diType, InstallerNameEnum targetInstallerNameName, bool bindInterfacesAndSelf = false, bool isLazyLoading = false, string suffix = """")
     {
-        public readonly SyncDirection SyncDirection;
+        TargetInstallerNameName = targetInstallerNameName;
+        DiTypeName = diType;
+        IsLazyLoading = isLazyLoading;
+        BindInterfacesAndSelf = bindInterfacesAndSelf;
+        Suffix = suffix;
+    } 
+}
 
-        public CodeGenNetComponentAttribute(SyncDirection syncDirection)
+public enum ZenGenTypeEnum
+{
+    MonoClassWithAssetInstance,
+    MonoClassWithSceneObjInstance,
+    Signal,
+    ClassWithoutInstance,
+    Prefab,
+}
+namespace UnityEngine
+{
+    public class MonoBehaviour {}
+}
+
+namespace Zenject
+{
+    using UnityEngine;
+
+    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Field | AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+    public class InjectAttribute : InjectAttributeBase
+    {
+    }
+
+    public class MonoInstaller : MonoBehaviour
+    {
+        [Inject]
+        protected DiContainer Container
         {
-            SyncDirection = syncDirection;
+            get; set;
+        }
+
+        public virtual void InstallBindings()
+        {
+            throw new NotImplementedException();
         }
     }
 }
 
-namespace Unity.Entities
+namespace Sirenix.OdinInspector
 {
-    public interface IComponentData
-    {
-    }
-    public struct ComponentType {}
-    public struct Entity {}
-    public struct EntityManager
-    {
-        public Entity CreateEntity() { return new Entity(); }
-        public bool AddComponent(Entity entity, ComponentType componentType) => true;
-        public bool AddComponent<T>(Entity entity) => true;
-        public bool AddComponentData<T>(Entity entity, T componentData) where T : struct, IComponentData => true;
-        public bool RemoveComponent<T>(Entity entity) => true;
-        public bool RemoveComponentData<T>(Entity entity, T componentData) where T : struct, IComponentData => true;
-    }
-    public struct EntityCommandBuffer
-    {
-        public struct ParallelWriter
-        {
-            public void AddComponent<T>(int sortKey, Entity e) where T : struct, IComponentData {}
-            public void AddComponent<T>(int sortKey, Entity e, T component) where T : struct, IComponentData {}
-            public void RemoveComponent<T>(int sortKey, Entity e) where T : struct, IComponentData {}
-            public void RemoveComponent<T>(int sortKey, Entity e, T component) where T : struct, IComponentData {}
-        }
-        public bool AddComponent<T>(Entity entity, T component) where T : struct, IComponentData => true;
-        public bool AddComponent<T>(Entity entity) where T : struct, IComponentData => true;
-        public bool RemoveComponent<T>(Entity entity, T component) where T : struct, IComponentData => true;
-        public bool RemoveComponent<T>(Entity entity) where T : struct, IComponentData => true;
-    }
-
-    public abstract class SystemBase
-    {
-        public EntityManager EntityManager => null;
-        protected virtual void OnCreate() {};
-        protected virtual void OnUpdate() {};
-    }
+    public sealed class RequiredAttribute : Attribute {}
+    public sealed class SceneObjectsOnlyAttribute : Attribute {}
+    public sealed class AssetsOnlyAttribute : Attribute {}
 }
-
-public partial struct ExternalComponentData : IComponentData
-{
-}
-
 ";
         List<MetadataReference> returnList = new();
         returnList.Add(CorlibReference);

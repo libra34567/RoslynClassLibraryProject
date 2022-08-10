@@ -6,11 +6,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 
 [Generator]
 public class Generator : ISourceGenerator
@@ -23,6 +21,11 @@ public class Generator : ISourceGenerator
 #nullable enable
 #pragma warning disable 1591";
 
+    private const string ZenGenAttributeType = "ZenGen";
+    private static readonly AttributeModel RequiredAttribute = new AttributeModel("Required");
+    private static readonly AttributeModel SceneObjectsOnlyAttribute = new AttributeModel("SceneObjectsOnly");
+    private static readonly AttributeModel SerializeFieldAttribute = new AttributeModel("SerializeField");
+
     /// <inheritdoc/>
     public void Execute(GeneratorExecutionContext context)
     {
@@ -31,6 +34,85 @@ public class Generator : ISourceGenerator
         {
             return;
         }
+
+        var serviceTypes = receiver.ServiceCandidates
+            .Select(_ => context.Compilation.GetSemanticModel(_.SyntaxTree).GetDeclaredSymbol(_))
+            .Where(_ => _ is not null)
+            .Where(IsValidServiceClass);
+        var serviceDescriptors = serviceTypes.Select(GetServiceDescriptor).ToList();
+        foreach (var installerServices in serviceDescriptors.GroupBy(_ => _.TargetInstallerNameName))
+        {
+            string installerName = installerServices.Key;
+            var file = CreateInstallerFile(installerName, installerServices);
+            context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
+        }
+    }
+
+    private static FileModel CreateInstallerFile(string installerName, IEnumerable<ServiceDescriptor> services)
+    {
+        var file = new FileModel(installerName)
+        {
+            UsingDirectives = new List<string>
+            {
+                "Sirenix.OdinInspector;",
+                "UnityEngine;",
+                "Zenject;"
+            },
+            Namespace = "",
+            Header = FileHeader,
+        };
+
+        var monoClassesWithSceneObjInstance = services.Where(s => s.InjectionMethod == InjectionMethod.MonoClassWithSceneObjInstance).ToList();
+
+        var classModel = new ClassModel(installerName)
+        {
+            BaseClass = "MonoInstaller",
+        };
+        foreach (var service in monoClassesWithSceneObjInstance)
+        {
+            classModel.Fields.Add(new Field()
+            {
+                AccessModifier = AccessModifier.Private,
+                Attributes = new () { RequiredAttribute, SceneObjectsOnlyAttribute, SerializeFieldAttribute },
+                Name = service.ServiceType.Name.LowerFirst(),
+                CustomDataType = service.ServiceType.ToDisplayString(),
+            });
+        }
+
+        var installBindingsMethod = new Method()
+        {
+            AccessModifier = AccessModifier.Public,
+            Parameters = new(),
+            BodyLines = new() { "base.InstallBindings();" },
+            Name = "InstallBindings",
+            BuiltInDataType = BuiltInDataType.Void,
+            KeyWords = new() { KeyWord.Override }
+        };
+        if (monoClassesWithSceneObjInstance.Count > 0)
+        {
+            installBindingsMethod.BodyLines.Add("InstallMonoClassesWithSceneObjInstance();");
+            var installMonoClassesWithSceneObjInstanceMethod = new Method()
+            {
+                AccessModifier = AccessModifier.Private,
+                Parameters = new(),
+                BodyLines = new(),
+                Name = "InstallMonoClassesWithSceneObjInstance",
+                BuiltInDataType = BuiltInDataType.Void,
+            };
+            foreach (var service in monoClassesWithSceneObjInstance)
+            {
+                var bindMethod = service.BindInterfacesAndSelf ? "BindInterfacesAndSelf" : "Bind";
+                string loadMethod = service.IsLazyLoading ? "Lazy" : "NonLazy";
+                var call = $"Container.{bindMethod}<{service.ServiceType.ToDisplayString()}>().FromInstance({service.ServiceType.Name.LowerFirst()}).AsSingle().{loadMethod}(){service.Suffix};";
+                installMonoClassesWithSceneObjInstanceMethod.BodyLines.Add(call);
+            }
+
+            classModel.Methods.Add(installMonoClassesWithSceneObjInstanceMethod);
+        }
+
+        classModel.Methods.Add(installBindingsMethod);
+        file.Classes.Add(classModel);
+        return file;
     }
 
     /// <inheritdoc/>
@@ -39,10 +121,59 @@ public class Generator : ISourceGenerator
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
     }
 
+    private static bool IsValidServiceClass(INamedTypeSymbol namedTypeSymbol)
+    {
+        var attribute = namedTypeSymbol.GetCustomAttribute(ZenGenAttributeType);
+        if (attribute == null)
+        {
+            return false;
+        }
+
+        if (attribute.ConstructorArguments.Length != 5)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static ServiceDescriptor GetServiceDescriptor(INamedTypeSymbol namedTypeSymbol)
+    {
+        var attribute = namedTypeSymbol.GetCustomAttribute(ZenGenAttributeType);
+        var injectionMethod = (InjectionMethod)(int)attribute.ConstructorArguments[0].Value;
+        var installerEnumValue = attribute.ConstructorArguments[1].ToCSharpString().Split('.').Last();
+        var bindInterfacesAndSelf = (bool)attribute.ConstructorArguments[2].Value;
+        var isLazyLoading = (bool)attribute.ConstructorArguments[3].Value;
+        var suffix = (string)attribute.ConstructorArguments[4].Value;
+        return new ServiceDescriptor
+        {
+            ServiceType = namedTypeSymbol,
+            InjectionMethod = injectionMethod,
+            BindInterfacesAndSelf = bindInterfacesAndSelf,
+            IsLazyLoading = isLazyLoading,
+            Suffix = suffix,
+            TargetInstallerNameName = installerEnumValue,
+        };
+    }
+
     internal class SyntaxReceiver : ISyntaxReceiver
     {
+        public List<ClassDeclarationSyntax> ServiceCandidates = new List<ClassDeclarationSyntax>();
+
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
+            if (syntaxNode is not ClassDeclarationSyntax classDeclarationSyntax)
+            {
+                return;
+            }
+
+            var zenGenAttribute = classDeclarationSyntax.AttributeLists.FindAttribute(ZenGenAttributeType);
+            if (zenGenAttribute == null)
+            {
+                return;
+            }
+
+            ServiceCandidates.Add(classDeclarationSyntax);
         }
     }
 }
