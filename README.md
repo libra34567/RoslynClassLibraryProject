@@ -17,9 +17,8 @@ cp LittleToySourceGenerator/bin/Debug/netstandard2.0/LittleToySourceGenerator.dl
 On any OS
 ```
 dotnet build -c Release
-cp LittleToyDocumentor/bin/Release/netstandard2.0/LittleToyDocumentor.dll ../RoslynTestProject/Assets/
-```
-```
+cp LittleToyZenjectify/bin/Release/netstandard2.0/LittleToyZenjectify.dll ../RoslynTestProject/Assets/
+``````
 
 ## Zenject generator
 On any OS
