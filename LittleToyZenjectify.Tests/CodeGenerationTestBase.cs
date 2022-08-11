@@ -81,6 +81,15 @@ public class ZenGenAttribute : Attribute
         BindInterfacesAndSelf = bindInterfacesAndSelf;
         Suffix = suffix;
     } 
+    
+    public ZenGenAttribute( ZenGenTypeEnum diType, string targetInstallerNameName, bool bindInterfacesAndSelf = false, bool isLazyLoading = false, string suffix = """")
+    {
+        TargetInstallerNameName = ZenGenTypeEnum.Parse(targetInstallerNameName);
+        DiTypeName = diType;
+        IsLazyLoading = isLazyLoading;
+        BindInterfacesAndSelf = bindInterfacesAndSelf;
+        Suffix = suffix;
+    } 
 }
 
 public enum ZenGenTypeEnum

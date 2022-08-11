@@ -286,7 +286,9 @@ public class Generator : ISourceGenerator
     {
         var attribute = namedTypeSymbol.GetCustomAttribute(ZenGenAttributeType);
         var injectionMethod = (InjectionMethod)(int)attribute.ConstructorArguments[0].Value;
-        var installerEnumValue = attribute.ConstructorArguments[1].ToCSharpString().Split('.').Last();
+        var installerEnumValue = attribute.ConstructorArguments[1].Value is string installerName
+            ? installerName
+            : attribute.ConstructorArguments[1].ToCSharpString().Split('.').Last();
         var bindInterfacesAndSelf = (bool)attribute.ConstructorArguments[2].Value;
         var isLazyLoading = (bool)attribute.ConstructorArguments[3].Value;
         var suffix = (string)attribute.ConstructorArguments[4].Value;
