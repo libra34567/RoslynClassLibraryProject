@@ -78,7 +78,8 @@ public class Generator : ISourceGenerator
         var classModel = new ClassModel(installerName)
         {
             BaseClass = "MonoInstaller",
-            KeyWords = new() { KeyWord.Partial }
+            KeyWords = new() { KeyWord.Partial },
+            Attributes = new() {new AttributeModel($"AddComponentMenu(\"Installers/{installerName}\")") }
         };
         foreach (var service in monoClassesWithSceneObjInstance)
         {
