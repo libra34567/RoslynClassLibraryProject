@@ -188,7 +188,7 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void InstallClassesWithoutInstance()
     {
-        Container.BindInterfacesAndSelf<ZenGenSomeSystemInNewInstaller>().AsSingle().NonLazy();
+        Container.BindInterfacesAndSelfTo<ZenGenSomeSystemInNewInstaller>().AsSingle().NonLazy();
     }
 
     public override void InstallBindings()

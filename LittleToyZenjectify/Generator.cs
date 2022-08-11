@@ -114,6 +114,21 @@ public class Generator : ISourceGenerator
             });
         }
 
+        var resetMethod = new Method()
+        {
+            AccessModifier = AccessModifier.Private,
+            BuiltInDataType = BuiltInDataType.Void,
+            BodyLines = new List<string>(),
+            Name = "Reset"
+        };
+
+        foreach (var monoClassWithSceneObjInst in monoClassesWithSceneObjInstance) {
+            resetMethod.BodyLines.Add($"{monoClassWithSceneObjInst.ServiceType.Name.LowerFirst()} = FindObjectOfType<{monoClassWithSceneObjInst.ServiceType.ToDisplayString()}>();");
+        }
+
+        classModel.Methods.Add(resetMethod);
+
+
         var installBindingsMethod = new Method()
         {
             AccessModifier = AccessModifier.Public,
@@ -260,7 +275,7 @@ public class Generator : ISourceGenerator
             return $"Container.DeclareSignal<{service.ServiceType.ToDisplayString()}>(){service.Suffix};";
         }
 
-        var bindMethod = service.BindInterfacesAndSelf ? "BindInterfacesAndSelf" : "Bind";
+        var bindMethod = service.BindInterfacesAndSelf ? "BindInterfacesAndSelfTo" : "Bind";
         string loadMethod = service.IsLazyLoading ? "Lazy" : "NonLazy";
         string optionalFromInstance = service.FromInstance ? $".FromInstance({service.ServiceType.Name.LowerFirst()})" : string.Empty;
         var call = $"Container.{bindMethod}<{service.ServiceType.ToDisplayString()}>(){optionalFromInstance}.AsSingle().{loadMethod}(){service.Suffix};";
