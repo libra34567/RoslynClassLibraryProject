@@ -79,7 +79,10 @@ public class Generator : ISourceGenerator
         {
             BaseClass = "MonoInstaller",
             KeyWords = new() { KeyWord.Partial },
-            Attributes = new() {new AttributeModel($"AddComponentMenu(\"Installers/{installerName}\")") }
+            Attributes = new() {
+                new AttributeModel($"AddComponentMenu(\"Installers/{installerName}\")"),
+                new AttributeModel("DisallowMultipleComponent")
+            }
         };
         foreach (var service in monoClassesWithSceneObjInstance)
         {
