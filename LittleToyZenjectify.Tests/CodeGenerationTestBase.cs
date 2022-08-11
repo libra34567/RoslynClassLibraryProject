@@ -67,7 +67,7 @@ public enum InstallerNameEnum
 [AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public class ZenGenAttribute : Attribute
 {
-    public InstallerNameEnum TargetInstallerNameName;
+    public string TargetInstallerNameName;
     public ZenGenTypeEnum DiTypeName;
     public bool IsLazyLoading;
     public bool BindInterfacesAndSelf;
@@ -75,7 +75,7 @@ public class ZenGenAttribute : Attribute
     
     public ZenGenAttribute( ZenGenTypeEnum diType, InstallerNameEnum targetInstallerNameName, bool bindInterfacesAndSelf = false, bool isLazyLoading = false, string suffix = """")
     {
-        TargetInstallerNameName = targetInstallerNameName;
+        TargetInstallerNameName = targetInstallerNameName.ToString();
         DiTypeName = diType;
         IsLazyLoading = isLazyLoading;
         BindInterfacesAndSelf = bindInterfacesAndSelf;
@@ -84,7 +84,7 @@ public class ZenGenAttribute : Attribute
     
     public ZenGenAttribute( ZenGenTypeEnum diType, string targetInstallerNameName, bool bindInterfacesAndSelf = false, bool isLazyLoading = false, string suffix = """")
     {
-        TargetInstallerNameName = ZenGenTypeEnum.Parse(targetInstallerNameName);
+        TargetInstallerNameName = targetInstallerNameName;
         DiTypeName = diType;
         IsLazyLoading = isLazyLoading;
         BindInterfacesAndSelf = bindInterfacesAndSelf;
