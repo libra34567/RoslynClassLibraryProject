@@ -35,6 +35,8 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
@@ -42,6 +44,11 @@ public partial class SomeNewInstaller : MonoInstaller
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
 
+
+    private void Reset()
+    {
+        zenGenSomeSystemInNewInstaller = FindObjectOfType<ZenGenSomeSystemInNewInstaller>();
+    }
 
     private void InstallMonoClassesWithSceneObjInstance()
     {
@@ -86,6 +93,8 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
@@ -93,6 +102,10 @@ public partial class SomeNewInstaller : MonoInstaller
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
 
+
+    private void Reset()
+    {
+    }
 
     private void InstallMonoClassesWithAssetInstance()
     {
@@ -138,8 +151,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
+    private void Reset()
+    {
+    }
+
     private void InstallClassesWithoutInstance()
     {
         Container.Bind<ZenGenSomeSystemInNewInstaller>().AsSingle().NonLazy();
@@ -184,8 +203,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
+    private void Reset()
+    {
+    }
+
     private void InstallClassesWithoutInstance()
     {
         Container.BindInterfacesAndSelfTo<ZenGenSomeSystemInNewInstaller>().AsSingle().NonLazy();
@@ -230,8 +255,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
+    private void Reset()
+    {
+    }
+
     private void InstallClassesWithoutInstance()
     {
         Container.Bind<ZenGenSomeSystemInNewInstaller>().AsSingle().Lazy();
@@ -276,8 +307,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
+    private void Reset()
+    {
+    }
+
     private void InstallSignals()
     {
         Container.DeclareSignal<ZenGenSomeSystemInNewInstaller>();
@@ -322,6 +359,8 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
@@ -329,6 +368,10 @@ public partial class SomeNewInstaller : MonoInstaller
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
 
+
+    private void Reset()
+    {
+    }
 
     private void InstallPrefabs()
     {
@@ -386,6 +429,8 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SomeNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
     [Required]
@@ -393,6 +438,10 @@ public partial class SomeNewInstaller : MonoInstaller
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
 
+
+    private void Reset()
+    {
+    }
 
     private void InstallPrefabs()
     {
@@ -446,8 +495,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/AnotherNewInstaller"")]
+[DisallowMultipleComponent]
 public partial class AnotherNewInstaller : MonoInstaller
 {
+    private void Reset()
+    {
+    }
+
     private void InstallSignals()
     {
         Container.DeclareSignal<ZenGenSomeSignalWithOptionalSubscriber>().OptionalSubscriber();
@@ -492,8 +547,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SoundTestInstaller"")]
+[DisallowMultipleComponent]
 public partial class SoundTestInstaller : MonoInstaller
 {
+    private void Reset()
+    {
+    }
+
     private void InstallSignals()
     {
         Container.DeclareSignal<ZenGenSomeSignalWithOptionalSubscriber>().OptionalSubscriber();
@@ -538,8 +599,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
 
+[AddComponentMenu(""Installers/SuperInstaller"")]
+[DisallowMultipleComponent]
 public partial class SuperInstaller : MonoInstaller
 {
+    private void Reset()
+    {
+    }
+
     private void InstallSignals()
     {
         Container.DeclareSignal<ZenGenSomeSignalWithOptionalSubscriber>();
