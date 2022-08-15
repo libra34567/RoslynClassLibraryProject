@@ -132,7 +132,7 @@ public class Generator : ISourceGenerator
         }
     }
 
-    private IEnumerable<(/*MemberAccessExpressionSyntax SyntaxNode, */string OperationName, IMethodSymbol Method, ITypeSymbol Type)> GetSymbols(Compilation compilation, IList<MemberAccessExpressionSyntax> syntaxes)
+    private IEnumerable<AuthoringDescriptor> GetSymbols(Compilation compilation, IList<MemberAccessExpressionSyntax> syntaxes)
     {
         foreach (var target in syntaxes)
         {
@@ -149,12 +149,11 @@ public class Generator : ISourceGenerator
                 var componentType = methodSymbol.TypeArguments[0];
                 var methodDeclaration = FindMethodDeclaration(target);
                 methodSymbol = model.GetDeclaredSymbol(methodDeclaration);
-                yield return (/*target, */operationName, methodSymbol, componentType);
+                yield return new (operationName, methodSymbol, componentType);
             }
             else
             {
                 continue;
-                // throw new NotImplementedException();
             }
         }    
     }
