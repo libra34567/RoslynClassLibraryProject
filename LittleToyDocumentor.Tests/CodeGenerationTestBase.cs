@@ -107,6 +107,11 @@ namespace Unity.Entities
         protected virtual void OnCreate() {};
         protected virtual void OnUpdate() {};
     }
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public class GenerateAuthoringComponentAttribute : Attribute
+    {
+    }
 }
 
 public partial struct ExternalComponentData : IComponentData

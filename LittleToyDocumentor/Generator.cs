@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 
 namespace LittleToyDocumentor;
 
@@ -22,6 +21,8 @@ public class Generator : ISourceGenerator
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591";
+
+    private const string GenerateAuthoringComponentAttributeType = "GenerateAuthoringComponent";
 
     /// <inheritdoc/>
     public void Execute(GeneratorExecutionContext context)
@@ -44,50 +45,37 @@ public class Generator : ISourceGenerator
         }
 
         var symbols = GetSymbols(context.Compilation, receiver.MemberAccessExpressionSyntaxes).Distinct().ToList();
-        foreach (var typeInformation in symbols.GroupBy(s => s.Type))
+        var authoringTypes = GetSymbols(context.Compilation, receiver.GenerateAuthoringComponentTypesSyntaxes).Distinct().ToList();
+        var typeDocumentations = GetTypeDocumentations(symbols, authoringTypes, context.Compilation);
+        foreach (var typeInformation in typeDocumentations)
         {
-            if (typeInformation.Key.TypeKind == TypeKind.TypeParameter)
-            {
-                continue;
-            }
-
-            var file = new FileModel(typeInformation.Key.Name + "Documentation")
+            var type = typeInformation.Type;
+            var typeName = type.Name;
+            var file = new FileModel(typeName + "Documentation")
             {
                 Header = FileHeader,
-                Namespace = typeInformation.Key.ContainingNamespace?.Name ?? "",
+                Namespace = type.ContainingNamespace?.Name ?? "",
             };
             try
             {
-                var typeDeclarationSytaxes = typeInformation.Key.DeclaringSyntaxReferences.Select(_ => _.GetSyntax() as TypeDeclarationSyntax);
-                var isPartial = typeDeclarationSytaxes.All(typeDeclarationSyntax => typeDeclarationSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)));
-                if (!isPartial)
-                {
-                    continue;
-                }
-
-                if (!SymbolEqualityComparer.Default.Equals(typeInformation.Key.ContainingAssembly, context.Compilation.Assembly))
-                {
-                    // Skip type definitions from other assemblies, since we cannot generate anything for them.
-                    continue;
-                }
-
                 StringBuilder comment = new StringBuilder();
                 bool firstOperation = true;
-                foreach (var operationInformation in typeInformation.GroupBy(ti => ti.OperationName))
+                foreach (var operationInformation in typeInformation.Descriptors.GroupBy(ti => ti.OperationName).OrderBy(_ => _.Key))
                 {
                     if (!firstOperation)
                     {
                         comment.AppendLine();
                     }
 
+                    string operationName = operationInformation.Key;
                     bool firstLine = true;
-                    var callSites = operationInformation.Select(_ => (_.Method.Name, _.Method.ReceiverType));
+                    var callSites = operationInformation.Where(_ => _.Method is not null).Select(_ => (_.Method.Name, _.Method.ReceiverType)).Distinct();
                     foreach (var callSiteInformation in callSites.OrderBy(type => type.ReceiverType.Name).GroupBy(_ => _.ReceiverType))
                     {
                         var usedMethods = callSiteInformation.Select(_ => _.Name).OrderBy(_ => _);
                         if (firstLine)
                         {
-                            comment.AppendLine($"{operationInformation.Key} in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
+                            comment.AppendLine($"{operationName} in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
                             firstLine = false;
                         }
                         else
@@ -96,12 +84,25 @@ public class Generator : ISourceGenerator
                         }
                     }
 
+                    var hasAuthoring = typeInformation.ViaAuthoring && operationName == "Added";
+                    if (hasAuthoring)
+                    {
+                        if (firstLine)
+                        {
+                            comment.AppendLine($"{operationName} via authoring");
+                        }
+                        else
+                        {
+                            comment.AppendLine($"     and via authoring");
+                        }
+                    }
+
                     firstOperation = false;
                 }
 
-                if (typeInformation.Key.IsValueType)
+                if (type.IsValueType)
                 {
-                    file.Structs.Add(new StructModel(typeInformation.Key.Name)
+                    file.Structs.Add(new StructModel(typeName)
                     {
                         Comment = comment.ToString(),
                         UseXmlDocCommentStyle = true,
@@ -110,7 +111,7 @@ public class Generator : ISourceGenerator
                 }
                 else
                 {
-                    file.Classes.Add(new ClassModel(typeInformation.Key.Name)
+                    file.Classes.Add(new ClassModel(typeName)
                     {
                         Comment = comment.ToString(),
                         UseXmlDocCommentStyle = true,
@@ -121,7 +122,7 @@ public class Generator : ISourceGenerator
             }
             catch (Exception ex)
             {
-                file.Classes.Add(new ClassModel(typeInformation.Key.Name)
+                file.Classes.Add(new ClassModel(typeName)
                 {
                     Comment = ex.ToString(),
                     UseXmlDocCommentStyle = true,
@@ -129,6 +130,32 @@ public class Generator : ISourceGenerator
                 });
                 context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
             }
+        }
+    }
+
+    private IEnumerable<TypeDocumentationModel> GetTypeDocumentations(IList<AuthoringDescriptor> memberCallsAuthoringDescriptors, IList<AuthoringDescriptor> authoringDescriptors, Compilation compilation)
+    {
+        foreach (var typeInformation in memberCallsAuthoringDescriptors.Union(authoringDescriptors).GroupBy(s => s.Type))
+        {
+            if (typeInformation.Key.TypeKind == TypeKind.TypeParameter)
+            {
+                continue;
+            }
+
+            var typeDeclarationSytaxes = typeInformation.Key.DeclaringSyntaxReferences.Select(_ => _.GetSyntax() as TypeDeclarationSyntax);
+            var isPartial = typeDeclarationSytaxes.All(typeDeclarationSyntax => typeDeclarationSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)));
+            if (!isPartial)
+            {
+                continue;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(typeInformation.Key.ContainingAssembly, compilation.Assembly))
+            {
+                // Skip type definitions from other assemblies, since we cannot generate anything for them.
+                continue;
+            }
+
+            yield return new TypeDocumentationModel(typeInformation.Key, typeInformation.Distinct().ToArray());
         }
     }
 
@@ -155,7 +182,22 @@ public class Generator : ISourceGenerator
             {
                 continue;
             }
-        }    
+        }
+    }
+
+    private IEnumerable<AuthoringDescriptor> GetSymbols(Compilation compilation, IList<StructDeclarationSyntax> syntaxes)
+    {
+        foreach (var target in syntaxes)
+        {
+            var model = compilation.GetSemanticModel(target.SyntaxTree);
+            var componentType = model.GetDeclaredSymbol(target) as ITypeSymbol;
+            if (componentType == null)
+            {
+                continue;
+            }
+
+            yield return new("Added", null, componentType);
+        }
     }
 
     private static MethodDeclarationSyntax FindMethodDeclaration(SyntaxNode node)
@@ -200,6 +242,7 @@ public class Generator : ISourceGenerator
     internal class SyntaxReceiver : ISyntaxReceiver
     {
         public List<MemberAccessExpressionSyntax> MemberAccessExpressionSyntaxes = new();
+        public List<StructDeclarationSyntax> GenerateAuthoringComponentTypesSyntaxes = new();
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
@@ -212,6 +255,17 @@ public class Generator : ISourceGenerator
                     {
                         MemberAccessExpressionSyntaxes.Add(memberAccessExpressionSyntax);
                     }
+                }
+            }
+
+            // any field with at least one attribute is a candidate for property generation
+            if (syntaxNode is StructDeclarationSyntax structDeclarationSyntax
+                && structDeclarationSyntax.AttributeLists.Count > 0)
+            {
+                var generateAuthoringComponentAttribute = structDeclarationSyntax.AttributeLists.FindAttribute(GenerateAuthoringComponentAttributeType);
+                if (generateAuthoringComponentAttribute != null)
+                {
+                    this.GenerateAuthoringComponentTypesSyntaxes.Add(structDeclarationSyntax);
                 }
             }
         }
