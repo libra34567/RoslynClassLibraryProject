@@ -7,7 +7,9 @@ using System.Linq;
 internal class ServiceDescriptor
 {
     public INamedTypeSymbol ServiceType;
-    public string TargetInstallerNameName;
+    public string TargetInstallerName;
+    public string TargetInstallerNamespace;
+    public string TargetInstallerFullName => string.IsNullOrEmpty(TargetInstallerNamespace) ? TargetInstallerName : TargetInstallerNamespace + "." + TargetInstallerName;
     public InjectionMethod InjectionMethod;
     public bool IsLazyLoading;
     public bool BindInterfacesAndSelf;

@@ -37,25 +37,44 @@ public class Generator : ISourceGenerator
             return;
         }
 
-        var serviceTypes = receiver.ServiceCandidates
-            .Select(_ => context.Compilation.GetSemanticModel(_.SyntaxTree).GetDeclaredSymbol(_))
-            .Where(_ => _ is not null)
-            .Where(IsValidServiceClass);
-        var serviceDescriptors = serviceTypes.Select(GetServiceDescriptor).ToList();
-        foreach (var installerServices in serviceDescriptors.GroupBy(_ => _.TargetInstallerNameName))
+        var serviceDescriptors = GetServiceDescriptors(context, receiver).ToList();
+        foreach (var installerServices in serviceDescriptors.GroupBy(_ => new { _.TargetInstallerNamespace, _.TargetInstallerName }))
         {
-            string installerName = installerServices.Key;
+            string installerName = installerServices.Key.TargetInstallerName;
+            string installerNamespace = installerServices.Key.TargetInstallerNamespace;
             if (!installerName.EndsWith("Installer"))
             {
                 installerName += "Installer";
             }
 
-            var file = CreateInstallerFile(installerName, installerServices);
+            var file = CreateInstallerFile(installerName, installerNamespace, installerServices);
             context.AddSource(file.Name, SourceText.From(file.ToString(), Encoding.UTF8));
         }
     }
 
-    private static FileModel CreateInstallerFile(string installerName, IEnumerable<ServiceDescriptor> services)
+    private static IEnumerable<ServiceDescriptor> GetServiceDescriptors(GeneratorExecutionContext context, SyntaxReceiver receiver)
+    {
+        foreach (var _ in receiver.ServiceCandidates)
+        {
+            var semanticModel = context.Compilation.GetSemanticModel(_.SyntaxTree);
+            var typeSymbol = semanticModel.GetDeclaredSymbol(_);
+            if (_ is null)
+            {
+                continue;
+            }
+
+            if (IsValidServiceClass(typeSymbol))
+            {
+                var serviceDescriptor = GetServiceDescriptor(typeSymbol);
+                var candidateTypes = context.Compilation.GetSymbolsWithName(_ => _ == serviceDescriptor.TargetInstallerName, SymbolFilter.Type).ToList();
+                var candidate = candidateTypes.FirstOrDefault();
+                serviceDescriptor.TargetInstallerNamespace = candidate?.ContainingNamespace?.ToDisplayString();
+                yield return serviceDescriptor;
+            }
+        }
+    }
+
+    private static FileModel CreateInstallerFile(string installerName, string installerNamespace, IEnumerable<ServiceDescriptor> services)
     {
         var file = new FileModel(installerName)
         {
@@ -65,7 +84,7 @@ public class Generator : ISourceGenerator
                 "UnityEngine;",
                 "Zenject;"
             },
-            Namespace = "",
+            Namespace = installerNamespace,
             Header = FileHeader,
         };
 
@@ -318,7 +337,7 @@ public class Generator : ISourceGenerator
             BindInterfacesAndSelf = bindInterfacesAndSelf,
             IsLazyLoading = isLazyLoading,
             Suffix = suffix,
-            TargetInstallerNameName = installerEnumValue,
+            TargetInstallerName = installerEnumValue,
         };
     }
 
