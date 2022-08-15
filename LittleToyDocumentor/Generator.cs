@@ -75,12 +75,12 @@ public class Generator : ISourceGenerator
                         var usedMethods = callSiteInformation.Select(_ => _.Name).OrderBy(_ => _);
                         if (firstLine)
                         {
-                            comment.AppendLine($"{operationName} in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
+                            comment.AppendLine($"{operationName} in {string.Join(", ", usedMethods)} of <see cref=\"{callSiteInformation.Key.ToDisplayString()}\"/>");
                             firstLine = false;
                         }
                         else
                         {
-                            comment.AppendLine($"     in {string.Join(", ", usedMethods)} of {callSiteInformation.Key.Name}");
+                            comment.AppendLine($"     in {string.Join(", ", usedMethods)} of <see cref=\"{callSiteInformation.Key.ToDisplayString()}\"/>");
                         }
                     }
 

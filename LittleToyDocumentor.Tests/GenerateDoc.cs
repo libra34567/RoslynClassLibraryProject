@@ -41,7 +41,7 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -86,7 +86,7 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -137,7 +137,7 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnCreate, OnUpdate of Position3Data
+/// Added in OnCreate, OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -197,8 +197,8 @@ public partial class AnotherSystem: SystemBase
 
 
 /// <summary>
-/// Added in OnCreate of AnotherSystem
-///      in OnCreate, OnUpdate of Position3Data
+/// Added in OnCreate of <see cref=""AnotherSystem""/>
+///      in OnCreate, OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -245,7 +245,7 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -293,7 +293,7 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -338,7 +338,7 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -410,8 +410,8 @@ public partial class AnotherSystem: SystemBase
 
 
 /// <summary>
-/// Added in OnCreate of AnotherSystem
-///      in OnUpdate of Position3Data
+/// Added in OnCreate of <see cref=""AnotherSystem""/>
+///      in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -426,7 +426,7 @@ public partial struct SampleComponentData
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct AnotherSampleComponentTag
 {
@@ -441,7 +441,7 @@ public partial struct AnotherSampleComponentTag
 
 
 /// <summary>
-/// Added in OnCreate of Position3Data
+/// Added in OnCreate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentTag
 {
@@ -485,7 +485,7 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Removed in OnUpdate of Position3Data
+/// Removed in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -530,8 +530,8 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
-/// Removed in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
+/// Removed in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -629,7 +629,7 @@ namespace test
 {
 
     /// <summary>
-    /// Added in OnUpdate of Position3Data
+    /// Added in OnUpdate of <see cref=""test.Position3Data""/>
     /// </summary>
     public partial struct SampleComponentData
     {
@@ -703,9 +703,9 @@ public partial class Position3Data: SystemBase
 
 
 /// <summary>
-/// Added in OnUpdate of Position3Data
+/// Added in OnUpdate of <see cref=""Position3Data""/>
 ///      and via authoring
-/// Removed in OnUpdate of Position3Data
+/// Removed in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
@@ -751,7 +751,7 @@ public partial class Position3Data: SystemBase
 
 /// <summary>
 /// Added via authoring
-/// Removed in OnUpdate of Position3Data
+/// Removed in OnUpdate of <see cref=""Position3Data""/>
 /// </summary>
 public partial struct SampleComponentData
 {
