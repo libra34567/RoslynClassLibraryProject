@@ -68,7 +68,7 @@ public class Generator : ISourceGenerator
                 var serviceDescriptor = GetServiceDescriptor(typeSymbol);
                 var candidateTypes = context.Compilation.GetSymbolsWithName(_ => _ == serviceDescriptor.TargetInstallerName, SymbolFilter.Type).ToList();
                 var candidate = candidateTypes.FirstOrDefault();
-                serviceDescriptor.TargetInstallerNamespace = candidate?.ContainingNamespace?.ToDisplayString();
+                serviceDescriptor.TargetInstallerNamespace = candidate?.ContainingNamespace.IsGlobalNamespace == true ? null : candidate?.ContainingNamespace?.ToDisplayString();
                 yield return serviceDescriptor;
             }
         }
