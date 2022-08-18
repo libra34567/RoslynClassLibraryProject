@@ -20,7 +20,10 @@ public class Generator : ISourceGenerator
 // regenerated.
 // </auto-generated>
 #nullable enable
-#pragma warning disable 1591";
+#pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif";
 
     private const string ZenGenAttributeType = "ZenGen";
     private static readonly AttributeModel RequiredAttribute = new AttributeModel("Required");
@@ -80,9 +83,10 @@ public class Generator : ISourceGenerator
         {
             UsingDirectives = new List<string>
             {
+                "System.Collections.Generic;",
                 "Sirenix.OdinInspector;",
                 "UnityEngine;",
-                "Zenject;"
+                "Zenject;",
             },
             Namespace = installerNamespace,
             Header = FileHeader,
@@ -144,7 +148,23 @@ public class Generator : ISourceGenerator
             Name = "Reset"
         };
 
-        foreach (var monoClassWithSceneObjInst in monoClassesWithSceneObjInstance) {
+        // Register installer in the list of installers.
+        resetMethod.BodyLines.Add("var sceneContext = GetComponent<SceneContext>();");
+        resetMethod.BodyLines.AddRange(new[]
+        {
+                "if (sceneContext != null)",
+                "{",
+                CsGenerator.IndentSingle + "var listInstallers = new List<MonoInstaller>(sceneContext.Installers);",
+                CsGenerator.IndentSingle + "if (listInstallers.IndexOf(this) == -1)",
+                CsGenerator.IndentSingle + "{",
+                CsGenerator.IndentSingle + CsGenerator.IndentSingle + "listInstallers.Add(this);",
+                CsGenerator.IndentSingle + "}",
+                CsGenerator.IndentSingle + "sceneContext.Installers = listInstallers;",
+                "}",
+            });
+
+        foreach (var monoClassWithSceneObjInst in monoClassesWithSceneObjInstance)
+        {
             resetMethod.BodyLines.Add($"{monoClassWithSceneObjInst.ServiceType.Name.LowerFirst()} = FindObjectOfType<{monoClassWithSceneObjInst.ServiceType.ToDisplayString()}>();");
         }
 
@@ -155,7 +175,7 @@ public class Generator : ISourceGenerator
         {
             AccessModifier = AccessModifier.Public,
             Parameters = new(),
-            BodyLines = new() { "base.InstallBindings();" },
+            BodyLines = new(),
             Name = "InstallBindings",
             BuiltInDataType = BuiltInDataType.Void,
             KeyWords = new() { KeyWord.Override }

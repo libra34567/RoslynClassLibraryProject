@@ -31,6 +31,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -47,6 +51,16 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
         zenGenSomeSystemInNewInstaller = FindObjectOfType<ZenGenSomeSystemInNewInstaller>();
     }
 
@@ -57,7 +71,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallMonoClassesWithSceneObjInstance();
     }
 }
@@ -89,6 +102,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -105,6 +122,16 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallMonoClassesWithAssetInstance()
@@ -114,7 +141,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallMonoClassesWithAssetInstance();
     }
 }
@@ -147,6 +173,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -157,6 +187,16 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallClassesWithoutInstance()
@@ -166,7 +206,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallClassesWithoutInstance();
     }
 }
@@ -199,6 +238,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -209,6 +252,16 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallClassesWithoutInstance()
@@ -218,7 +271,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallClassesWithoutInstance();
     }
 }
@@ -251,6 +303,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -261,6 +317,16 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallClassesWithoutInstance()
@@ -270,7 +336,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallClassesWithoutInstance();
     }
 }
@@ -303,6 +368,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -313,6 +382,16 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallSignals()
@@ -322,7 +401,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallSignals();
     }
 }
@@ -355,6 +433,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -371,6 +453,16 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallPrefabs()
@@ -380,7 +472,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallPrefabs();
     }
 }
@@ -425,6 +516,10 @@ public class ZenGenSomeSystemInNewInstaller: MonoBehaviour
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -441,6 +536,16 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallPrefabs()
@@ -450,7 +555,6 @@ public partial class SomeNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallPrefabs();
     }
 }
@@ -491,6 +595,10 @@ public class ZenGenSomeSignalWithOptionalSubscriber
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -501,6 +609,16 @@ public partial class AnotherNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallSignals()
@@ -510,7 +628,6 @@ public partial class AnotherNewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallSignals();
     }
 }
@@ -543,6 +660,10 @@ public class ZenGenSomeSignalWithOptionalSubscriber
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -553,6 +674,16 @@ public partial class SoundTestInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallSignals()
@@ -562,7 +693,6 @@ public partial class SoundTestInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallSignals();
     }
 }
@@ -595,6 +725,10 @@ public class ZenGenSomeSignalWithOptionalSubscriber
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -605,6 +739,16 @@ public partial class SuperInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallSignals()
@@ -614,7 +758,6 @@ public partial class SuperInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallSignals();
     }
 }
@@ -652,6 +795,10 @@ namespace test.something
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -665,6 +812,16 @@ namespace test.something
     {
         private void Reset()
         {
+            var sceneContext = GetComponent<SceneContext>();
+            if (sceneContext != null)
+            {
+                var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+                if (listInstallers.IndexOf(this) == -1)
+                {
+                    listInstallers.Add(this);
+                }
+                sceneContext.Installers = listInstallers;
+            }
         }
 
         private void InstallSignals()
@@ -674,7 +831,6 @@ namespace test.something
 
         public override void InstallBindings()
         {
-            base.InstallBindings();
             InstallSignals();
         }
     }
@@ -710,6 +866,10 @@ public partial class SuperInstaller {}
 // </auto-generated>
 #nullable enable
 #pragma warning disable 1591
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
@@ -720,6 +880,16 @@ public partial class SuperInstaller : MonoInstaller
 {
     private void Reset()
     {
+        var sceneContext = GetComponent<SceneContext>();
+        if (sceneContext != null)
+        {
+            var listInstallers = new List<MonoInstaller>(sceneContext.Installers);
+            if (listInstallers.IndexOf(this) == -1)
+            {
+                listInstallers.Add(this);
+            }
+            sceneContext.Installers = listInstallers;
+        }
     }
 
     private void InstallSignals()
@@ -729,7 +899,6 @@ public partial class SuperInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        base.InstallBindings();
         InstallSignals();
     }
 }
