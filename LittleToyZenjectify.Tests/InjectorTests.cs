@@ -51,6 +51,7 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -62,6 +63,7 @@ public partial class SomeNewInstaller : MonoInstaller
             sceneContext.Installers = listInstallers;
         }
         zenGenSomeSystemInNewInstaller = FindObjectOfType<ZenGenSomeSystemInNewInstaller>();
+        #endif
     }
 
     private void InstallMonoClassesWithSceneObjInstance()
@@ -122,6 +124,7 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -132,6 +135,8 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
+        #endif
     }
 
     private void InstallMonoClassesWithAssetInstance()
@@ -187,6 +192,7 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -197,6 +203,7 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallClassesWithoutInstance()
@@ -252,6 +259,7 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -262,6 +270,7 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallClassesWithoutInstance()
@@ -317,6 +326,7 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -327,6 +337,7 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallClassesWithoutInstance()
@@ -382,6 +393,7 @@ public partial class SomeNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -392,6 +404,7 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallSignals()
@@ -453,6 +466,7 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -463,6 +477,8 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
+        #endif
     }
 
     private void InstallPrefabs()
@@ -536,6 +552,7 @@ public partial class SomeNewInstaller : MonoInstaller
 
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -546,6 +563,8 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
+        #endif
     }
 
     private void InstallPrefabs()
@@ -609,6 +628,7 @@ public partial class AnotherNewInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -619,6 +639,7 @@ public partial class AnotherNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallSignals()
@@ -674,6 +695,7 @@ public partial class SoundTestInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -684,6 +706,7 @@ public partial class SoundTestInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallSignals()
@@ -739,6 +762,7 @@ public partial class SuperInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -749,6 +773,7 @@ public partial class SuperInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallSignals()
@@ -812,6 +837,7 @@ namespace test.something
     {
         private void Reset()
         {
+            #if UNITY_EDITOR
             var sceneContext = GetComponent<SceneContext>();
             if (sceneContext != null)
             {
@@ -822,6 +848,7 @@ namespace test.something
                 }
                 sceneContext.Installers = listInstallers;
             }
+            #endif
         }
 
         private void InstallSignals()
@@ -880,6 +907,7 @@ public partial class SuperInstaller : MonoInstaller
 {
     private void Reset()
     {
+        #if UNITY_EDITOR
         var sceneContext = GetComponent<SceneContext>();
         if (sceneContext != null)
         {
@@ -890,6 +918,7 @@ public partial class SuperInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
+        #endif
     }
 
     private void InstallSignals()
