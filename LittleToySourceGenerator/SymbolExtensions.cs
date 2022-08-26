@@ -71,6 +71,16 @@ internal static class SymbolExtensions
         return field.Values.Select(_ => (ITypeSymbol)_.Value).ToArray();
     }
 
+    public static string GetNamespace(this INamespaceSymbol? namespaceSymbol)
+    {
+        if (namespaceSymbol == null || namespaceSymbol.IsGlobalNamespace)
+        {
+            return string.Empty;
+        }
+
+        return namespaceSymbol.ToDisplayString();
+    }
+
     public static IEnumerable<IFieldSymbol> GetFields(this ITypeSymbol typeSymbol)
     {
         return typeSymbol.GetMembers().OfType<IFieldSymbol>();

@@ -182,7 +182,7 @@ public class Generator : ISourceGenerator
                 "DOTSNET;",
                 "Unity.Collections;"
             },
-            Namespace = eventComponentType.ContainingNamespace?.Name ?? "",
+            Namespace = eventComponentType.ContainingNamespace.GetNamespace(),
             Header = FileHeader,
         };
 
@@ -697,7 +697,7 @@ public class Generator : ISourceGenerator
         var file = new FileModel(eventComponentType.Name + "EventSystem" + classAddonName)
         {
             Header = FileHeader,
-            Namespace = eventComponentType.ContainingNamespace?.Name ?? "",
+            Namespace = eventComponentType.ContainingNamespace.GetNamespace(),
         };
         file.LoadUsingDirectives(usingDirectives);
 
@@ -850,7 +850,7 @@ public class Generator : ISourceGenerator
                 "{",
                 $"    All = new []",
                 "    {",
-                $"        ComponentType.ReadWrite<{eventViewType.Name}>(),",
+                $"        ComponentType.ReadWrite<{eventViewType.ToDisplayString()}>(),",
                 $"        ComponentType.ReadOnly<AddedComponentArrayData>(),",
                 "    }",
                 "});"
@@ -868,11 +868,11 @@ public class Generator : ISourceGenerator
             onUpdateMethodModel.BodyLines.AddRange(new []
             {
                 "_addedComponentArrayDataROComponentTypeHandle.Update(this);",
-                $"var notify{eventViewType.Name}Add{eventComponentType.Name}Job = new NotifyAdd{eventComponentType.Name}Job<{eventViewType.Name}>",
+                $"var notify{eventViewType.Name}Add{eventComponentType.Name}Job = new NotifyAdd{eventComponentType.Name}Job<{eventViewType.ToDisplayString()}>",
                 "{",
                 "    EntityManager = this.EntityManager,",
                 $"    DataTypeHandle = _addedComponentArrayDataROComponentTypeHandle,",
-                $"    ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.Name}>(false),",
+                $"    ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.ToDisplayString()}>(false),",
                 "};",
                 "CompleteDependency();",
                 $"JobEntityBatchExtensions.RunWithoutJobs(ref notify{eventViewType.Name}Add{eventComponentType.Name}Job, _entityWith{eventViewType.Name}AndAddedComponentArrayDataQuery);",
@@ -903,7 +903,7 @@ public class Generator : ISourceGenerator
                 "{",
                 $"    All = new []",
                 "    {",
-                $"        ComponentType.ReadWrite<{eventViewType.Name}>(),",
+                $"        ComponentType.ReadWrite<{eventViewType.ToDisplayString()}>(),",
                 $"        ComponentType.ReadOnly<RemovedComponentArrayData>(),",
                 "    }",
                 "});"
@@ -921,11 +921,11 @@ public class Generator : ISourceGenerator
             onUpdateMethodModel.BodyLines.AddRange(new []
             {
                 "_removedComponentArrayDataROComponentTypeHandle.Update(this);",
-                $"var notify{eventViewType.Name}Remove{eventComponentType.Name}Job = new NotifyRemove{eventComponentType.Name}Job<{eventViewType.Name}>",
+                $"var notify{eventViewType.Name}Remove{eventComponentType.Name}Job = new NotifyRemove{eventComponentType.Name}Job<{eventViewType.ToDisplayString()}>",
                 "{",
                 "    EntityManager = this.EntityManager,",
                 $"    DataTypeHandle = _removedComponentArrayDataROComponentTypeHandle,",
-                $"    ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.Name}>(false),",
+                $"    ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.ToDisplayString()}>(false),",
                 "};",
                 "CompleteDependency();",
                 $"JobEntityBatchExtensions.RunWithoutJobs(ref notify{eventViewType.Name}Remove{eventComponentType.Name}Job, _entityWith{eventViewType.Name}AndRemovedComponentArrayDataQuery);",
@@ -959,7 +959,7 @@ public class Generator : ISourceGenerator
                 "{",
                 $"    All = new []",
                 "    {",
-                $"        ComponentType.ReadWrite<{eventViewType.Name}>(),",
+                $"        ComponentType.ReadWrite<{eventViewType.ToDisplayString()}>(),",
                 $"        ComponentType.ReadOnly<{eventComponentType.Name}>(),",
                 "    }",
                 "});",
@@ -993,11 +993,11 @@ public class Generator : ISourceGenerator
             onUpdateMethodModel.BodyLines.AddRange(new []
             {
                 $"_{eventComponentNameCamel}ROComponentTypeHandle.Update(this);",
-                $"var notify{eventViewType.Name}{eventComponentType.Name}DirtyJob = new Notify{eventComponentType.Name}DirtyJob<{eventViewType.Name}>",
+                $"var notify{eventViewType.Name}{eventComponentType.Name}DirtyJob = new Notify{eventComponentType.Name}DirtyJob<{eventViewType.ToDisplayString()}>",
                 "{",
                 "    EntityManager = this.EntityManager,",
                 $"    DataTypeHandle = _{eventComponentNameCamel}ROComponentTypeHandle,",
-                $"    ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.Name}>(false),",
+                $"    ListenerTypeHandle = EntityManager.GetComponentTypeHandle<{eventViewType.ToDisplayString()}>(false),",
                 "};",
                 "CompleteDependency();",
                 $"JobEntityBatchExtensions.RunWithoutJobs(ref notify{eventViewType.Name}{eventComponentType.Name}DirtyJob, _entityWith{eventViewType.Name}And{eventComponentType.Name}Query);",
@@ -1313,7 +1313,7 @@ public class Generator : ISourceGenerator
         var file = new FileModel($"{classWithEventsAttr.Name}Event")
         {
             Header = FileHeader,
-            Namespace = classWithEventsAttr.ContainingNamespace?.Name ?? "",
+            Namespace = classWithEventsAttr.ContainingNamespace.GetNamespace(),
         };
 
         var classModel = new ClassModel(classWithEventsAttr.Name)
@@ -1376,7 +1376,7 @@ public class Generator : ISourceGenerator
         var file = new FileModel($"{classWithWriteToEcs.Name}ReadWrite")
         {
             Header = FileHeader,
-            Namespace = classWithWriteToEcs.ContainingNamespace?.Name ?? "",
+            Namespace = classWithWriteToEcs.ContainingNamespace.GetNamespace(),
         };
 
         var classModel = new ClassModel(classWithWriteToEcs.Name);
@@ -1420,7 +1420,7 @@ public class Generator : ISourceGenerator
         var file = new FileModel($"{classWithHasComponentEcs.Name}HasComponent")
         {
             Header = FileHeader,
-            Namespace = classWithHasComponentEcs.ContainingNamespace?.Name ?? "",
+            Namespace = classWithHasComponentEcs.ContainingNamespace.GetNamespace(),
         };
 
         var classModel = new ClassModel(classWithHasComponentEcs.Name)
@@ -1470,7 +1470,7 @@ public class Generator : ISourceGenerator
                 "System;"
             },
             Header = FileHeader,
-            Namespace = netMessageType.ContainingNamespace?.Name ?? "",
+            Namespace = netMessageType.ContainingNamespace.GetNamespace(),
             Structs = new List<StructModel>()
         };
 
@@ -1605,7 +1605,7 @@ public class Generator : ISourceGenerator
                 "Unity.Jobs;"
             },
             Header = FileHeader,
-            Namespace = eventComponentDataType.ContainingNamespace?.Name ?? "",
+            Namespace = eventComponentDataType.ContainingNamespace.GetNamespace(),
         };
 
         file.Classes.Add(GenerateNetworkComponentSerializerClassModel(eventComponentDataType));
@@ -1646,11 +1646,6 @@ public class Generator : ISourceGenerator
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
     }
 
-    private static string LowercaseName(string identifier)
-    {
-        return identifier.Substring(0, 1).ToLowerInvariant() + identifier.Substring(1);
-    }
-
     /// <summary>
     /// Helper to get the name of the DirtyEvent interface for certain ComponentData, used for partial ViewClass generation
     /// </summary>
@@ -1658,7 +1653,13 @@ public class Generator : ISourceGenerator
     /// <returns>Name of the change listener interface for the component.</returns>
     private static string GetDirtyInterfaceForEventComponentOfType(ITypeSymbol eventComponentType)
     {
-        return $"I{GetNameRootFromEventComponentType(eventComponentType)}Listener";
+        var baseName = $"I{GetNameRootFromEventComponentType(eventComponentType)}Listener";
+        if (eventComponentType.ContainingNamespace == null || eventComponentType.ContainingNamespace.IsGlobalNamespace)
+        {
+            return baseName;
+        }
+
+        return $"{eventComponentType.ContainingNamespace.GetNamespace()}.{baseName}";
     }
 
     /// <summary>
@@ -1668,7 +1669,13 @@ public class Generator : ISourceGenerator
     /// <returns>Name of the add listener interface for the component.</returns>
     private static string GetAddedInterfaceForEventComponentOfType(ITypeSymbol eventComponentType)
     {
-        return $"I{GetNameRootFromEventComponentType(eventComponentType)}AddedListener";
+        var baseName = $"I{GetNameRootFromEventComponentType(eventComponentType)}AddedListener";
+        if (eventComponentType.ContainingNamespace == null || eventComponentType.ContainingNamespace.IsGlobalNamespace)
+        {
+            return baseName;
+        }
+
+        return $"{eventComponentType.ContainingNamespace.GetNamespace()}.{baseName}";
     }
 
     /// <summary>
@@ -1678,7 +1685,13 @@ public class Generator : ISourceGenerator
     /// <returns>Name of the remove listener interface for the component.</returns>
     private static string GetRemovedInterfaceForEventComponentOfType(ITypeSymbol eventComponentType)
     {
-        return $"I{GetNameRootFromEventComponentType(eventComponentType)}RemovedListener";
+        var baseName = $"I{GetNameRootFromEventComponentType(eventComponentType)}RemovedListener";
+        if (eventComponentType.ContainingNamespace == null || eventComponentType.ContainingNamespace.IsGlobalNamespace)
+        {
+            return baseName;
+        }
+
+        return $"{eventComponentType.ContainingNamespace.GetNamespace()}.{baseName}";
     }
 
     /// <summary>
