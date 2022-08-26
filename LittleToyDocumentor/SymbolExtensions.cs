@@ -29,6 +29,16 @@ internal static class SymbolExtensions
         return typeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name.Contains(searchAttributeName));
     }
 
+    public static string GetNamespace(this INamespaceSymbol? namespaceSymbol)
+    {
+        if (namespaceSymbol == null || namespaceSymbol.IsGlobalNamespace)
+        {
+            return string.Empty;
+        }
+
+        return namespaceSymbol.ToDisplayString();
+    }
+
     public static IEnumerable<AttributeData> GetCustomAttributes(this ITypeSymbol typeSymbol, bool inherit)
     {
         foreach (var attribute in typeSymbol.GetAttributes())

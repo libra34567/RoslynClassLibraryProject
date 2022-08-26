@@ -71,6 +71,13 @@ public class Generator : ISourceGenerator
         "LittleToy",
         DiagnosticSeverity.Warning, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
 
+    private static DiagnosticDescriptor FatalError = new DiagnosticDescriptor(
+        "LT0004",
+        "Fatal error happens",
+        "Exception of type {0} produce following message {1} at {2}.",
+        "LittleToy",
+        DiagnosticSeverity.Error, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
+
     private static Dictionary<string, string> _systemToDotsnetTypeDictionary = new Dictionary<string, string>()
     {
         { "System.Byte", "Byte"},
@@ -126,35 +133,43 @@ public class Generator : ISourceGenerator
             return;
         }
 
-        if (EnableEventDataGeneration)
+        try
         {
-            GenerateEventDataFiles(context, receiver);
-        }
+            if (EnableEventDataGeneration)
+            {
+                GenerateEventDataFiles(context, receiver);
+            }
 
-        if (EnableEventSystemGeneration)
-        {
-            GenerateEventSystemFiles(context, receiver);
-        }
+            if (EnableEventSystemGeneration)
+            {
+                GenerateEventSystemFiles(context, receiver);
+            }
 
-        if (GenerateEventViewInterfaceGeneration)
-        {
-            GenerateEventViewInterfaceFiles(context, receiver);
-        }
+            if (GenerateEventViewInterfaceGeneration)
+            {
+                GenerateEventViewInterfaceFiles(context, receiver);
+            }
 
-        if (EnableReadWriteEcsGeneration)
-        {
-            GenerateReadWriteEcsFiles(context, receiver);
-            GenerateHasComponentEcsFiles(context, receiver);
-        }
+            if (EnableReadWriteEcsGeneration)
+            {
+                GenerateReadWriteEcsFiles(context, receiver);
+                GenerateHasComponentEcsFiles(context, receiver);
+            }
 
-        if (EnableNetMessageGeneration)
-        {
-            GenerateNetMessageFiles(context, receiver);
-        }
+            if (EnableNetMessageGeneration)
+            {
+                GenerateNetMessageFiles(context, receiver);
+            }
 
-        if (EnableNetworkComponentGeneration)
+            if (EnableNetworkComponentGeneration)
+            {
+                GenerateNetworkComponentFiles(context, receiver);
+            }
+        }
+        catch (Exception ex)
         {
-            GenerateNetworkComponentFiles(context, receiver);
+            var err = Diagnostic.Create(FatalError, location: null, ex.GetType().Name, ex.Message, ex.StackTrace);
+            context.ReportDiagnostic(err);
         }
     }
 

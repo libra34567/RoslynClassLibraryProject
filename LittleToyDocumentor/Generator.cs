@@ -24,6 +24,13 @@ public class Generator : ISourceGenerator
 
     private const string GenerateAuthoringComponentAttributeType = "GenerateAuthoringComponent";
 
+    private static DiagnosticDescriptor ErrorComponentCall = new DiagnosticDescriptor(
+        "LD1001",
+        "Error call to component",
+        "Error call to component with type {0} in method {1}",
+        "LittleToysDocumentor",
+        DiagnosticSeverity.Warning, isEnabledByDefault: true, description: "Use only types known by DOTSNET");
+
     /// <inheritdoc/>
     public void Execute(GeneratorExecutionContext context)
     {
@@ -46,7 +53,7 @@ public class Generator : ISourceGenerator
 
         var symbols = GetSymbols(context.Compilation, receiver.MemberAccessExpressionSyntaxes).Distinct().ToList();
         var authoringTypes = GetSymbols(context.Compilation, receiver.GenerateAuthoringComponentTypesSyntaxes).Distinct().ToList();
-        var typeDocumentations = GetTypeDocumentations(symbols, authoringTypes, context.Compilation);
+        var typeDocumentations = GetTypeDocumentations(symbols, authoringTypes, context);
         foreach (var typeInformation in typeDocumentations)
         {
             var type = typeInformation.Type;
@@ -54,7 +61,7 @@ public class Generator : ISourceGenerator
             var file = new FileModel(typeName + "Documentation")
             {
                 Header = FileHeader,
-                Namespace = type.ContainingNamespace?.Name ?? "",
+                Namespace = type.ContainingNamespace.GetNamespace(),
             };
             try
             {
@@ -133,12 +140,18 @@ public class Generator : ISourceGenerator
         }
     }
 
-    private IEnumerable<TypeDocumentationModel> GetTypeDocumentations(IList<AuthoringDescriptor> memberCallsAuthoringDescriptors, IList<AuthoringDescriptor> authoringDescriptors, Compilation compilation)
+    private IEnumerable<TypeDocumentationModel> GetTypeDocumentations(IList<AuthoringDescriptor> memberCallsAuthoringDescriptors, IList<AuthoringDescriptor> authoringDescriptors, GeneratorExecutionContext context)
     {
         foreach (var typeInformation in memberCallsAuthoringDescriptors.Union(authoringDescriptors).GroupBy(s => s.Type))
         {
             if (typeInformation.Key.TypeKind == TypeKind.TypeParameter)
             {
+                continue;
+            }
+
+            if (typeInformation.Key.TypeKind == TypeKind.Error)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(ErrorComponentCall, location: null, typeInformation.Key, typeInformation.First().Method));
                 continue;
             }
 
@@ -149,7 +162,7 @@ public class Generator : ISourceGenerator
                 continue;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(typeInformation.Key.ContainingAssembly, compilation.Assembly))
+            if (!SymbolEqualityComparer.Default.Equals(typeInformation.Key.ContainingAssembly, context.Compilation.Assembly))
             {
                 // Skip type definitions from other assemblies, since we cannot generate anything for them.
                 continue;

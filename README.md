@@ -20,6 +20,12 @@ dotnet build -c Release
 cp LittleToyDocumentor/bin/Release/netstandard2.0/LittleToyDocumentor.dll ../crowdcityonline/Assets/
 ``````
 
+Debugging in case of something really wierd.
+```
+dotnet build
+cp LittleToyDocumentor/bin/Debug/netstandard2.0/LittleToyDocumentor.dll ../crowdcityonline/Assets/
+```
+
 ## Zenject generator
 On any OS
 ```
