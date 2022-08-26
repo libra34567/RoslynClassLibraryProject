@@ -1616,12 +1616,12 @@ public class Generator : ISourceGenerator
     {
         var networkComponentSerializerClassModel = new ClassModel($"{eventComponentDataType.Name}Serializer")
         {
-            BaseClass = $"DOTSNetworkComponentSerializer<{eventComponentDataType.Name}>",
+            BaseClass = $"DOTSNetworkComponentSerializer<{eventComponentDataType.ToDisplayString()}>",
             AccessModifier = AccessModifier.Public,
             Attributes = new List<AttributeModel>
             {
-                new($"assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<{eventComponentDataType.Name}>.NetworkComponentSerializerJob))"),
-                new($"assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<{eventComponentDataType.Name}>.NetworkComponentDeserializerJob))")
+                new($"assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<{eventComponentDataType.ToDisplayString()}>.NetworkComponentSerializerJob))"),
+                new($"assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<{eventComponentDataType.ToDisplayString()}>.NetworkComponentDeserializerJob))")
             }
         };
 
