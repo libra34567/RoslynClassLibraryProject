@@ -465,9 +465,9 @@ public partial struct JoinWorldMessage
 #nullable enable
 #pragma warning disable 1591
 using Unity.Jobs;
-
 [assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<JoinWorldMessage>.NetworkComponentSerializerJob))]
 [assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<JoinWorldMessage>.NetworkComponentDeserializerJob))]
+
 public class JoinWorldMessageSerializer : DOTSNetworkComponentSerializer<JoinWorldMessage>
 {
 }
@@ -583,12 +583,12 @@ public partial struct JoinWorldMessage
 #nullable enable
 #pragma warning disable 1591
 using Unity.Jobs;
+[assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<Test.Inside.JoinWorldMessage>.NetworkComponentSerializerJob))]
+[assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<Test.Inside.JoinWorldMessage>.NetworkComponentDeserializerJob))]
 
 namespace Test.Inside
 {
 
-    [assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<Test.Inside.JoinWorldMessage>.NetworkComponentSerializerJob))]
-    [assembly: RegisterGenericJobType(typeof(DOTSNetworkComponentSerializer<Test.Inside.JoinWorldMessage>.NetworkComponentDeserializerJob))]
     public class JoinWorldMessageSerializer : DOTSNetworkComponentSerializer<Test.Inside.JoinWorldMessage>
     {
     }

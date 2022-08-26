@@ -1608,7 +1608,10 @@ public class Generator : ISourceGenerator
             Namespace = eventComponentDataType.ContainingNamespace.GetNamespace(),
         };
 
-        file.Classes.Add(GenerateNetworkComponentSerializerClassModel(eventComponentDataType));
+        var serializerClass = GenerateNetworkComponentSerializerClassModel(eventComponentDataType);
+        file.Classes.Add(serializerClass);
+        file.Attributes.AddRange(serializerClass.Attributes);
+        serializerClass.Attributes.Clear();
         return file;
     }
 
