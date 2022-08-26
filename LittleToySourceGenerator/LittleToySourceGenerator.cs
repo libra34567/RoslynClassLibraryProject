@@ -1388,12 +1388,12 @@ public class Generator : ISourceGenerator
         var wteAttribute = classWithWriteToEcs.GetCustomAttribute(ReadWriteEcsAttributeType, true);
         foreach (var toWriteToType in wteAttribute.GetFieldValueTypes("Types"))
         {
-            var propertyModel = new Property(toWriteToType.Name, toWriteToType.Name)
+            var propertyModel = new Property(toWriteToType.ToDisplayString(), toWriteToType.Name)
             {
                 AccessModifier = AccessModifier.Public,
                 IsExpressBody = true,
                 IsAutoImplemented = false,
-                GetterBody = $"EntityManager.GetComponentData<{toWriteToType.Name}>(LinkedEntity)",
+                GetterBody = $"EntityManager.GetComponentData<{toWriteToType.ToDisplayString()}>(LinkedEntity)",
                 SetterBody = "EntityManager.SetComponentData(LinkedEntity, value)"
             };
             classModel.Properties.Add(propertyModel);
@@ -1438,7 +1438,7 @@ public class Generator : ISourceGenerator
                 AccessModifier = AccessModifier.Public,
                 IsExpressBody = true,
                 IsAutoImplemented = false,
-                GetterBody = $"EntityManager.HasComponent<{hasCpTypes.Name}>(LinkedEntity)",
+                GetterBody = $"EntityManager.HasComponent<{hasCpTypes.ToDisplayString()}>(LinkedEntity)",
             };
             classModel.Properties.Add(propertyModel);
         }
