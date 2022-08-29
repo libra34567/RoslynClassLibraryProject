@@ -57,17 +57,19 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        if (reader.ReadInt(out var hatindex) && reader.ReadInt(out var bodyindex) && reader.ReadFixedString64(out UserName))
+        int hatIndex = default;
+        int bodyIndex = default;
+        var result = reader.ReadInt(out hatIndex) && reader.ReadInt(out bodyIndex) && reader.ReadFixedString64(out UserName);
+        if (!result) return false;
+        if (HatIndex == hatIndex && BodyIndex == bodyIndex)
         {
-            if (HatIndex != hatindex || BodyIndex != bodyindex)
-            {
-                IsDirty = true;
-                HatIndex = hatindex;
-                BodyIndex = bodyindex;
-            }
             return true;
         }
-        return false;
+        
+        IsDirty = true;
+        HatIndex = hatIndex;
+        BodyIndex = bodyIndex;
+        return true;
     }
 }
 ";
@@ -135,16 +137,17 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        if (reader.ReadInt(out var bodyindex) && reader.ReadFixedString64(out UserName))
+        int bodyIndex = default;
+        var result = reader.ReadInt(out bodyIndex) && reader.ReadFixedString64(out UserName);
+        if (!result) return false;
+        if (BodyIndex == bodyIndex)
         {
-            if (BodyIndex != bodyindex)
-            {
-                IsDirty = true;
-                BodyIndex = bodyindex;
-            }
             return true;
         }
-        return false;
+        
+        IsDirty = true;
+        BodyIndex = bodyIndex;
+        return true;
     }
 }
 ";
@@ -201,7 +204,8 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        return reader.ReadInt(out HatIndex) && reader.ReadInt(out BodyIndex) && reader.ReadFixedString64(out UserName);
+        var result = reader.ReadInt(out HatIndex) && reader.ReadInt(out BodyIndex) && reader.ReadFixedString64(out UserName);
+        return result;
     }
 }
 ";
@@ -338,7 +342,8 @@ public partial struct UserInfoData : NetworkComponent
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        return reader.ReadByte(out ByteField) && reader.ReadBool(out BoolField) && reader.ReadShort(out ShortField) && reader.ReadUShort(out UShortField) && reader.ReadInt(out Int32Field) && reader.ReadUInt(out UInt32Field) && reader.ReadInt2(out Int2Field) && reader.ReadInt3(out Int3Field) && reader.ReadInt4(out Int4Field) && reader.ReadLong(out Int64Field) && reader.ReadULong(out UInt64Field) && reader.ReadLong3(out Long3Field) && reader.ReadFloat(out FloatField) && reader.ReadFloat2(out Float2Field) && reader.ReadFloat3(out Float3Field) && reader.ReadFloat4(out Float4Field) && reader.ReadDouble(out DoubleField) && reader.ReadDouble2(out Double2Field) && reader.ReadDouble3(out Double3Field) && reader.ReadDouble4(out Double4Field) && reader.ReadDecimal(out DecimalField) && reader.ReadQuaternion(out QuaternionField) && reader.ReadBytes16(out Bytes16Field) && reader.ReadBytes30(out Bytes30Field) && reader.ReadBytes62(out Bytes62Field) && reader.ReadBytes126(out Bytes126Field) && reader.ReadBytes510(out Bytes510Field) && reader.ReadBytes4094(out Bytes4094Field) && reader.ReadFixedString32(out FixedString32Field) && reader.ReadFixedString64(out FixedString64Field) && reader.ReadFixedString128(out FixedString128Field) && reader.ReadFixedString512(out FixedString512Field);
+        var result = reader.ReadByte(out ByteField) && reader.ReadBool(out BoolField) && reader.ReadShort(out ShortField) && reader.ReadUShort(out UShortField) && reader.ReadInt(out Int32Field) && reader.ReadUInt(out UInt32Field) && reader.ReadInt2(out Int2Field) && reader.ReadInt3(out Int3Field) && reader.ReadInt4(out Int4Field) && reader.ReadLong(out Int64Field) && reader.ReadULong(out UInt64Field) && reader.ReadLong3(out Long3Field) && reader.ReadFloat(out FloatField) && reader.ReadFloat2(out Float2Field) && reader.ReadFloat3(out Float3Field) && reader.ReadFloat4(out Float4Field) && reader.ReadDouble(out DoubleField) && reader.ReadDouble2(out Double2Field) && reader.ReadDouble3(out Double3Field) && reader.ReadDouble4(out Double4Field) && reader.ReadDecimal(out DecimalField) && reader.ReadQuaternion(out QuaternionField) && reader.ReadBytes16(out Bytes16Field) && reader.ReadBytes30(out Bytes30Field) && reader.ReadBytes62(out Bytes62Field) && reader.ReadBytes126(out Bytes126Field) && reader.ReadBytes510(out Bytes510Field) && reader.ReadBytes4094(out Bytes4094Field) && reader.ReadFixedString32(out FixedString32Field) && reader.ReadFixedString64(out FixedString64Field) && reader.ReadFixedString128(out FixedString128Field) && reader.ReadFixedString512(out FixedString512Field);
+        return result;
     }
 }
 ";
@@ -426,7 +431,8 @@ public partial struct UserInfoData : NetworkComponent
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        return reader.ReadByte(out ByteField) && reader.ReadBool(out BoolField) && reader.ReadShort(out ShortField) && reader.ReadUShort(out UShortField) && reader.ReadInt(out Int32Field) && reader.ReadUInt(out UInt32Field) && reader.ReadInt2(out Int2Field) && reader.ReadInt3(out Int3Field) && reader.ReadInt4(out Int4Field) && reader.ReadLong(out Int64Field) && reader.ReadULong(out UInt64Field) && reader.ReadLong3(out Long3Field) && reader.ReadFloat(out FloatField) && reader.ReadFloat2(out Float2Field) && reader.ReadFloat3(out Float3Field) && reader.ReadFloat4(out Float4Field) && reader.ReadDouble(out DoubleField) && reader.ReadDouble2(out Double2Field) && reader.ReadDouble3(out Double3Field) && reader.ReadDouble4(out Double4Field) && reader.ReadDecimal(out DecimalField) && reader.ReadQuaternion(out QuaternionField) && reader.ReadBytes16(out Bytes16Field) && reader.ReadBytes30(out Bytes30Field) && reader.ReadBytes62(out Bytes62Field) && reader.ReadBytes126(out Bytes126Field) && reader.ReadBytes510(out Bytes510Field) && reader.ReadBytes4094(out Bytes4094Field) && reader.ReadFixedString32(out FixedString32Field) && reader.ReadFixedString64(out FixedString64Field) && reader.ReadFixedString128(out FixedString128Field) && reader.ReadFixedString512(out FixedString512Field);
+        var result = reader.ReadByte(out ByteField) && reader.ReadBool(out BoolField) && reader.ReadShort(out ShortField) && reader.ReadUShort(out UShortField) && reader.ReadInt(out Int32Field) && reader.ReadUInt(out UInt32Field) && reader.ReadInt2(out Int2Field) && reader.ReadInt3(out Int3Field) && reader.ReadInt4(out Int4Field) && reader.ReadLong(out Int64Field) && reader.ReadULong(out UInt64Field) && reader.ReadLong3(out Long3Field) && reader.ReadFloat(out FloatField) && reader.ReadFloat2(out Float2Field) && reader.ReadFloat3(out Float3Field) && reader.ReadFloat4(out Float4Field) && reader.ReadDouble(out DoubleField) && reader.ReadDouble2(out Double2Field) && reader.ReadDouble3(out Double3Field) && reader.ReadDouble4(out Double4Field) && reader.ReadDecimal(out DecimalField) && reader.ReadQuaternion(out QuaternionField) && reader.ReadBytes16(out Bytes16Field) && reader.ReadBytes30(out Bytes30Field) && reader.ReadBytes62(out Bytes62Field) && reader.ReadBytes126(out Bytes126Field) && reader.ReadBytes510(out Bytes510Field) && reader.ReadBytes4094(out Bytes4094Field) && reader.ReadFixedString32(out FixedString32Field) && reader.ReadFixedString64(out FixedString64Field) && reader.ReadFixedString128(out FixedString128Field) && reader.ReadFixedString512(out FixedString512Field);
+        return result;
     }
 }
 ";
@@ -531,17 +537,19 @@ namespace Test.InnerNamespace
 
         public bool Deserialize(ref NetworkReader128 reader)
         {
-            if (reader.ReadInt(out var hatindex) && reader.ReadInt(out var bodyindex) && reader.ReadFixedString64(out UserName))
+            int hatIndex = default;
+            int bodyIndex = default;
+            var result = reader.ReadInt(out hatIndex) && reader.ReadInt(out bodyIndex) && reader.ReadFixedString64(out UserName);
+            if (!result) return false;
+            if (HatIndex == hatIndex && BodyIndex == bodyIndex)
             {
-                if (HatIndex != hatindex || BodyIndex != bodyindex)
-                {
-                    IsDirty = true;
-                    HatIndex = hatindex;
-                    BodyIndex = bodyindex;
-                }
                 return true;
             }
-            return false;
+            
+            IsDirty = true;
+            HatIndex = hatIndex;
+            BodyIndex = bodyIndex;
+            return true;
         }
     }
 }
@@ -591,6 +599,151 @@ namespace Test.Inside
 
     public class JoinWorldMessageSerializer : DOTSNetworkComponentSerializer<Test.Inside.JoinWorldMessage>
     {
+    }
+}
+";
+        Assert.AreEqual(expectedOutput, output);
+    }
+
+    [TestMethod]
+    public void DirtyEventWithEnums()
+    {
+        string source = @"
+using Plugins.basegame.Events;
+using DOTSNET;
+
+public enum MyTestEnum
+{
+    X, Y, Z
+}
+
+[Plugins.basegame.Events.CodeGenNetComponentAttribute(DOTSNET.SyncDirection.SERVER_TO_CLIENT)]
+public partial struct Position3Data
+{
+    [MarkDirty] [SyncField] public int HatIndex;
+    [MarkDirty] [SyncField] public MyTestEnum BodyIndex;
+    [SyncField] public MyTestEnum UserName;
+}
+";
+        var generator = new Generator();
+        generator.DisableAllGeneration();
+        generator.EnableEventDataGeneration = true;
+        string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
+
+        Assert.IsNotNull(output);
+
+        var expectedOutput = @"// <auto-generated>
+// Code generated by LittleToy Code Generator.
+// Changes may cause incorrect behavior and will be lost if the code is
+// regenerated.
+// </auto-generated>
+#nullable enable
+#pragma warning disable 1591
+using System;
+using Unity.Entities;
+using Unity.Mathematics;
+using Plugins.basegame.Events;
+using DOTSNET;
+using Unity.Collections;
+
+public partial struct Position3Data : NetworkComponent
+{
+    public bool IsDirty { get; set; }
+    public SyncDirection GetSyncDirection()
+    {
+        return SyncDirection.SERVER_TO_CLIENT;
+    }
+
+    public bool Serialize(ref NetworkWriter128 writer)
+    {
+        return writer.WriteInt(HatIndex) && writer.WriteInt((int)BodyIndex) && writer.WriteInt((int)UserName);
+    }
+
+    public bool Deserialize(ref NetworkReader128 reader)
+    {
+        int hatIndex = default;
+        int bodyIndex = default;
+        int userName = default;
+        var result = reader.ReadInt(out hatIndex) && reader.ReadInt(out bodyIndex) && reader.ReadInt(out userName);
+        if (!result) return false;
+        UserName = (MyTestEnum)userName;
+        if (HatIndex == hatIndex && BodyIndex == (MyTestEnum)bodyIndex)
+        {
+            return true;
+        }
+        
+        IsDirty = true;
+        HatIndex = hatIndex;
+        BodyIndex = (MyTestEnum)bodyIndex;
+        return true;
+    }
+}
+";
+        Assert.AreEqual(expectedOutput, output);
+    }
+
+    [TestMethod]
+    public void SyncFieldWithEnums()
+    {
+        string source = @"
+using Plugins.basegame.Events;
+using DOTSNET;
+
+public enum MyTestEnum
+{
+    X, Y, Z
+}
+
+[Plugins.basegame.Events.CodeGenNetComponentAttribute(DOTSNET.SyncDirection.SERVER_TO_CLIENT)]
+public partial struct Position3Data
+{
+    [SyncField] public int HatIndex;
+    [SyncField] public MyTestEnum BodyIndex;
+    [SyncField] public MyTestEnum UserName;
+}
+";
+        var generator = new Generator();
+        generator.DisableAllGeneration();
+        generator.EnableEventDataGeneration = true;
+        string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
+
+        Assert.IsNotNull(output);
+
+        var expectedOutput = @"// <auto-generated>
+// Code generated by LittleToy Code Generator.
+// Changes may cause incorrect behavior and will be lost if the code is
+// regenerated.
+// </auto-generated>
+#nullable enable
+#pragma warning disable 1591
+using System;
+using Unity.Entities;
+using Unity.Mathematics;
+using Plugins.basegame.Events;
+using DOTSNET;
+using Unity.Collections;
+
+public partial struct Position3Data : NetworkComponent
+{
+    public SyncDirection GetSyncDirection()
+    {
+        return SyncDirection.SERVER_TO_CLIENT;
+    }
+
+    public bool Serialize(ref NetworkWriter128 writer)
+    {
+        return writer.WriteInt(HatIndex) && writer.WriteInt((int)BodyIndex) && writer.WriteInt((int)UserName);
+    }
+
+    public bool Deserialize(ref NetworkReader128 reader)
+    {
+        int bodyIndex = default;
+        int userName = default;
+        var result = reader.ReadInt(out HatIndex) && reader.ReadInt(out bodyIndex) && reader.ReadInt(out userName);
+        if (!result) return false;
+        BodyIndex = (MyTestEnum)bodyIndex;
+        UserName = (MyTestEnum)userName;
+        return true;
     }
 }
 ";

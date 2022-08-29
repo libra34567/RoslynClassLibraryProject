@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -372,26 +373,29 @@ public class Generator : ISourceGenerator
                 var fieldInfo = fieldWithSyncFieldAttribute[i];
                 var fieldType = fieldInfo.Type;
 
-                if (IsDotsnetType(fieldType) == false)
+                if (IsDotsnetCompatibleType(fieldType) == false)
                 {
                     var err = Diagnostic.Create(FieldTypeShouldBeKnownForDotsNet, location: syntaxNode.GetLocation(), fieldType.Name);
                     context.ReportDiagnostic(err);
                     return structModel;
                 }
 
+                var conversion = IsDotsnetType(fieldType) ? string.Empty : $"({GetDotsnetCompatibleType(fieldType).ToDisplayString()})";
+                serializeMethodModel.BodyLines[0] += $" writer.Write{GetDotsnetTypeName(fieldType)}({conversion}{fieldInfo.Name})";
                 if (i == fieldWithSyncFieldAttribute.Count - 1)
                 {
                     // last one
-                    serializeMethodModel.BodyLines[0] += $" writer.Write{GetDotsnetTypeName(fieldType)}({fieldInfo.Name});";
+                    serializeMethodModel.BodyLines[0] += $";";
                 }
                 else
                 {
-                    serializeMethodModel.BodyLines[0] += $" writer.Write{GetDotsnetTypeName(fieldType)}({fieldInfo.Name}) &&";
+                    serializeMethodModel.BodyLines[0] += $" &&";
                 }
             }
 
             structModel.Methods.Add(serializeMethodModel);
 
+            var allFieldsIsDotsNetTypes = fieldWithSyncFieldAttribute.All(f => IsDotsnetType(f.Type));
             var shouldDealWithDirtyInDeserialize = fieldWithSyncFieldAndMarkDirtyAttribute.Count > 0;
             var deserializeMethodModel = new Method(BuiltInDataType.Bool, "Deserialize")
             {
@@ -399,108 +403,156 @@ public class Generator : ISourceGenerator
                 Parameters = new List<Parameter> { new Parameter("ref NetworkReader128 reader") },
             };
 
-            if (shouldDealWithDirtyInDeserialize)
+            deserializeMethodModel.BodyLines = new List<string>();
+            // Perform validation
+            for (var i = 0; i < fieldWithSyncFieldAttribute.Count; i++)
             {
-                deserializeMethodModel.BodyLines = new List<string>()
+                var fieldInfo = fieldWithSyncFieldAttribute[i];
+                var fieldType = fieldInfo.Type;
+
+                if (IsDotsnetCompatibleType(fieldType) == false)
                 {
-                    "if (",
-                    "{",
-                    "    if (",
-                    "    {",
-                    "        IsDirty = true;",
-                };
+                    var err = Diagnostic.Create(FieldTypeShouldBeKnownForDotsNet, location: syntaxNode.GetLocation(), fieldType.Name);
+                    context.ReportDiagnostic(err);
+                    return structModel;
+                }
             }
-            else
+
+            int conditionLine = 1;
+            for (var i = 0; i < fieldWithSyncFieldAttribute.Count; i++)
             {
-                deserializeMethodModel.BodyLines = new List<string>()
+                var fieldInfo = fieldWithSyncFieldAttribute[i];
+                var fieldType = fieldInfo.Type;
+                var hasSyncFieldAndMarkDirty = fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo);
+                if (hasSyncFieldAndMarkDirty || !IsDotsnetType(fieldType))
                 {
-                    "return"
-                };
+                    deserializeMethodModel.BodyLines.Add(
+                        $"{GetDotsnetCompatibleType(fieldType)} {fieldInfo.Name.ToCamel()} = default;");
+                    conditionLine++;
+                }
+            }
+
+            StringBuilder deserializationLine = new StringBuilder("var result = ");
+            for (var i = 0; i < fieldWithSyncFieldAttribute.Count; i++)
+            {
+                var fieldInfo = fieldWithSyncFieldAttribute[i];
+                var fieldType = fieldInfo.Type;
+                if (i != 0)
+                {
+                    deserializationLine.Append(" && ");
+                }
+
+                var hasSyncFieldAndMarkDirty = fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo);
+                if (hasSyncFieldAndMarkDirty || !IsDotsnetType(fieldType))
+                {
+                    deserializationLine.Append(
+                        $"reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name.ToCamel()})");
+                }
+                else
+                {
+                    deserializationLine.Append(
+                        $"reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name})");
+                }
+            }
+
+            deserializationLine.Append(";");
+            deserializeMethodModel.BodyLines.Add(deserializationLine.ToString());
+            if (!allFieldsIsDotsNetTypes || shouldDealWithDirtyInDeserialize)
+            {
+                deserializeMethodModel.BodyLines.Add("if (!result) return false;");
+                conditionLine++;
+            }
+
+            foreach (var fieldInfo in fieldWithSyncFieldAttribute)
+            {
+                if (fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo))
+                {
+                    continue;
+                }
+
+                if (IsDotsnetType(fieldInfo.Type))
+                {
+                    continue;
+                }
+
+                deserializeMethodModel.BodyLines.Add($"{fieldInfo.Name} = ({fieldInfo.Type.ToDisplayString()}){fieldInfo.Name.ToCamel()};");
+                conditionLine++;
             }
 
             if (shouldDealWithDirtyInDeserialize)
+            {
+                deserializeMethodModel.BodyLines.AddRange(new[]
+                {
+                    "if (",
+                    "{",
+                    "    return true;",
+                    "}",
+                    "",
+                    "IsDirty = true;",
+                });
+            }
+            else
+            {
+                if (!allFieldsIsDotsNetTypes)
+                {
+                    deserializeMethodModel.BodyLines.Add("return true;");
+                }
+                else
+                {
+                    deserializeMethodModel.BodyLines.Add("return result;");
+                }
+            }
+
+            if (shouldDealWithDirtyInDeserialize || !allFieldsIsDotsNetTypes)
             {
                 for (var i = 0; i < fieldWithSyncFieldAttribute.Count; i++)
                 {
                     var fieldInfo = fieldWithSyncFieldAttribute[i];
                     var fieldType = fieldInfo.Type;
 
-                    if (IsDotsnetType(fieldType) == false)
+                    if (IsDotsnetCompatibleType(fieldType) == false)
                     {
                         var err = Diagnostic.Create(FieldTypeShouldBeKnownForDotsNet, location: syntaxNode.GetLocation(), fieldType.Name);
                         context.ReportDiagnostic(err);
                         return structModel;
                     }
 
+                    var hasSyncFieldAndMarkDirty = fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo);
+                    var conversion = IsDotsnetType(fieldType) ? string.Empty : $"({fieldType.ToDisplayString()})";
+                    var comparison = $"{fieldInfo.Name} == {conversion}{fieldInfo.Name.ToCamel()}";
+                    var assignment = $"{fieldInfo.Name} = {conversion}{fieldInfo.Name.ToCamel()};";
                     if (i == 0)
                     {
-                        if (fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo))
+                        if (hasSyncFieldAndMarkDirty)
                         {
-                            deserializeMethodModel.BodyLines[0] +=
-                                $"reader.Read{GetDotsnetTypeName(fieldType)}(out var {fieldInfo.Name.ToLower()})";
-                            deserializeMethodModel.BodyLines[2] +=
-                                $"{fieldInfo.Name} != {fieldInfo.Name.ToLower()}";
+                            if (shouldDealWithDirtyInDeserialize)
+                            {
+                                deserializeMethodModel.BodyLines[conditionLine] += comparison;
+                            }
+
                             deserializeMethodModel.BodyLines.Add(
-                                $"        {fieldInfo.Name} = {fieldInfo.Name.ToLower()};");
-                        }
-                        else
-                        {
-                            deserializeMethodModel.BodyLines[0] +=
-                                $"reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name})";
+                                $"{assignment}");
                         }
                     }
                     else
                     {
-                        if (fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo))
+                        if (hasSyncFieldAndMarkDirty)
                         {
-                            deserializeMethodModel.BodyLines[0] +=
-                                $" && reader.Read{GetDotsnetTypeName(fieldType)}(out var {fieldInfo.Name.ToLower()})";
-                            deserializeMethodModel.BodyLines[2] +=
-                                $" || {fieldInfo.Name} != {fieldInfo.Name.ToLower()}";
+                            if (shouldDealWithDirtyInDeserialize)
+                            {
+                                deserializeMethodModel.BodyLines[conditionLine] += $" && {comparison}";
+                            }
                             deserializeMethodModel.BodyLines.Add(
-                                $"        {fieldInfo.Name} = {fieldInfo.Name.ToLower()};");
-                        }
-                        else
-                        {
-                            deserializeMethodModel.BodyLines[0] +=
-                                $" && reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name})";
+                                $"{assignment}");
                         }
                     }
                 }
 
-                deserializeMethodModel.BodyLines[0] += ")";
-                deserializeMethodModel.BodyLines[2] += ")";
-
-                deserializeMethodModel.BodyLines.Add("    }");
-                deserializeMethodModel.BodyLines.Add("    return true;");
-                deserializeMethodModel.BodyLines.Add("}");
-                deserializeMethodModel.BodyLines.Add("return false;");
-            }
-            else
-            {
-                for (var i = 0; i < fieldWithSyncFieldAttribute.Count; i++)
+                if (shouldDealWithDirtyInDeserialize)
                 {
-                    var fieldInfo = fieldWithSyncFieldAttribute[i];
-                    var fieldType = fieldInfo.Type;
+                    deserializeMethodModel.BodyLines[conditionLine] += ")";
 
-                    if (IsDotsnetType(fieldType) == false)
-                    {
-                        var err = Diagnostic.Create(FieldTypeShouldBeKnownForDotsNet, location: syntaxNode.GetLocation(), fieldType.Name);
-                        context.ReportDiagnostic(err);
-                        return structModel;
-                    }
-
-                    if (i == fieldWithSyncFieldAttribute.Count - 1)
-                    {
-                        // last one
-                        deserializeMethodModel.BodyLines[0] +=
-                            $" reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name});";
-                    }
-                    else
-                    {
-                        deserializeMethodModel.BodyLines[0] +=
-                            $" reader.Read{GetDotsnetTypeName(fieldType)}(out {fieldInfo.Name}) &&";
-                    }
+                    deserializeMethodModel.BodyLines.Add("return true;");
                 }
             }
 
@@ -625,6 +677,26 @@ public class Generator : ISourceGenerator
         };
     }
 
+    private static bool IsDotsnetCompatibleType(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol.TypeKind == TypeKind.Enum)
+        {
+            typeSymbol = ((INamedTypeSymbol)typeSymbol).EnumUnderlyingType;
+        }
+
+        return IsDotsnetType(typeSymbol);
+    }
+
+    private static ITypeSymbol GetDotsnetCompatibleType(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol.TypeKind == TypeKind.Enum)
+        {
+            return ((INamedTypeSymbol)typeSymbol).EnumUnderlyingType;
+        }
+
+        return typeSymbol;
+    }
+
     private static bool IsDotsnetType(ITypeSymbol typeSymbol)
     {
         return _systemToDotsnetTypeDictionary.ContainsKey(GetFullyQualifiedName(typeSymbol));
@@ -632,6 +704,11 @@ public class Generator : ISourceGenerator
 
     private static string GetDotsnetTypeName(ITypeSymbol typeSymbol)
     {
+        if (typeSymbol.TypeKind == TypeKind.Enum)
+        {
+            typeSymbol = ((INamedTypeSymbol)typeSymbol).EnumUnderlyingType;
+        }
+
         return _systemToDotsnetTypeDictionary[GetFullyQualifiedName(typeSymbol)];
     }
 
@@ -1497,11 +1574,12 @@ public class Generator : ISourceGenerator
             Constructors = new List<Constructor>()
         };
 
+        var fields = netMessageType.GetFields().ToArray();
         var netMessageConstructor = new Constructor(netMessageType.Name)
         {
             AccessModifier = AccessModifier.Public,
-            Parameters = netMessageType.GetFields().Select(f => new Parameter(f.Type.Name, f.Name.ToCamel())).ToList(),
-            BodyLines = netMessageType.GetFields().Select(f => $"this.{f.Name} = {f.Name.ToCamel()};").ToList()
+            Parameters = fields.Select(f => new Parameter(f.Type.Name, f.Name.ToCamel())).ToList(),
+            BodyLines = fields.Select(f => $"this.{f.Name} = {f.Name.ToCamel()};").ToList()
         };
         netMessageStructModel.Constructors.Add(netMessageConstructor);
 
@@ -1513,7 +1591,6 @@ public class Generator : ISourceGenerator
             BodyLines = new List<string>()
         };
 
-        var fields = netMessageType.GetFields().ToArray();
         var totalFieldsCount = fields.Length;
         if (totalFieldsCount == 0)
         {
@@ -1526,21 +1603,22 @@ public class Generator : ISourceGenerator
             for (var i = 0; i < totalFieldsCount; i++)
             {
                 var fieldInfo = fields[i];
-                if (!IsDotsnetType(fieldInfo.Type))
+                if (!IsDotsnetCompatibleType(fieldInfo.Type))
                 {
                     throw new Exception($"Failed to find {fieldInfo.Type.Name}");
                 }
 
+                var conversion = IsDotsnetType(fieldInfo.Type) ? string.Empty : $"({GetDotsnetCompatibleType(fieldInfo.Type).ToDisplayString()})";
+                var baseMessage = $"writer.Write{GetDotsnetTypeName(fieldInfo.Type)}({conversion}{fieldInfo.Name})";
                 if (i == totalFieldsCount - 1)
                 {
                     //last one
-                    netMessageSerializeMethodModel.BodyLines.Add(
-                        $"writer.Write{GetDotsnetTypeName(fieldInfo.Type)}({fieldInfo.Name});");
+                    netMessageSerializeMethodModel.BodyLines.Add($"{baseMessage};");
                 }
                 else
                 {
                     netMessageSerializeMethodModel.BodyLines.Add(
-                        $"writer.Write{GetDotsnetTypeName(fieldInfo.Type)}({fieldInfo.Name}) &&");
+                        $"{baseMessage} &&");
                 }
 
             }
@@ -1563,29 +1641,42 @@ public class Generator : ISourceGenerator
         }
         else
         {
-            netMessageDeserializeMethodModel.BodyLines.Add("return");
+            foreach (var fieldInfo in fields)
+            {
+                var type = GetDotsnetCompatibleType(fieldInfo.Type);
+                netMessageDeserializeMethodModel.BodyLines.Add($"{type} {fieldInfo.Name.ToCamel()} = default;");
+            }
+                
+            netMessageDeserializeMethodModel.BodyLines.Add("var result =");
 
             for (var i = 0; i < totalFieldsCount; i++)
             {
                 var fieldInfo = fields[i];
-                if (!IsDotsnetType(fieldInfo.Type))
+                if (!IsDotsnetCompatibleType(fieldInfo.Type))
                 {
                     throw new Exception($"Failed to find {fieldInfo.Type.Name}");
                 }
 
+                var baseMessage = $"reader.Read{GetDotsnetTypeName(fieldInfo.Type)}(out {fieldInfo.Name.ToCamel()})";
                 if (i == totalFieldsCount - 1)
                 {
                     // last one
-                    netMessageDeserializeMethodModel.BodyLines.Add(
-                        $"reader.Read{GetDotsnetTypeName(fieldInfo.Type)}(out {fieldInfo.Name});");
+                    netMessageDeserializeMethodModel.BodyLines.Add($"{baseMessage};");
                 }
                 else
                 {
-                    netMessageDeserializeMethodModel.BodyLines.Add(
-                        $"reader.Read{GetDotsnetTypeName(fieldInfo.Type)}(out {fieldInfo.Name}) &&");
+                    netMessageDeserializeMethodModel.BodyLines.Add($"{baseMessage} &&");
                 }
 
             }
+            netMessageDeserializeMethodModel.BodyLines.Add("if (!result) return false;");
+            foreach (var fieldInfo in fields)
+            {
+                var conversion = IsDotsnetType(fieldInfo.Type) ? string.Empty : $"({fieldInfo.Type.ToDisplayString()})";
+                netMessageDeserializeMethodModel.BodyLines.Add($"this.{fieldInfo.Name} = {conversion}{fieldInfo.Name.ToCamel()};");
+            }
+
+            netMessageDeserializeMethodModel.BodyLines.Add("return true;");
         }
 
         netMessageStructModel.Methods.Add(netMessageDeserializeMethodModel);
