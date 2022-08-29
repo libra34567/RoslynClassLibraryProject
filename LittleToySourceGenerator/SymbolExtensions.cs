@@ -68,7 +68,19 @@ internal static class SymbolExtensions
     public static ITypeSymbol[] GetFieldValueTypes(this AttributeData attributeData, string fieldName)
     {
         var field = attributeData.ConstructorArguments.FirstOrDefault();
-        return field.Values.Select(_ => (ITypeSymbol)_.Value).ToArray();
+        //if (field.Kind == TypedConstantKind.Array)
+            return field.Values.Select(_ => (ITypeSymbol)_.Value).ToArray();
+        //return new[] { (ITypeSymbol)field.Value };
+    }
+
+    public static string GetNamespace(this INamespaceSymbol? namespaceSymbol)
+    {
+        if (namespaceSymbol == null || namespaceSymbol.IsGlobalNamespace)
+        {
+            return string.Empty;
+        }
+
+        return namespaceSymbol.ToDisplayString();
     }
 
     public static IEnumerable<IFieldSymbol> GetFields(this ITypeSymbol typeSymbol)

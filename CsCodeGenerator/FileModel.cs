@@ -32,6 +32,10 @@ namespace CsCodeGenerator
         
         public List<InterfaceModel> Interfaces { get; set; } = new List<InterfaceModel>();
 
+        public bool HasAttributes => Attributes.Count > 0;
+
+        public List<AttributeModel> Attributes { get; set; } = new List<AttributeModel>();
+
         public void LoadUsingDirectives(List<string> usingDirectives)
         {
             foreach (var usingDirective in usingDirectives)
@@ -45,6 +49,7 @@ namespace CsCodeGenerator
             string usingText = UsingDirectives.Count > 0 ? Util.Using + " " : "";
             var headerText = !string.IsNullOrWhiteSpace(Header) ? Header + Util.NewLine : "";
             string result = headerText + usingText + String.Join(Util.NewLine + usingText, UsingDirectives);
+            result += HasAttributes ? Attributes.ToStringList(String.Empty) : "";
             result += string.IsNullOrEmpty(Namespace) ? "" : Util.NewLineDouble + Util.Namespace + " " + Namespace;
             result += string.IsNullOrEmpty(Namespace) ? "" : (Util.NewLine + "{");
             if (string.IsNullOrEmpty(Namespace))
