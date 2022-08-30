@@ -120,7 +120,7 @@ using Unity.Collections;
 public partial struct Position3Data : NetworkComponent
 {
     public bool IsDirty { get; set; }
-    public Position3Data Update(Int32 hatIndex)
+    public Position3Data Update(int hatIndex)
     {
         if(HatIndex.Equals(hatIndex)) return this;
         

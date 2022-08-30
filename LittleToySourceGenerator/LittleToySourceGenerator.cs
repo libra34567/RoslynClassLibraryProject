@@ -285,7 +285,7 @@ public class Generator : ISourceGenerator
                     "",
                     "IsDirty = true;"
                 },
-                CustomDataType = eventComponentType.Name
+                CustomDataType = eventComponentType.ToDisplayString()
             };
 
             var isFirst = true;
@@ -301,7 +301,7 @@ public class Generator : ISourceGenerator
 
                 method.Parameters.Add(new Parameter()
                 {
-                    CustomDataType = fieldInfo.Type.Name,
+                    CustomDataType = fieldInfo.Type.ToDisplayString(),
                     Name = parameterName
                 });
 
@@ -552,7 +552,7 @@ public class Generator : ISourceGenerator
 
             method.Parameters.Add(new Parameter()
             {
-                CustomDataType = fieldInfo.Type.Name,
+                CustomDataType = fieldInfo.Type.ToDisplayString(),
                 Name = fieldInfo.Name.LowerFirst()
             });
         }
