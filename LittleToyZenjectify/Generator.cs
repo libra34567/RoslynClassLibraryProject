@@ -86,7 +86,7 @@ namespace UnityEditor
 ";
 
     private const string ZenGenAttributeType = "ZenGen";
-    private static readonly AttributeModel RequiredAttribute = new AttributeModel("Required");
+    private static readonly AttributeModel RequiredInPrefabInstancesAttribute = new AttributeModel("RequiredInPrefabInstances");
     private static readonly AttributeModel SceneObjectsOnlyAttribute = new AttributeModel("SceneObjectsOnly");
     private static readonly AttributeModel AssetsOnlyAttribute = new AttributeModel("AssetsOnly");
     private static readonly AttributeModel SerializeFieldAttribute = new AttributeModel("SerializeField");
@@ -173,7 +173,7 @@ namespace UnityEditor
             classModel.Fields.Add(new Field()
             {
                 AccessModifier = AccessModifier.Private,
-                Attributes = new () { RequiredAttribute, SceneObjectsOnlyAttribute, SerializeFieldAttribute },
+                Attributes = new () { RequiredInPrefabInstancesAttribute, SceneObjectsOnlyAttribute, SerializeFieldAttribute },
                 Name = service.ServiceType.Name.LowerFirst(),
                 CustomDataType = service.ServiceType.ToDisplayString(),
             });
@@ -184,7 +184,7 @@ namespace UnityEditor
             classModel.Fields.Add(new Field()
             {
                 AccessModifier = AccessModifier.Private,
-                Attributes = new() { RequiredAttribute, AssetsOnlyAttribute, SerializeFieldAttribute },
+                Attributes = new() { RequiredInPrefabInstancesAttribute, AssetsOnlyAttribute, SerializeFieldAttribute },
                 Name = service.ServiceType.Name.LowerFirst(),
                 CustomDataType = service.ServiceType.ToDisplayString(),
             });
@@ -195,7 +195,7 @@ namespace UnityEditor
             classModel.Fields.Add(new Field()
             {
                 AccessModifier = AccessModifier.Private,
-                Attributes = new() { RequiredAttribute, AssetsOnlyAttribute, SerializeFieldAttribute },
+                Attributes = new() { RequiredInPrefabInstancesAttribute, AssetsOnlyAttribute, SerializeFieldAttribute },
                 Name = service.ServiceType.Name.LowerFirst(),
                 CustomDataType = service.ServiceType.ToDisplayString(),
             });
