@@ -43,7 +43,7 @@ using Zenject;
 [DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
-    [Required]
+    [RequiredInPrefabInstances]
     [SceneObjectsOnly]
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
@@ -116,7 +116,7 @@ using Zenject;
 [DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
-    [Required]
+    [RequiredInPrefabInstances]
     [AssetsOnly]
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
@@ -458,7 +458,7 @@ using Zenject;
 [DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
-    [Required]
+    [RequiredInPrefabInstances]
     [AssetsOnly]
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
@@ -544,7 +544,7 @@ using Zenject;
 [DisallowMultipleComponent]
 public partial class SomeNewInstaller : MonoInstaller
 {
-    [Required]
+    [RequiredInPrefabInstances]
     [AssetsOnly]
     [SerializeField]
     private ZenGenSomeSystemInNewInstaller zenGenSomeSystemInNewInstaller;
