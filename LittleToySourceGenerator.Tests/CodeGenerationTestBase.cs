@@ -71,6 +71,11 @@ namespace Unity.Collections
     public struct FixedString64Bytes {}
     public struct FixedString128Bytes {}
     public struct FixedString512Bytes {}
+    public struct FixedList32Bytes<T> where T: unmanaged {}
+    public struct FixedList64Bytes<T> where T: unmanaged {}
+    public struct FixedList128Bytes<T> where T: unmanaged {}
+    public struct FixedList512Bytes<T> where T: unmanaged {}
+    public struct FixedList4096Bytes<T> where T: unmanaged {}
 }
 
 namespace Unity.Mathematics
