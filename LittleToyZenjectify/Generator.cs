@@ -149,7 +149,6 @@ namespace UnityEditor
                 "UnityEngine;",
                 "Zenject;",
             },
-            Namespace = installerNamespace,
             Header = FileHeader,
         };
 
@@ -163,6 +162,7 @@ namespace UnityEditor
         {
             BaseClass = "MonoInstaller",
             KeyWords = new() { KeyWord.Partial },
+            Namespace = installerNamespace,
             Attributes = new() {
                 new AttributeModel($"AddComponentMenu(\"Installers/{installerName}\")"),
                 new AttributeModel("DisallowMultipleComponent")
@@ -362,9 +362,10 @@ namespace UnityEditor
                 var candidateConstructor = service.CandidateConstructors.FirstOrDefault();
                 var typeNames = candidateConstructor?.Parameters.Select(_ => _.Type.ToDisplayString()) ?? Array.Empty<string>();
                 var typeParameters = string.Join(", ", typeNames.Union(new[] { service.ServiceType.ToDisplayString() }));
-                var prefabClass = new ClassModel(service.ServiceType.ToDisplayString())
+                var prefabClass = new ClassModel(service.ServiceType.Name)
                 {
                     SingleKeyWord = KeyWord.Partial,
+                    Namespace = service.ServiceType.ContainingNamespace.GetNamespace(),
                 };
                 var prefabFatory = new ClassModel("Factory")
                 {
