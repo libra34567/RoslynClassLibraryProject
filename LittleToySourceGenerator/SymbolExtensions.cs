@@ -29,32 +29,35 @@ internal static class SymbolExtensions
         return typeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name.Contains(searchAttributeName));
     }
 
-    public static IEnumerable<AttributeData> GetCustomAttributes(this ITypeSymbol typeSymbol, bool inherit)
+    public static IEnumerable<AttributeData> GetCustomAttributes(this ISymbol symbol, bool inherit)
     {
-        foreach (var attribute in typeSymbol.GetAttributes())
+        foreach (var attribute in symbol.GetAttributes())
         {
             yield return attribute;
         }
 
-        if (inherit)
+        if (symbol is ITypeSymbol typeSymbol)
         {
-            var baseType = typeSymbol.BaseType;
-            while (baseType != null)
+            if (inherit)
             {
-                foreach (var attribute in baseType.GetAttributes())
+                var baseType = typeSymbol.BaseType;
+                while (baseType != null)
                 {
-                    if (AttributeCanBeInherited(attribute))
+                    foreach (var attribute in baseType.GetAttributes())
                     {
-                        yield return attribute;
+                        if (AttributeCanBeInherited(attribute))
+                        {
+                            yield return attribute;
+                        }
                     }
-                }
 
-                baseType = baseType.BaseType;
+                    baseType = baseType.BaseType;
+                }
             }
         }
     }
 
-    public static AttributeData GetCustomAttribute(this ITypeSymbol typeSymbol, string searchAttributeName, bool inherit)
+    public static AttributeData GetCustomAttribute(this ISymbol typeSymbol, string searchAttributeName, bool inherit)
     {
         return typeSymbol.GetCustomAttributes(inherit).FirstOrDefault(_ => _.IsAttribute(searchAttributeName));
     }
@@ -68,9 +71,7 @@ internal static class SymbolExtensions
     public static ITypeSymbol[] GetFieldValueTypes(this AttributeData attributeData, string fieldName)
     {
         var field = attributeData.ConstructorArguments.FirstOrDefault();
-        //if (field.Kind == TypedConstantKind.Array)
-            return field.Values.Select(_ => (ITypeSymbol)_.Value).ToArray();
-        //return new[] { (ITypeSymbol)field.Value };
+        return field.Values.Select(_ => (ITypeSymbol)_.Value).ToArray();
     }
 
     public static string GetNamespace(this INamespaceSymbol? namespaceSymbol)

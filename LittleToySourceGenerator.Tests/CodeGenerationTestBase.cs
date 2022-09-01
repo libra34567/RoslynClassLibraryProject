@@ -57,6 +57,8 @@ namespace DOTSNET
     }
 
     public struct long3 {}
+    public class ClientWorldAttribute : Attribute {}
+    public class ServerWorldAttribute : Attribute {}
 }
 
 namespace Unity.Collections
@@ -90,6 +92,12 @@ namespace Unity.Mathematics
     public struct double3 {}
     public struct double4 {}
     public struct quaternion {}
+}
+
+namespace Unity.Entities
+{
+    public abstract class SystemBase {}
+    public sealed class DisableAutoCreationAttribute : Attribute {}
 }
 
 namespace Plugins.basegame.Events
@@ -186,6 +194,32 @@ namespace Plugins.basegame.Events
         {
             Types = types;
         }
+    }
+}
+
+namespace Plugins.baseGame
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    public class GenerateSystemAuthoringAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Field, Inherited = false)]
+    public class FieldFromAuthoringAttribute : Attribute
+    {
+        public SourceType Type;
+
+        public FieldFromAuthoringAttribute(SourceType type)
+        {
+            Type = type;
+        }
+    }
+
+    public enum SourceType
+    {
+        Public,
+        SerializePrivate,
+        Inject
     }
 }
 ";

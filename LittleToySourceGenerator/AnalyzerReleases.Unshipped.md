@@ -9,3 +9,5 @@ LT0001  | LittleToy |  Error   | LT0001_AnalyzerName, [Documentation](CA1000_Doc
 LT0002  | LittleToy |  Error   | LT0002_AnalyzerName, [Documentation](CA1000_Documentation_Link)
 LT0003  | LittleToy |  Warning | LT0003_AnalyzerName, [Documentation](CA1000_Documentation_Link)
 LT0004  | LittleToy |  Error   | LT0004_AnalyzerName, [Documentation](CA1000_Documentation_Link)
+LT0100  | LittleToy |  Error   | LT0100_AnalyzerName, [Documentation](CA1000_Documentation_Link)
+LT0101  | LittleToy |  Warning | LT0101_AnalyzerName, [Documentation](CA1000_Documentation_Link)
