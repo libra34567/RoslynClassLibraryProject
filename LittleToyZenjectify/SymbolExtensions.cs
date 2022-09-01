@@ -98,4 +98,13 @@ internal static class SymbolExtensions
         return false;
     }
 
+    public static string GetNamespace(this INamespaceSymbol? namespaceSymbol)
+    {
+        if (namespaceSymbol == null || namespaceSymbol.IsGlobalNamespace)
+        {
+            return string.Empty;
+        }
+
+        return namespaceSymbol.ToDisplayString();
+    }
 }

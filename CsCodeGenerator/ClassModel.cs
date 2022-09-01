@@ -18,6 +18,8 @@ namespace CsCodeGenerator
 
         public bool HasPropertiesSpacing { get; set; } = true;
 
+        public string Namespace { get; set; }
+
         public new BuiltInDataType? BuiltInDataType { get; }
 
         public new string CustomDataType => Util.Class;
@@ -51,7 +53,9 @@ namespace CsCodeGenerator
 
         public override string ToString()
         {
-            string result = base.ToString();
+            string result = string.IsNullOrEmpty(Namespace) ? "" : Util.NewLine + Util.Namespace + " " + Namespace;
+            result += string.IsNullOrEmpty(Namespace) ? "" : (Util.NewLine + "{");
+            result += base.ToString();
             result += (BaseClass != null || Interfaces?.Count > 0) ? $" : " : "";
             result += BaseClass != null ? BaseClass : "";
             result += (BaseClass != null && Interfaces?.Count > 0) ? $", " : "";
@@ -80,6 +84,7 @@ namespace CsCodeGenerator
             result += String.Join(Util.NewLine, NestedStructs);
 
             result += Util.NewLine + Indent + "}";
+            result += string.IsNullOrEmpty(Namespace) ? "" : (Util.NewLine + "}");
             return result;
         }
     }

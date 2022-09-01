@@ -21,6 +21,17 @@ public class CodeGenerationTestBase
         return output;
     }
 
+    protected string GetGeneratedOutputFromPosition(string source, Generator generator, NullableContextOptions nullableContextOptions, int expectedCount, int position)
+    {
+        var trees = GetGeneratedSyntaxTrees(source, generator, nullableContextOptions).TakeLast(expectedCount).ToList();
+        Assert.AreEqual(expectedCount, trees.Count);
+        string output = trees.ElementAt(position).ToString();
+
+        Console.WriteLine(output);
+
+        return output;
+    }
+
     protected IEnumerable<SyntaxTree> GetGeneratedSyntaxTrees(string source, Generator generator, NullableContextOptions nullableContextOptions)
     {
         CSharpCompilation compilation = CreateCompilation(source, nullableContextOptions);
