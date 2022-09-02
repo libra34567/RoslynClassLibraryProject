@@ -294,11 +294,6 @@ using System;
 
 public partial struct JoinWorldMessage : NetworkMessage
 {
-        public JoinWorldMessage()
-        {
-        }
-
-
     public bool Serialize(ref NetworkWriter writer)
     {
         return true;

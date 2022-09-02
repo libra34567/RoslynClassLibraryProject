@@ -1579,7 +1579,10 @@ public class Generator : ISourceGenerator
             Parameters = fields.Select(f => new Parameter(f.Type.Name, f.Name.ToCamel())).ToList(),
             BodyLines = fields.Select(f => $"this.{f.Name} = {f.Name.ToCamel()};").ToList()
         };
-        netMessageStructModel.Constructors.Add(netMessageConstructor);
+        if (fields.Length > 0)
+        {
+            netMessageStructModel.Constructors.Add(netMessageConstructor);
+        }
 
         // SerializeModel
         var netMessageSerializeMethodModel = new Method(BuiltInDataType.Bool, "Serialize")
