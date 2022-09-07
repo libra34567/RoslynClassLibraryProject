@@ -227,21 +227,35 @@ namespace UnityEditor
 
         foreach (var monoClassWithSceneObjInst in monoClassesWithSceneObjInstance)
         {
-            resetMethod.BodyLines.Add($"{monoClassWithSceneObjInst.ServiceType.Name.LowerFirst()} = FindObjectOfType<{monoClassWithSceneObjInst.ServiceType.ToDisplayString()}>();");
+            var variableName = monoClassWithSceneObjInst.ServiceType.Name.LowerFirst();
+            resetMethod.BodyLines.Add($"{variableName} = {variableName} ?? FindObjectOfType<{monoClassWithSceneObjInst.ServiceType.ToDisplayString()}>();");
         }
 
         foreach (var monoClassWithAssetInstance in monoClassesWithAssetInstance)
         {
-            resetMethod.BodyLines.Add($"{monoClassWithAssetInstance.ServiceType.Name.LowerFirst()} = AssetDatabaseEx.GetSingleAssetsAtPath<{monoClassWithAssetInstance.ServiceType.ToDisplayString()}>();");
+            var variableName = monoClassWithAssetInstance.ServiceType.Name.LowerFirst();
+            resetMethod.BodyLines.Add($"{variableName} = {variableName} ?? AssetDatabaseEx.GetSingleAssetsAtPath<{monoClassWithAssetInstance.ServiceType.ToDisplayString()}>();");
         }
 
         foreach (var prefab in prefabs)
         {
-            resetMethod.BodyLines.Add($"{prefab.ServiceType.Name.LowerFirst()} = AssetDatabaseEx.GetSingleAssetsAtPath<{prefab.ServiceType.ToDisplayString()}>();");
+            var variableName = prefab.ServiceType.Name.LowerFirst();
+            resetMethod.BodyLines.Add($"{variableName} = {variableName} ?? AssetDatabaseEx.GetSingleAssetsAtPath<{prefab.ServiceType.ToDisplayString()}>();");
         }
 
         resetMethod.BodyLines.Add("#endif");
         classModel.Methods.Add(resetMethod);
+
+        var buttonAttribute = new AttributeModel("Button") { Parameters = new() { new("\"Reset\""), new("ButtonSizes.Medium") } };
+        var resetEditorButtonMethod = new Method()
+        {
+            AccessModifier = AccessModifier.Private,
+            BuiltInDataType = BuiltInDataType.Void,
+            BodyLines = new() { "Reset();" },
+            Name = "ResetButton",
+            Attributes = new() { buttonAttribute }
+        };
+        classModel.Methods.Add(resetEditorButtonMethod);
 
 
         var installBindingsMethod = new Method()

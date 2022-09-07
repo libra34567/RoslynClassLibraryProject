@@ -62,8 +62,14 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
-        zenGenSomeSystemInNewInstaller = FindObjectOfType<ZenGenSomeSystemInNewInstaller>();
+        zenGenSomeSystemInNewInstaller = zenGenSomeSystemInNewInstaller ?? FindObjectOfType<ZenGenSomeSystemInNewInstaller>();
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallMonoClassesWithSceneObjInstance()
@@ -135,8 +141,14 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
-        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
+        zenGenSomeSystemInNewInstaller = zenGenSomeSystemInNewInstaller ?? AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallMonoClassesWithAssetInstance()
@@ -206,6 +218,12 @@ public partial class SomeNewInstaller : MonoInstaller
         #endif
     }
 
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
+    }
+
     private void InstallClassesWithoutInstance()
     {
         Container.Bind<ZenGenSomeSystemInNewInstaller>().AsSingle().NonLazy();
@@ -271,6 +289,12 @@ public partial class SomeNewInstaller : MonoInstaller
             sceneContext.Installers = listInstallers;
         }
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallClassesWithoutInstance()
@@ -340,6 +364,12 @@ public partial class SomeNewInstaller : MonoInstaller
         #endif
     }
 
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
+    }
+
     private void InstallClassesWithoutInstance()
     {
         Container.Bind<ZenGenSomeSystemInNewInstaller>().AsSingle().Lazy();
@@ -405,6 +435,12 @@ public partial class SomeNewInstaller : MonoInstaller
             sceneContext.Installers = listInstallers;
         }
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallSignals()
@@ -477,8 +513,14 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
-        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
+        zenGenSomeSystemInNewInstaller = zenGenSomeSystemInNewInstaller ?? AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallPrefabs()
@@ -563,8 +605,14 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
-        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
+        zenGenSomeSystemInNewInstaller = zenGenSomeSystemInNewInstaller ?? AssetDatabaseEx.GetSingleAssetsAtPath<ZenGenSomeSystemInNewInstaller>();
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallPrefabs()
@@ -642,6 +690,12 @@ public partial class AnotherNewInstaller : MonoInstaller
         #endif
     }
 
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
+    }
+
     private void InstallSignals()
     {
         Container.DeclareSignal<ZenGenSomeSignalWithOptionalSubscriber>().OptionalSubscriber();
@@ -709,6 +763,12 @@ public partial class SoundTestInstaller : MonoInstaller
         #endif
     }
 
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
+    }
+
     private void InstallSignals()
     {
         Container.DeclareSignal<ZenGenSomeSignalWithOptionalSubscriber>().OptionalSubscriber();
@@ -774,6 +834,12 @@ public partial class SuperInstaller : MonoInstaller
             sceneContext.Installers = listInstallers;
         }
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallSignals()
@@ -850,6 +916,12 @@ public partial class SuperInstaller : MonoInstaller
         #endif
     }
 
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
+    }
+
     private void InstallSignals()
     {
         Container.DeclareSignal<ZenGenSomeSignalWithOptionalSubscriber>();
@@ -918,6 +990,12 @@ public partial class SuperInstaller : MonoInstaller
             sceneContext.Installers = listInstallers;
         }
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallSignals()
@@ -994,8 +1072,14 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
-        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<My.InternalNamespace.ZenGenSomeSystemInNewInstaller>();
+        zenGenSomeSystemInNewInstaller = zenGenSomeSystemInNewInstaller ?? AssetDatabaseEx.GetSingleAssetsAtPath<My.InternalNamespace.ZenGenSomeSystemInNewInstaller>();
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallPrefabs()
@@ -1090,8 +1174,14 @@ public partial class SomeNewInstaller : MonoInstaller
             }
             sceneContext.Installers = listInstallers;
         }
-        zenGenSomeSystemInNewInstaller = AssetDatabaseEx.GetSingleAssetsAtPath<My.InternalNamespace.ZenGenSomeSystemInNewInstaller>();
+        zenGenSomeSystemInNewInstaller = zenGenSomeSystemInNewInstaller ?? AssetDatabaseEx.GetSingleAssetsAtPath<My.InternalNamespace.ZenGenSomeSystemInNewInstaller>();
         #endif
+    }
+
+    [Button(""Reset"", ButtonSizes.Medium)]
+    private void ResetButton()
+    {
+        Reset();
     }
 
     private void InstallPrefabs()
