@@ -32,6 +32,12 @@ internal class SelectiveSystemAuthoringGenerator
         "At least one of attributes ServerWorld or ClientWorld should be applied to type {0}. Generation would be ignored",
         "LittleToy",
         DiagnosticSeverity.Warning, isEnabledByDefault: true, description: "At least one of attributes ServerWorld or ClientWorld should be applied to know where get data from for system awake");
+    private static DiagnosticDescriptor FixedBytes16Required = new(
+        "LT0103",
+        "NetPrefab authoring error",
+        "NetPrefab can be set only on fields of type Unity.Collections.FixedBytes16. Generation for incorrect fields would be ignored",
+        "LittleToy",
+        DiagnosticSeverity.Warning, isEnabledByDefault: true, description: "At least one of attributes ServerWorld or ClientWorld should be applied to know where get data from for system awake");
 
     public SelectiveSystemAuthoringGenerator(List<ClassDeclarationSyntax> candidateSystems, GeneratorExecutionContext context)
     {
@@ -63,6 +69,11 @@ internal class SelectiveSystemAuthoringGenerator
                 {
                     context.ReportDiagnostic(Diagnostic.Create(WorldAttributeMissing, type.GetLocation(), typeSymbol.ToDisplayString()));
                     continue;
+                }
+
+                if (!subsystemModel.Fields.All(_ => _.IsValid))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(FixedBytes16Required, type.GetLocation(), typeSymbol.ToDisplayString()));
                 }
 
                 var file = GenerateSelectiveSystemAuthoring(subsystemModel);
@@ -120,7 +131,10 @@ internal class SelectiveSystemAuthoringGenerator
                 continue;
             }
 
-            model.Fields.Add(field);
+            var fieldPropertiesAttribute = field.GetCustomAttribute(Generator.FieldFromAuthoringAttributeType, false);
+            var propertiesExprssion = fieldPropertiesAttribute.ConstructorArguments.FirstOrDefault();
+            var fieldSourceType = (FieldSourceType)(int)propertiesExprssion.Value;
+            model.Fields.Add(new FieldModel(field, fieldSourceType));
         }
 
         model.HasServerWorld = typeSymbol.HasAttribute(Generator.ServerWorldAttributeType);
@@ -141,18 +155,19 @@ internal class SelectiveSystemAuthoringGenerator
             KeyWords = new() { KeyWord.Partial }
         };
 
-        foreach (var field in model.Fields)
+        var validFields = model.Fields.Where(_ => _.IsValid);
+        foreach (var field in validFields)
         {
-            var fieldModel = new Field(field.Type.ToDisplayString(), field.Name.ToCamel());
-            var fieldPropertiesAttribute = field.GetCustomAttribute(Generator.FieldFromAuthoringAttributeType, false);
-            var propertiesExprssion = fieldPropertiesAttribute.ConstructorArguments.FirstOrDefault();
-            var fieldSourceType = (FieldSourceType)(int)propertiesExprssion.Value;
+            var fieldName = field.BackingFieldName;
+            var fieldModel = new Field(field.BackingFieldType, fieldName);
+            var fieldSourceType = field.SourceType;
             switch (fieldSourceType)
             {
                 case FieldSourceType.Public:
                     fieldModel.AccessModifier = AccessModifier.Public;
                     break;
                 case FieldSourceType.SerializePrivate:
+                case FieldSourceType.NetPrefab:
                     fieldModel.AccessModifier = AccessModifier.Private;
                     fieldModel.Attributes.Add(new AttributeModel("SerializeField"));
                     break;
@@ -188,9 +203,16 @@ internal class SelectiveSystemAuthoringGenerator
             BodyLines = new(),
         };
         awakeMethod.BodyLines.Add($"var system = System;");
-        foreach (var field in model.Fields)
+        foreach (var field in validFields)
         {
-            awakeMethod.BodyLines.Add($"system.{field.Name} = {field.Name.ToCamel()};");
+            if (field.SourceType != FieldSourceType.NetPrefab)
+            {
+                awakeMethod.BodyLines.Add($"system.{field.FieldName} = {field.BackingFieldName};");
+            }
+            else
+            {
+                awakeMethod.BodyLines.Add($"system.{field.FieldName} = Conversion.GuidToBytes16({field.BackingFieldName}.prefabId);");
+            }
         }
 
         authoringClass.Methods.Add(awakeMethod);
@@ -200,16 +222,36 @@ internal class SelectiveSystemAuthoringGenerator
     class SubsystemGenerationModel
     {
         public ITypeSymbol Subsystem { get; set; }
-        public List<IFieldSymbol> Fields { get; } = new List<IFieldSymbol>();
+        public List<FieldModel> Fields { get; } = new List<FieldModel>();
         public bool HasServerWorld { get; set; }
         public bool HasClientWorld { get; set; }
         public bool HasDisableAutoCreation { get; set; }
+    }
+
+    public class FieldModel
+    {
+        public IFieldSymbol Field { get; }
+
+        public FieldSourceType SourceType { get; }
+
+        public string FieldName => Field.Name;
+        public string BackingFieldName => Field.Name.ToCamel();
+        public string BackingFieldType => SourceType == FieldSourceType.NetPrefab ? "NetworkIdentityAuthoring" : Field.Type.ToDisplayString();
+
+        public bool IsValid => SourceType != FieldSourceType.NetPrefab || Field.Type.ToDisplayString() == "Unity.Collections.FixedBytes16";
+
+        public FieldModel(IFieldSymbol field, FieldSourceType sourceType)
+        {
+            Field = field;
+            SourceType = sourceType;
+        }
     }
 
     public enum FieldSourceType
     {
         Public,
         SerializePrivate,
-        Inject
+        Inject,
+        NetPrefab,
     }
 }

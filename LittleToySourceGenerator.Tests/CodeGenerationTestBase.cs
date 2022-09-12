@@ -219,7 +219,8 @@ namespace Plugins.baseGame
     {
         Public,
         SerializePrivate,
-        Inject
+        Inject,
+        NetPrefab,
     }
 }
 ";

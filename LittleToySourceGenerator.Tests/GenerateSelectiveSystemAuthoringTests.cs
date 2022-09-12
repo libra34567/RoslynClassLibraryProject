@@ -13,6 +13,7 @@ public class GenerateSelectiveSystemAuthoringTests : CodeGenerationTestBase
 using Plugins.baseGame;
 using Unity.Entities;
 using DOTSNET;
+using Unity.Collections;
 
 [DisableAutoCreation]
 [ServerWorld]
@@ -25,6 +26,8 @@ public partial class SampleSystem : SystemBase
     public int AnotherValue;
     [FieldFromAuthoring(SourceType.Inject)]
     public GameManager GameManager;
+    [FieldFromAuthoring(SourceType.NetPrefab)]
+    public FixedBytes16 DelayStartGamePrefabId;
 }
 
 public class GameManager {}
@@ -54,6 +57,8 @@ public partial class SampleSystemServerAuthoring : MonoBehaviour, SelectiveSyste
     public int anotherValue;
     [Inject]
     private GameManager gameManager;
+    [SerializeField]
+    private NetworkIdentityAuthoring delayStartGamePrefabId;
 
     public SampleSystem System
     {
@@ -71,6 +76,7 @@ public partial class SampleSystemServerAuthoring : MonoBehaviour, SelectiveSyste
         system.Value = value;
         system.AnotherValue = anotherValue;
         system.GameManager = gameManager;
+        system.DelayStartGamePrefabId = Conversion.GuidToBytes16(delayStartGamePrefabId.prefabId);
     }
 }
 ";
@@ -330,7 +336,7 @@ namespace My.InternalNamespace
     }
 
     [TestMethod]
-    public void DisableAutoCreationRequired()
+    public void NetPrefabOnFixedBytes16Only()
     {
         string source = @"
 using Plugins.baseGame;
@@ -338,15 +344,12 @@ using Unity.Entities;
 using DOTSNET;
 
 [ClientWorld]
+[DisableAutoCreationAttribute]
 [GenerateSystemAuthoring]
 public partial class SampleSystem : SystemBase
 {
-    [FieldFromAuthoring(SourceType.SerializePrivate)]
+    [FieldFromAuthoring(SourceType.NetPrefab)]
     public int Value;
-    [FieldFromAuthoring(SourceType.Public)]
-    public int AnotherValue;
-    [FieldFromAuthoring(SourceType.Inject)]
-    public GameManager GameManager;
 }
 
 public class GameManager {}
@@ -358,7 +361,7 @@ public class GameManager {}
 
         Assert.AreEqual(1, diagnostics.Count());
         var diagnostic = diagnostics.First();
-        Assert.AreEqual("(6,1): warning LT0101: DisableAutoCreationAttribute attribute is missing on a type SampleSystem. Generation would be ignored", diagnostic.ToString());
+        Assert.AreEqual("(6,1): warning LT0103: NetPrefab can be set only on fields of type Unity.Collections.FixedBytes16. Generation for incorrect fields would be ignored", diagnostic.ToString());
     }
 
     [TestMethod]
@@ -391,5 +394,37 @@ public class GameManager {}
         Assert.AreEqual(1, diagnostics.Count());
         var diagnostic = diagnostics.First();
         Assert.AreEqual("(6,1): warning LT0102: At least one of attributes ServerWorld or ClientWorld should be applied to type SampleSystem. Generation would be ignored", diagnostic.ToString());
+    }
+
+    [TestMethod]
+    public void DisableAutoCreationRequired()
+    {
+        string source = @"
+using Plugins.baseGame;
+using Unity.Entities;
+using DOTSNET;
+
+[ClientWorld]
+[GenerateSystemAuthoring]
+public partial class SampleSystem : SystemBase
+{
+    [FieldFromAuthoring(SourceType.SerializePrivate)]
+    public int Value;
+    [FieldFromAuthoring(SourceType.Public)]
+    public int AnotherValue;
+    [FieldFromAuthoring(SourceType.Inject)]
+    public GameManager GameManager;
+}
+
+public class GameManager {}
+";
+        var generator = new Generator();
+        generator.DisableAllGeneration();
+        generator.EnableSelectiveSystemAuthoringGeneration = true;
+        var diagnostics = this.GetDiagnosticsFromGenerator(source, generator, NullableContextOptions.Disable);
+
+        Assert.AreEqual(1, diagnostics.Count());
+        var diagnostic = diagnostics.First();
+        Assert.AreEqual("(6,1): warning LT0101: DisableAutoCreationAttribute attribute is missing on a type SampleSystem. Generation would be ignored", diagnostic.ToString());
     }
 }
