@@ -27,14 +27,12 @@ public partial struct RotationQuaternionData : Unity.Entities.IComponentData
 [OnDirtyEventView(typeof(Position3Data), typeof(RotationQuaternionData))]
 public partial class TransformView : LinkedView
 {
-    public virtual void OnPosition3Changed(float3 value)
+    public virtual void OnPosition3Changed(Unity.Mathematics.float3 value)
     {
-        transform.position = value;
     }
     
-    public virtual void OnRotationQuaternionChanged(quaternion value)
+    public virtual void OnRotationQuaternionChanged(Unity.Mathematics.quaternion value)
     {
-        transform.rotation = value;
     }
 }
 ";
@@ -199,14 +197,12 @@ namespace My.Views
     [OnDirtyEventView(typeof(Position3Data), typeof(RotationQuaternionData))]
     public partial class TransformView : LinkedView
     {
-        public virtual void OnPosition3Changed(float3 value)
+        public virtual void OnPosition3Changed(Unity.Mathematics.float3 value)
         {
-            transform.position = value;
         }
     
-        public virtual void OnRotationQuaternionChanged(quaternion value)
+        public virtual void OnRotationQuaternionChanged(Unity.Mathematics.quaternion value)
         {
-            transform.rotation = value;
         }
     }
 }

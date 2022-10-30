@@ -244,9 +244,12 @@ public class Generator : ISourceGenerator
     {
         //Only generate IfDirty Property if there's any field marked with [MarkDirty] attribute
         var needIfDirty = false;
-        foreach (var fieldInfo in eventComponentType.GetFields())
+        var modelsFromFields = eventComponentType.GetFields().Select(field => new EventComponentFieldModel(field));
+        var modelsFromProperties = eventComponentType.GetProperties().Select(property => new EventComponentFieldModel(property));
+        IEnumerable<EventComponentFieldModel> fieldInfos = modelsFromFields.Union(modelsFromProperties).ToList();
+        foreach (var fieldInfo in fieldInfos)
         {
-            if (fieldInfo.HasAttribute(MarkDirtyAttributeType))
+            if (fieldInfo.HasMarkDirtyAttribute)
             {
                 needIfDirty = true;
                 break;
@@ -276,11 +279,11 @@ public class Generator : ISourceGenerator
 
         // Generate update method, when there's at least one field with MarkDirty and without SyncField attribute
         // the Update method used to update the fields/properties of the struct then mark the struct as dirty.
-        List<IFieldSymbol> fieldsWithMarkDirtyAndWithoutSyncField = new List<IFieldSymbol>();
-        foreach (var fieldInfo in eventComponentType.GetFields())
+        List<EventComponentFieldModel> fieldsWithMarkDirtyAndWithoutSyncField = new();
+        foreach (var fieldInfo in fieldInfos)
         {
-            if (fieldInfo.HasAttribute(MarkDirtyAttributeType) &&
-                fieldInfo.HasAttribute(SyncFieldAttributeType) == false)
+            if (fieldInfo.HasMarkDirtyAttribute &&
+                fieldInfo.HasSyncFieldAttribute == false)
             {
                 fieldsWithMarkDirtyAndWithoutSyncField.Add(fieldInfo);
             }
@@ -351,15 +354,15 @@ public class Generator : ISourceGenerator
             structModel.Methods.Add(GetSyncDirectionMethodModel);
 
             // Get syncField field list
-            var fieldWithSyncFieldAttribute = new List<IFieldSymbol>();
-            var fieldWithSyncFieldAndMarkDirtyAttribute = new List<IFieldSymbol>();
+            var fieldWithSyncFieldAttribute = new List<EventComponentFieldModel>();
+            var fieldWithSyncFieldAndMarkDirtyAttribute = new List<EventComponentFieldModel>();
 
-            foreach (var fieldInfo in eventComponentType.GetFields())
+            foreach (var fieldInfo in fieldInfos)
             {
-                if (fieldInfo.HasAttribute(SyncFieldAttributeType))
+                if (fieldInfo.HasSyncFieldAttribute)
                 {
                     fieldWithSyncFieldAttribute.Add(fieldInfo);
-                    if (fieldInfo.HasAttribute(MarkDirtyAttributeType))
+                    if (fieldInfo.HasMarkDirtyAttribute)
                     {
                         fieldWithSyncFieldAndMarkDirtyAttribute.Add(fieldInfo);
                     }
@@ -417,7 +420,7 @@ public class Generator : ISourceGenerator
             serializeMethodModel.BodyLines.Add($"return true;");
             structModel.Methods.Add(serializeMethodModel);
 
-            var allFieldsIsDotsNetTypes = fieldWithSyncFieldAttribute.All(f => IsDotsnetType(f.Type));
+            var allFieldsIsDotsNetTypes = fieldWithSyncFieldAttribute.All(f => IsDotsnetType(f.Type) && !f.IsProperty);
             var shouldDealWithDirtyInDeserialize = fieldWithSyncFieldAndMarkDirtyAttribute.Count > 0;
             var deserializeMethodModel = new Method(BuiltInDataType.Bool, "Deserialize")
             {
@@ -433,7 +436,7 @@ public class Generator : ISourceGenerator
                 var fieldType = fieldInfo.Type;
                 var hasSyncFieldAndMarkDirty = fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo);
                 string fieldName;
-                if (hasSyncFieldAndMarkDirty || !IsDotsnetType(fieldType))
+                if (hasSyncFieldAndMarkDirty || !IsDotsnetType(fieldType) || fieldInfo.IsProperty)
                 {
                     deserializeMethodModel.BodyLines.Add(
                         $"{GetDotsnetCompatibleType(fieldType)} {fieldInfo.Name.ToCamel()} = default;");
@@ -468,12 +471,12 @@ public class Generator : ISourceGenerator
                     continue;
                 }
 
-                if (IsDotsnetType(fieldInfo.Type))
+                if (IsDotsnetType(fieldInfo.Type) && !fieldInfo.IsProperty)
                 {
                     continue;
                 }
 
-                if (IsDotsnetFixedList(fieldInfo.Type))
+                if (IsDotsnetFixedList(fieldInfo.Type) || (fieldInfo.IsProperty && fieldInfo.Type.TypeKind != TypeKind.Enum))
                 {
                     deserializeMethodModel.BodyLines.Add($"{fieldInfo.Name} = {fieldInfo.Name.ToCamel()};");
                 }
@@ -514,7 +517,7 @@ public class Generator : ISourceGenerator
                     var fieldType = fieldInfo.Type;
 
                     var hasSyncFieldAndMarkDirty = fieldWithSyncFieldAndMarkDirtyAttribute.Contains(fieldInfo);
-                    var conversion = IsDotsnetType(fieldType) || IsDotsnetFixedList(fieldType) ? string.Empty : $"({fieldType.ToDisplayString()})";
+                    var conversion = IsDotsnetType(fieldType) || fieldInfo.IsProperty || IsDotsnetFixedList(fieldType) ? string.Empty : $"({fieldType.ToDisplayString()})";
                     var assignment = $"{fieldInfo.Name} = {conversion}{fieldInfo.Name.ToCamel()};";
                     if (hasSyncFieldAndMarkDirty)
                     {
@@ -556,9 +559,12 @@ public class Generator : ISourceGenerator
             WithoutBody = true
         };
 
-        foreach (var fieldInfo in eventComponentType.GetFields())
+        var modelsFromFields = eventComponentType.GetFields().Select(field => new EventComponentFieldModel(field));
+        var modelsFromProperties = eventComponentType.GetProperties().Select(property => new EventComponentFieldModel(property));
+        IEnumerable<EventComponentFieldModel> fieldInfos = modelsFromFields.Union(modelsFromProperties).ToList();
+        foreach (var fieldInfo in fieldInfos)
         {
-            if (fieldInfo.Name == "IsDirty" || fieldInfo.GetAttributes().All(attr => !attr.IsAttribute(MarkDirtyAttributeType)))
+            if (fieldInfo.Name == "IsDirty" || !fieldInfo.HasMarkDirtyAttribute)
             {
                 continue;
             }
@@ -1127,9 +1133,12 @@ public class Generator : ISourceGenerator
     private static void GenerateEventSystemOnDirtyEventJobs(ITypeSymbol eventComponentType, ClassModel classModel)
     {
         var parametersToPassInOnChangedListener = "";
-        foreach (var fieldInfo in eventComponentType.GetFields())
+        var modelsFromFields = eventComponentType.GetFields().Select(field => new EventComponentFieldModel(field));
+        var modelsFromProperties = eventComponentType.GetProperties().Select(property => new EventComponentFieldModel(property));
+        IEnumerable<EventComponentFieldModel> fieldInfos = modelsFromFields.Union(modelsFromProperties).ToList();
+        foreach (var fieldInfo in fieldInfos)
         {
-            if (fieldInfo.HasAttribute(MarkDirtyAttributeType))
+            if (fieldInfo.HasMarkDirtyAttribute)
             {
                 parametersToPassInOnChangedListener += $"data.{fieldInfo.Name}, ";
             }

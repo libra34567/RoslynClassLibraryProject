@@ -89,6 +89,11 @@ internal static class SymbolExtensions
         return typeSymbol.GetMembers().OfType<IFieldSymbol>();
     }
 
+    public static IEnumerable<IPropertySymbol> GetProperties(this ITypeSymbol typeSymbol)
+    {
+        return typeSymbol.GetMembers().OfType<IPropertySymbol>();
+    }
+
     private static bool AttributeCanBeInherited(this AttributeData attribute)
     {
         if (attribute.AttributeClass == null)

@@ -315,16 +315,17 @@ public partial struct JoinWorldMessage : NetworkMessage
 using Plugins.basegame.Events;
 using Unity.Collections;
 
-namespace Test.InnerNamespace;
-
-[CodeGenNetMessage]
-public partial struct JoinWorldMessage
+namespace Test.InnerNamespace
 {
-    public long PlayerId;
+    [CodeGenNetMessage]
+    public partial struct JoinWorldMessage
+    {
+        public long PlayerId;
 
-    public int PlayerHatIndex;
-    public int PlayerBodyIndex;
-    public FixedString64Bytes PlayerName;
+        public int PlayerHatIndex;
+        public int PlayerBodyIndex;
+        public FixedString64Bytes PlayerName;
+    }
 }
 ";
         var generator = new Generator();

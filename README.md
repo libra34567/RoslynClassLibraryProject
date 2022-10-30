@@ -46,18 +46,6 @@ $CurrentBranch=$(git branch --show-current)
 echo "On branch $CurrentBranch"
 $LastMessage=$(git show -s --format=%s)
 pushd ../crowdcityonline
-git checkout develop
-#git pull
-#git submodule update
-pushd Assets/Plugins/basegame/
-git add *.dll
-git switch -c $CurrentBranch
-git commit -m "$LastMessage"
-git push --set-upstream origin $CurrentBranch -f
-popd
-git switch -c $CurrentBranch
-git add Assets/Plugins/basegame
-git commit -m "$LastMessage"
-git push --set-upstream origin $CurrentBranch -f
-popd
+
+./SyncUpdate.ps1 -Branch $CurrentBranch -Message "$LastMessage" -UpdateBaseGame
 ```
