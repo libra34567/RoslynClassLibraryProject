@@ -23,6 +23,7 @@ public class Generator : ISourceGenerator
     public bool EnableNetMessageGeneration { get; set; } = true;
     public bool EnableNetworkComponentGeneration { get; set; } = true;
     public bool EnableSelectiveSystemAuthoringGeneration { get; set; } = true;
+    public bool EnableSelectiveComponentDataAuthoringGeneration { get; set; } = true;
 
     public const string ComponentDirtyEventAttributeType = "ComponentDirtyEvent";
 
@@ -44,6 +45,7 @@ public class Generator : ISourceGenerator
     public const string OnDirtyEventViewAttributeType = "OnDirtyEventView";
     public const string CodeGenNetMessageAttributeType = "CodeGenNetMessage";
     public const string GenerateSystemAuthoringAttributeType = "GenerateSystemAuthoring";
+    public const string GenerateSelectiveComponentDataAuthoringAttributeType = "GenerateSelectiveComponentDataAuthoring";
     public const string FieldFromAuthoringAttributeType = "FieldFromAuthoring";
     public const string ServerWorldAttributeType = "ServerWorld";
     public const string ClientWorldAttributeType = "ClientWorld";
@@ -134,6 +136,7 @@ public class Generator : ISourceGenerator
         EnableNetMessageGeneration = false;
         EnableNetworkComponentGeneration = false;
         EnableSelectiveSystemAuthoringGeneration = false;
+        EnableSelectiveComponentDataAuthoringGeneration = false;
     }
 
     /// <inheritdoc/>
@@ -182,6 +185,12 @@ public class Generator : ISourceGenerator
             {
                 var selectiveSystemsGenerator = new SelectiveSystemAuthoringGenerator(receiver.SelectiveSystems, context);
                 selectiveSystemsGenerator.Execute();
+            }
+
+            if (EnableSelectiveComponentDataAuthoringGeneration)
+            {
+                var selectiveComponentDataAuthoringGenerator = new SelectiveComponentDataAuthoringGenerator(receiver.SelectiveComponentData, context);
+                selectiveComponentDataAuthoringGenerator.Execute();
             }
         }
         catch (Exception ex)
@@ -1857,6 +1866,7 @@ public class Generator : ISourceGenerator
         public List<ClassDeclarationSyntax> HasComponentEcs { get; } = new();
         public List<StructDeclarationSyntax> NetworkMessageTypes { get; } = new();
         public List<ClassDeclarationSyntax> SelectiveSystems { get; } = new();
+        public List<StructDeclarationSyntax> SelectiveComponentData { get; } = new();
 
         public void OnVisitSyntaxNode(SyntaxNode context)
         {
@@ -1878,6 +1888,12 @@ public class Generator : ISourceGenerator
                 if (codeGenNetMessageAttribute != null)
                 {
                     this.NetworkMessageTypes.Add(structDeclarationSyntax);
+                }
+
+                var generateSelectiveComponentDataAuthoringAttribute = structDeclarationSyntax.AttributeLists.FindAttribute(GenerateSelectiveComponentDataAuthoringAttributeType);
+                if (GenerateSelectiveComponentDataAuthoringAttributeType != null)
+                {
+                    this.SelectiveComponentData.Add(structDeclarationSyntax);
                 }
             }
 
