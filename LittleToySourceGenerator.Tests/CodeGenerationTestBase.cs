@@ -16,8 +16,8 @@ public class CodeGenerationTestBase
     {
         CSharpCompilation compilation = CreateCompilation(source, nullableContextOptions, assemblyName);
 
-        // var compileDiagnostics = compilation.GetDiagnostics();
-        // Assert.IsFalse(compileDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), "Failed: " + compileDiagnostics.FirstOrDefault()?.GetMessage());
+        var compileDiagnostics = compilation.GetDiagnostics();
+        Assert.IsFalse(compileDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), "Failed: " + compileDiagnostics.FirstOrDefault()?.GetMessage());
 
         var driver = CSharpGeneratorDriver.Create(generator);
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generateDiagnostics);
@@ -96,6 +96,9 @@ namespace Unity.Mathematics
 
 namespace Unity.Entities
 {
+    public interface IComponentData
+    {
+    }
     public abstract class SystemBase {}
     public sealed class DisableAutoCreationAttribute : Attribute {}
 }
@@ -119,13 +122,13 @@ namespace Plugins.basegame.Events
     {
     }
 
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class MarkDirtyAttribute : Attribute
     {
         
     }
     
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class SyncFieldAttribute : Attribute
     {
     }
@@ -172,6 +175,11 @@ namespace Plugins.basegame.Events
         {
             SyncDirection = syncDirection;
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Struct)]
+    public class CodeGenNetMessageAttribute : Attribute
+    {
     }
 
     [AttributeUsage(AttributeTargets.Class)]
@@ -223,6 +231,8 @@ namespace Plugins.baseGame
         NetPrefab,
     }
 }
+
+public class LinkedView {}
 ";
         List<MetadataReference> returnList = new();
         returnList.Add(CorlibReference);
