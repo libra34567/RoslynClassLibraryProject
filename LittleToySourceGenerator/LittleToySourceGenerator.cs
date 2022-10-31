@@ -1581,7 +1581,9 @@ public class Generator : ISourceGenerator
             Constructors = new List<Constructor>()
         };
 
-        var fields = netMessageType.GetFields().ToArray();
+        var modelsFromFields = netMessageType.GetFields().Where(f => f.DeclaredAccessibility != Accessibility.Private).Select(field => new EventComponentFieldModel(field));
+        var modelsFromProperties = netMessageType.GetProperties().Where(f => f.DeclaredAccessibility != Accessibility.Private).Select(property => new EventComponentFieldModel(property));
+        var fields = modelsFromFields.Union(modelsFromProperties).ToArray();
         var netMessageConstructor = new Constructor(netMessageType.Name)
         {
             AccessModifier = AccessModifier.Public,
