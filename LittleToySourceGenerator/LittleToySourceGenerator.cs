@@ -1071,7 +1071,18 @@ public class Generator : ISourceGenerator
             $"    All = new []",
             "    {",
             $"        ComponentType.ReadWrite<{eventComponentType.Name}>(),",
-            "    }",
+            "    },",
+            $"    Any = new []",
+            "    {",
+        });
+        foreach (var eventViewType in dirtyEventViewTypes)
+        {
+            onCreateMethodModel.BodyLines.Add(
+            $"        ComponentType.ReadOnly<{eventViewType.ToDisplayString()}>(),");
+        }
+        onCreateMethodModel.BodyLines.AddRange(new []
+        {
+            "    },",
             "});",
             $"_entityWith{eventComponentType.Name}Query.SetChangedVersionFilter(ComponentType.ReadOnly<{eventComponentType.Name}>());",
             ""

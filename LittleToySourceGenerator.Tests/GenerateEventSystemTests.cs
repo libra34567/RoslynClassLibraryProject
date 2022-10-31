@@ -77,7 +77,11 @@ public partial class Position3EventSystem : SystemBase
             All = new []
             {
                 ComponentType.ReadWrite<Position3Data>(),
-            }
+            },
+            Any = new []
+            {
+                ComponentType.ReadOnly<TransformView>(),
+            },
         });
         _entityWithPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
         
@@ -228,7 +232,11 @@ public partial class Position3EventSystem : SystemBase
             All = new []
             {
                 ComponentType.ReadWrite<Position3Data>(),
-            }
+            },
+            Any = new []
+            {
+                ComponentType.ReadOnly<TransformView>(),
+            },
         });
         _entityWithPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
         
@@ -600,7 +608,11 @@ public partial class Position3EventSystemBaseGame : SystemBase
             All = new []
             {
                 ComponentType.ReadWrite<Position3Data>(),
-            }
+            },
+            Any = new []
+            {
+                ComponentType.ReadOnly<TransformView>(),
+            },
         });
         _entityWithPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
         
@@ -821,7 +833,11 @@ namespace Test1.ChildNamespace
                 All = new []
                 {
                     ComponentType.ReadWrite<Position3Data>(),
-                }
+                },
+                Any = new []
+                {
+                    ComponentType.ReadOnly<Test2.InnerNamespace.TransformView>(),
+                },
             });
             _entityWithPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
             
@@ -1217,7 +1233,11 @@ public partial class Position3EventSystem : SystemBase
             All = new []
             {
                 ComponentType.ReadWrite<Position3Data>(),
-            }
+            },
+            Any = new []
+            {
+                ComponentType.ReadOnly<TransformView>(),
+            },
         });
         _entityWithPosition3DataQuery.SetChangedVersionFilter(ComponentType.ReadOnly<Position3Data>());
         
