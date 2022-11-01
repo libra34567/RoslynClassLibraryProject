@@ -52,9 +52,9 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!writer.WriteInt(BodyIndex)) return false;
-        if (!writer.WriteFixedString64(UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!writer.WriteInt(this.BodyIndex)) return false;
+        if (!writer.WriteFixedString64(this.UserName)) return false;
         return true;
     }
 
@@ -64,16 +64,16 @@ public partial struct Position3Data : NetworkComponent
         if (!reader.ReadInt(out hatIndex)) return false;
         int bodyIndex = default;
         if (!reader.ReadInt(out bodyIndex)) return false;
-        if (!reader.ReadFixedString64(out UserName)) return false;
+        if (!reader.ReadFixedString64(out this.UserName)) return false;
         
         var unchanged = true;
-        if (unchanged && HatIndex != hatIndex) unchanged = false;
-        if (unchanged && BodyIndex != bodyIndex) unchanged = false;
+        if (unchanged && this.HatIndex != hatIndex) unchanged = false;
+        if (unchanged && this.BodyIndex != bodyIndex) unchanged = false;
         if (unchanged) return true;
         IsDirty = true;
         
-        HatIndex = hatIndex;
-        BodyIndex = bodyIndex;
+        this.HatIndex = hatIndex;
+        this.BodyIndex = bodyIndex;
         return true;
     }
 }
@@ -137,8 +137,8 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(BodyIndex)) return false;
-        if (!writer.WriteFixedString64(UserName)) return false;
+        if (!writer.WriteInt(this.BodyIndex)) return false;
+        if (!writer.WriteFixedString64(this.UserName)) return false;
         return true;
     }
 
@@ -146,14 +146,14 @@ public partial struct Position3Data : NetworkComponent
     {
         int bodyIndex = default;
         if (!reader.ReadInt(out bodyIndex)) return false;
-        if (!reader.ReadFixedString64(out UserName)) return false;
+        if (!reader.ReadFixedString64(out this.UserName)) return false;
         
         var unchanged = true;
-        if (unchanged && BodyIndex != bodyIndex) unchanged = false;
+        if (unchanged && this.BodyIndex != bodyIndex) unchanged = false;
         if (unchanged) return true;
         IsDirty = true;
         
-        BodyIndex = bodyIndex;
+        this.BodyIndex = bodyIndex;
         return true;
     }
 }
@@ -206,17 +206,17 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!writer.WriteInt(BodyIndex)) return false;
-        if (!writer.WriteFixedString64(UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!writer.WriteInt(this.BodyIndex)) return false;
+        if (!writer.WriteFixedString64(this.UserName)) return false;
         return true;
     }
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        if (!reader.ReadInt(out HatIndex)) return false;
-        if (!reader.ReadInt(out BodyIndex)) return false;
-        if (!reader.ReadFixedString64(out UserName)) return false;
+        if (!reader.ReadInt(out this.HatIndex)) return false;
+        if (!reader.ReadInt(out this.BodyIndex)) return false;
+        if (!reader.ReadFixedString64(out this.UserName)) return false;
         return true;
     }
 }
@@ -349,75 +349,75 @@ public partial struct UserInfoData : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteByte(ByteField)) return false;
-        if (!writer.WriteBool(BoolField)) return false;
-        if (!writer.WriteShort(ShortField)) return false;
-        if (!writer.WriteUShort(UShortField)) return false;
-        if (!writer.WriteInt(Int32Field)) return false;
-        if (!writer.WriteUInt(UInt32Field)) return false;
-        if (!writer.WriteInt2(Int2Field)) return false;
-        if (!writer.WriteInt3(Int3Field)) return false;
-        if (!writer.WriteInt4(Int4Field)) return false;
-        if (!writer.WriteLong(Int64Field)) return false;
-        if (!writer.WriteULong(UInt64Field)) return false;
-        if (!writer.WriteLong3(Long3Field)) return false;
-        if (!writer.WriteFloat(FloatField)) return false;
-        if (!writer.WriteFloat2(Float2Field)) return false;
-        if (!writer.WriteFloat3(Float3Field)) return false;
-        if (!writer.WriteFloat4(Float4Field)) return false;
-        if (!writer.WriteDouble(DoubleField)) return false;
-        if (!writer.WriteDouble2(Double2Field)) return false;
-        if (!writer.WriteDouble3(Double3Field)) return false;
-        if (!writer.WriteDouble4(Double4Field)) return false;
-        if (!writer.WriteDecimal(DecimalField)) return false;
-        if (!writer.WriteQuaternion(QuaternionField)) return false;
-        if (!writer.WriteBytes16(Bytes16Field)) return false;
-        if (!writer.WriteBytes30(Bytes30Field)) return false;
-        if (!writer.WriteBytes62(Bytes62Field)) return false;
-        if (!writer.WriteBytes126(Bytes126Field)) return false;
-        if (!writer.WriteBytes510(Bytes510Field)) return false;
-        if (!writer.WriteBytes4094(Bytes4094Field)) return false;
-        if (!writer.WriteFixedString32(FixedString32Field)) return false;
-        if (!writer.WriteFixedString64(FixedString64Field)) return false;
-        if (!writer.WriteFixedString128(FixedString128Field)) return false;
-        if (!writer.WriteFixedString512(FixedString512Field)) return false;
+        if (!writer.WriteByte(this.ByteField)) return false;
+        if (!writer.WriteBool(this.BoolField)) return false;
+        if (!writer.WriteShort(this.ShortField)) return false;
+        if (!writer.WriteUShort(this.UShortField)) return false;
+        if (!writer.WriteInt(this.Int32Field)) return false;
+        if (!writer.WriteUInt(this.UInt32Field)) return false;
+        if (!writer.WriteInt2(this.Int2Field)) return false;
+        if (!writer.WriteInt3(this.Int3Field)) return false;
+        if (!writer.WriteInt4(this.Int4Field)) return false;
+        if (!writer.WriteLong(this.Int64Field)) return false;
+        if (!writer.WriteULong(this.UInt64Field)) return false;
+        if (!writer.WriteLong3(this.Long3Field)) return false;
+        if (!writer.WriteFloat(this.FloatField)) return false;
+        if (!writer.WriteFloat2(this.Float2Field)) return false;
+        if (!writer.WriteFloat3(this.Float3Field)) return false;
+        if (!writer.WriteFloat4(this.Float4Field)) return false;
+        if (!writer.WriteDouble(this.DoubleField)) return false;
+        if (!writer.WriteDouble2(this.Double2Field)) return false;
+        if (!writer.WriteDouble3(this.Double3Field)) return false;
+        if (!writer.WriteDouble4(this.Double4Field)) return false;
+        if (!writer.WriteDecimal(this.DecimalField)) return false;
+        if (!writer.WriteQuaternion(this.QuaternionField)) return false;
+        if (!writer.WriteBytes16(this.Bytes16Field)) return false;
+        if (!writer.WriteBytes30(this.Bytes30Field)) return false;
+        if (!writer.WriteBytes62(this.Bytes62Field)) return false;
+        if (!writer.WriteBytes126(this.Bytes126Field)) return false;
+        if (!writer.WriteBytes510(this.Bytes510Field)) return false;
+        if (!writer.WriteBytes4094(this.Bytes4094Field)) return false;
+        if (!writer.WriteFixedString32(this.FixedString32Field)) return false;
+        if (!writer.WriteFixedString64(this.FixedString64Field)) return false;
+        if (!writer.WriteFixedString128(this.FixedString128Field)) return false;
+        if (!writer.WriteFixedString512(this.FixedString512Field)) return false;
         return true;
     }
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        if (!reader.ReadByte(out ByteField)) return false;
-        if (!reader.ReadBool(out BoolField)) return false;
-        if (!reader.ReadShort(out ShortField)) return false;
-        if (!reader.ReadUShort(out UShortField)) return false;
-        if (!reader.ReadInt(out Int32Field)) return false;
-        if (!reader.ReadUInt(out UInt32Field)) return false;
-        if (!reader.ReadInt2(out Int2Field)) return false;
-        if (!reader.ReadInt3(out Int3Field)) return false;
-        if (!reader.ReadInt4(out Int4Field)) return false;
-        if (!reader.ReadLong(out Int64Field)) return false;
-        if (!reader.ReadULong(out UInt64Field)) return false;
-        if (!reader.ReadLong3(out Long3Field)) return false;
-        if (!reader.ReadFloat(out FloatField)) return false;
-        if (!reader.ReadFloat2(out Float2Field)) return false;
-        if (!reader.ReadFloat3(out Float3Field)) return false;
-        if (!reader.ReadFloat4(out Float4Field)) return false;
-        if (!reader.ReadDouble(out DoubleField)) return false;
-        if (!reader.ReadDouble2(out Double2Field)) return false;
-        if (!reader.ReadDouble3(out Double3Field)) return false;
-        if (!reader.ReadDouble4(out Double4Field)) return false;
-        if (!reader.ReadDecimal(out DecimalField)) return false;
-        if (!reader.ReadQuaternion(out QuaternionField)) return false;
-        if (!reader.ReadBytes16(out Bytes16Field)) return false;
-        if (!reader.ReadBytes30(out Bytes30Field)) return false;
-        if (!reader.ReadBytes62(out Bytes62Field)) return false;
-        if (!reader.ReadBytes126(out Bytes126Field)) return false;
-        if (!reader.ReadBytes510(out Bytes510Field)) return false;
-        if (!reader.ReadBytes4094(out Bytes4094Field)) return false;
-        if (!reader.ReadFixedString32(out FixedString32Field)) return false;
-        if (!reader.ReadFixedString64(out FixedString64Field)) return false;
-        if (!reader.ReadFixedString128(out FixedString128Field)) return false;
-        if (!reader.ReadFixedString512(out FixedString512Field)) return false;
+        if (!reader.ReadByte(out this.ByteField)) return false;
+        if (!reader.ReadBool(out this.BoolField)) return false;
+        if (!reader.ReadShort(out this.ShortField)) return false;
+        if (!reader.ReadUShort(out this.UShortField)) return false;
+        if (!reader.ReadInt(out this.Int32Field)) return false;
+        if (!reader.ReadUInt(out this.UInt32Field)) return false;
+        if (!reader.ReadInt2(out this.Int2Field)) return false;
+        if (!reader.ReadInt3(out this.Int3Field)) return false;
+        if (!reader.ReadInt4(out this.Int4Field)) return false;
+        if (!reader.ReadLong(out this.Int64Field)) return false;
+        if (!reader.ReadULong(out this.UInt64Field)) return false;
+        if (!reader.ReadLong3(out this.Long3Field)) return false;
+        if (!reader.ReadFloat(out this.FloatField)) return false;
+        if (!reader.ReadFloat2(out this.Float2Field)) return false;
+        if (!reader.ReadFloat3(out this.Float3Field)) return false;
+        if (!reader.ReadFloat4(out this.Float4Field)) return false;
+        if (!reader.ReadDouble(out this.DoubleField)) return false;
+        if (!reader.ReadDouble2(out this.Double2Field)) return false;
+        if (!reader.ReadDouble3(out this.Double3Field)) return false;
+        if (!reader.ReadDouble4(out this.Double4Field)) return false;
+        if (!reader.ReadDecimal(out this.DecimalField)) return false;
+        if (!reader.ReadQuaternion(out this.QuaternionField)) return false;
+        if (!reader.ReadBytes16(out this.Bytes16Field)) return false;
+        if (!reader.ReadBytes30(out this.Bytes30Field)) return false;
+        if (!reader.ReadBytes62(out this.Bytes62Field)) return false;
+        if (!reader.ReadBytes126(out this.Bytes126Field)) return false;
+        if (!reader.ReadBytes510(out this.Bytes510Field)) return false;
+        if (!reader.ReadBytes4094(out this.Bytes4094Field)) return false;
+        if (!reader.ReadFixedString32(out this.FixedString32Field)) return false;
+        if (!reader.ReadFixedString64(out this.FixedString64Field)) return false;
+        if (!reader.ReadFixedString128(out this.FixedString128Field)) return false;
+        if (!reader.ReadFixedString512(out this.FixedString512Field)) return false;
         return true;
     }
 }
@@ -501,75 +501,75 @@ public partial struct UserInfoData : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteByte(ByteField)) return false;
-        if (!writer.WriteBool(BoolField)) return false;
-        if (!writer.WriteShort(ShortField)) return false;
-        if (!writer.WriteUShort(UShortField)) return false;
-        if (!writer.WriteInt(Int32Field)) return false;
-        if (!writer.WriteUInt(UInt32Field)) return false;
-        if (!writer.WriteInt2(Int2Field)) return false;
-        if (!writer.WriteInt3(Int3Field)) return false;
-        if (!writer.WriteInt4(Int4Field)) return false;
-        if (!writer.WriteLong(Int64Field)) return false;
-        if (!writer.WriteULong(UInt64Field)) return false;
-        if (!writer.WriteLong3(Long3Field)) return false;
-        if (!writer.WriteFloat(FloatField)) return false;
-        if (!writer.WriteFloat2(Float2Field)) return false;
-        if (!writer.WriteFloat3(Float3Field)) return false;
-        if (!writer.WriteFloat4(Float4Field)) return false;
-        if (!writer.WriteDouble(DoubleField)) return false;
-        if (!writer.WriteDouble2(Double2Field)) return false;
-        if (!writer.WriteDouble3(Double3Field)) return false;
-        if (!writer.WriteDouble4(Double4Field)) return false;
-        if (!writer.WriteDecimal(DecimalField)) return false;
-        if (!writer.WriteQuaternion(QuaternionField)) return false;
-        if (!writer.WriteBytes16(Bytes16Field)) return false;
-        if (!writer.WriteBytes30(Bytes30Field)) return false;
-        if (!writer.WriteBytes62(Bytes62Field)) return false;
-        if (!writer.WriteBytes126(Bytes126Field)) return false;
-        if (!writer.WriteBytes510(Bytes510Field)) return false;
-        if (!writer.WriteBytes4094(Bytes4094Field)) return false;
-        if (!writer.WriteFixedString32(FixedString32Field)) return false;
-        if (!writer.WriteFixedString64(FixedString64Field)) return false;
-        if (!writer.WriteFixedString128(FixedString128Field)) return false;
-        if (!writer.WriteFixedString512(FixedString512Field)) return false;
+        if (!writer.WriteByte(this.ByteField)) return false;
+        if (!writer.WriteBool(this.BoolField)) return false;
+        if (!writer.WriteShort(this.ShortField)) return false;
+        if (!writer.WriteUShort(this.UShortField)) return false;
+        if (!writer.WriteInt(this.Int32Field)) return false;
+        if (!writer.WriteUInt(this.UInt32Field)) return false;
+        if (!writer.WriteInt2(this.Int2Field)) return false;
+        if (!writer.WriteInt3(this.Int3Field)) return false;
+        if (!writer.WriteInt4(this.Int4Field)) return false;
+        if (!writer.WriteLong(this.Int64Field)) return false;
+        if (!writer.WriteULong(this.UInt64Field)) return false;
+        if (!writer.WriteLong3(this.Long3Field)) return false;
+        if (!writer.WriteFloat(this.FloatField)) return false;
+        if (!writer.WriteFloat2(this.Float2Field)) return false;
+        if (!writer.WriteFloat3(this.Float3Field)) return false;
+        if (!writer.WriteFloat4(this.Float4Field)) return false;
+        if (!writer.WriteDouble(this.DoubleField)) return false;
+        if (!writer.WriteDouble2(this.Double2Field)) return false;
+        if (!writer.WriteDouble3(this.Double3Field)) return false;
+        if (!writer.WriteDouble4(this.Double4Field)) return false;
+        if (!writer.WriteDecimal(this.DecimalField)) return false;
+        if (!writer.WriteQuaternion(this.QuaternionField)) return false;
+        if (!writer.WriteBytes16(this.Bytes16Field)) return false;
+        if (!writer.WriteBytes30(this.Bytes30Field)) return false;
+        if (!writer.WriteBytes62(this.Bytes62Field)) return false;
+        if (!writer.WriteBytes126(this.Bytes126Field)) return false;
+        if (!writer.WriteBytes510(this.Bytes510Field)) return false;
+        if (!writer.WriteBytes4094(this.Bytes4094Field)) return false;
+        if (!writer.WriteFixedString32(this.FixedString32Field)) return false;
+        if (!writer.WriteFixedString64(this.FixedString64Field)) return false;
+        if (!writer.WriteFixedString128(this.FixedString128Field)) return false;
+        if (!writer.WriteFixedString512(this.FixedString512Field)) return false;
         return true;
     }
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        if (!reader.ReadByte(out ByteField)) return false;
-        if (!reader.ReadBool(out BoolField)) return false;
-        if (!reader.ReadShort(out ShortField)) return false;
-        if (!reader.ReadUShort(out UShortField)) return false;
-        if (!reader.ReadInt(out Int32Field)) return false;
-        if (!reader.ReadUInt(out UInt32Field)) return false;
-        if (!reader.ReadInt2(out Int2Field)) return false;
-        if (!reader.ReadInt3(out Int3Field)) return false;
-        if (!reader.ReadInt4(out Int4Field)) return false;
-        if (!reader.ReadLong(out Int64Field)) return false;
-        if (!reader.ReadULong(out UInt64Field)) return false;
-        if (!reader.ReadLong3(out Long3Field)) return false;
-        if (!reader.ReadFloat(out FloatField)) return false;
-        if (!reader.ReadFloat2(out Float2Field)) return false;
-        if (!reader.ReadFloat3(out Float3Field)) return false;
-        if (!reader.ReadFloat4(out Float4Field)) return false;
-        if (!reader.ReadDouble(out DoubleField)) return false;
-        if (!reader.ReadDouble2(out Double2Field)) return false;
-        if (!reader.ReadDouble3(out Double3Field)) return false;
-        if (!reader.ReadDouble4(out Double4Field)) return false;
-        if (!reader.ReadDecimal(out DecimalField)) return false;
-        if (!reader.ReadQuaternion(out QuaternionField)) return false;
-        if (!reader.ReadBytes16(out Bytes16Field)) return false;
-        if (!reader.ReadBytes30(out Bytes30Field)) return false;
-        if (!reader.ReadBytes62(out Bytes62Field)) return false;
-        if (!reader.ReadBytes126(out Bytes126Field)) return false;
-        if (!reader.ReadBytes510(out Bytes510Field)) return false;
-        if (!reader.ReadBytes4094(out Bytes4094Field)) return false;
-        if (!reader.ReadFixedString32(out FixedString32Field)) return false;
-        if (!reader.ReadFixedString64(out FixedString64Field)) return false;
-        if (!reader.ReadFixedString128(out FixedString128Field)) return false;
-        if (!reader.ReadFixedString512(out FixedString512Field)) return false;
+        if (!reader.ReadByte(out this.ByteField)) return false;
+        if (!reader.ReadBool(out this.BoolField)) return false;
+        if (!reader.ReadShort(out this.ShortField)) return false;
+        if (!reader.ReadUShort(out this.UShortField)) return false;
+        if (!reader.ReadInt(out this.Int32Field)) return false;
+        if (!reader.ReadUInt(out this.UInt32Field)) return false;
+        if (!reader.ReadInt2(out this.Int2Field)) return false;
+        if (!reader.ReadInt3(out this.Int3Field)) return false;
+        if (!reader.ReadInt4(out this.Int4Field)) return false;
+        if (!reader.ReadLong(out this.Int64Field)) return false;
+        if (!reader.ReadULong(out this.UInt64Field)) return false;
+        if (!reader.ReadLong3(out this.Long3Field)) return false;
+        if (!reader.ReadFloat(out this.FloatField)) return false;
+        if (!reader.ReadFloat2(out this.Float2Field)) return false;
+        if (!reader.ReadFloat3(out this.Float3Field)) return false;
+        if (!reader.ReadFloat4(out this.Float4Field)) return false;
+        if (!reader.ReadDouble(out this.DoubleField)) return false;
+        if (!reader.ReadDouble2(out this.Double2Field)) return false;
+        if (!reader.ReadDouble3(out this.Double3Field)) return false;
+        if (!reader.ReadDouble4(out this.Double4Field)) return false;
+        if (!reader.ReadDecimal(out this.DecimalField)) return false;
+        if (!reader.ReadQuaternion(out this.QuaternionField)) return false;
+        if (!reader.ReadBytes16(out this.Bytes16Field)) return false;
+        if (!reader.ReadBytes30(out this.Bytes30Field)) return false;
+        if (!reader.ReadBytes62(out this.Bytes62Field)) return false;
+        if (!reader.ReadBytes126(out this.Bytes126Field)) return false;
+        if (!reader.ReadBytes510(out this.Bytes510Field)) return false;
+        if (!reader.ReadBytes4094(out this.Bytes4094Field)) return false;
+        if (!reader.ReadFixedString32(out this.FixedString32Field)) return false;
+        if (!reader.ReadFixedString64(out this.FixedString64Field)) return false;
+        if (!reader.ReadFixedString128(out this.FixedString128Field)) return false;
+        if (!reader.ReadFixedString512(out this.FixedString512Field)) return false;
         return true;
     }
 }
@@ -671,9 +671,9 @@ namespace Test.InnerNamespace
 
         public bool Serialize(ref NetworkWriter128 writer)
         {
-            if (!writer.WriteInt(HatIndex)) return false;
-            if (!writer.WriteInt(BodyIndex)) return false;
-            if (!writer.WriteFixedString64(UserName)) return false;
+            if (!writer.WriteInt(this.HatIndex)) return false;
+            if (!writer.WriteInt(this.BodyIndex)) return false;
+            if (!writer.WriteFixedString64(this.UserName)) return false;
             return true;
         }
 
@@ -683,16 +683,16 @@ namespace Test.InnerNamespace
             if (!reader.ReadInt(out hatIndex)) return false;
             int bodyIndex = default;
             if (!reader.ReadInt(out bodyIndex)) return false;
-            if (!reader.ReadFixedString64(out UserName)) return false;
+            if (!reader.ReadFixedString64(out this.UserName)) return false;
             
             var unchanged = true;
-            if (unchanged && HatIndex != hatIndex) unchanged = false;
-            if (unchanged && BodyIndex != bodyIndex) unchanged = false;
+            if (unchanged && this.HatIndex != hatIndex) unchanged = false;
+            if (unchanged && this.BodyIndex != bodyIndex) unchanged = false;
             if (unchanged) return true;
             IsDirty = true;
             
-            HatIndex = hatIndex;
-            BodyIndex = bodyIndex;
+            this.HatIndex = hatIndex;
+            this.BodyIndex = bodyIndex;
             return true;
         }
     }
@@ -801,9 +801,9 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!writer.WriteInt((int)BodyIndex)) return false;
-        if (!writer.WriteInt((int)UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!writer.WriteInt((int)this.BodyIndex)) return false;
+        if (!writer.WriteInt((int)this.UserName)) return false;
         return true;
     }
 
@@ -816,15 +816,15 @@ public partial struct Position3Data : NetworkComponent
         int userName = default;
         if (!reader.ReadInt(out userName)) return false;
         
-        UserName = (MyTestEnum)userName;
+        this.UserName = (MyTestEnum)userName;
         var unchanged = true;
-        if (unchanged && HatIndex != hatIndex) unchanged = false;
-        if (unchanged && BodyIndex != (MyTestEnum)bodyIndex) unchanged = false;
+        if (unchanged && this.HatIndex != hatIndex) unchanged = false;
+        if (unchanged && this.BodyIndex != (MyTestEnum)bodyIndex) unchanged = false;
         if (unchanged) return true;
         IsDirty = true;
         
-        HatIndex = hatIndex;
-        BodyIndex = (MyTestEnum)bodyIndex;
+        this.HatIndex = hatIndex;
+        this.BodyIndex = (MyTestEnum)bodyIndex;
         return true;
     }
 }
@@ -882,22 +882,22 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!writer.WriteInt((int)BodyIndex)) return false;
-        if (!writer.WriteInt((int)UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!writer.WriteInt((int)this.BodyIndex)) return false;
+        if (!writer.WriteInt((int)this.UserName)) return false;
         return true;
     }
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        if (!reader.ReadInt(out HatIndex)) return false;
+        if (!reader.ReadInt(out this.HatIndex)) return false;
         int bodyIndex = default;
         if (!reader.ReadInt(out bodyIndex)) return false;
         int userName = default;
         if (!reader.ReadInt(out userName)) return false;
         
-        BodyIndex = (MyTestEnum)bodyIndex;
-        UserName = (MyTestEnum)userName;
+        this.BodyIndex = (MyTestEnum)bodyIndex;
+        this.UserName = (MyTestEnum)userName;
         return true;
     }
 }
@@ -957,9 +957,9 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!DotsNetworkExtension.WriteFixedList64Batched(ref writer, in HatIndex)) return false;
-        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in BodyIndex)) return false;
-        if (!DotsNetworkExtension.WriteFixedList512Batched(ref writer, in UserName)) return false;
+        if (!DotsNetworkExtension.WriteFixedList64Batched(ref writer, in this.HatIndex)) return false;
+        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in this.BodyIndex)) return false;
+        if (!DotsNetworkExtension.WriteFixedList512Batched(ref writer, in this.UserName)) return false;
         return true;
     }
 
@@ -972,15 +972,15 @@ public partial struct Position3Data : NetworkComponent
         Unity.Collections.FixedList512Bytes<int> userName = default;
         if (!DotsNetworkExtension.ReadFixedList512Batched(ref reader, ref userName)) return false;
         
-        UserName = userName;
+        this.UserName = userName;
         var unchanged = true;
-        if (unchanged && HatIndex != hatIndex) unchanged = false;
-        if (unchanged && BodyIndex != bodyIndex) unchanged = false;
+        if (unchanged && this.HatIndex != hatIndex) unchanged = false;
+        if (unchanged && this.BodyIndex != bodyIndex) unchanged = false;
         if (unchanged) return true;
         IsDirty = true;
         
-        HatIndex = hatIndex;
-        BodyIndex = bodyIndex;
+        this.HatIndex = hatIndex;
+        this.BodyIndex = bodyIndex;
         return true;
     }
 }
@@ -1039,22 +1039,22 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in BodyIndex)) return false;
-        if (!writer.WriteInt((int)UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in this.BodyIndex)) return false;
+        if (!writer.WriteInt((int)this.UserName)) return false;
         return true;
     }
 
     public bool Deserialize(ref NetworkReader128 reader)
     {
-        if (!reader.ReadInt(out HatIndex)) return false;
+        if (!reader.ReadInt(out this.HatIndex)) return false;
         Unity.Collections.FixedList128Bytes<long> bodyIndex = default;
         if (!DotsNetworkExtension.ReadFixedList128Batched(ref reader, ref bodyIndex)) return false;
         int userName = default;
         if (!reader.ReadInt(out userName)) return false;
         
-        BodyIndex = bodyIndex;
-        UserName = (MyTestEnum)userName;
+        this.BodyIndex = bodyIndex;
+        this.UserName = (MyTestEnum)userName;
         return true;
     }
 }
@@ -1107,9 +1107,9 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!writer.WriteInt(BodyIndex)) return false;
-        if (!writer.WriteFixedString64(UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!writer.WriteInt(this.BodyIndex)) return false;
+        if (!writer.WriteFixedString64(this.UserName)) return false;
         return true;
     }
 
@@ -1122,15 +1122,15 @@ public partial struct Position3Data : NetworkComponent
         Unity.Collections.FixedString64Bytes userName = default;
         if (!reader.ReadFixedString64(out userName)) return false;
         
-        UserName = userName;
+        this.UserName = userName;
         var unchanged = true;
-        if (unchanged && HatIndex != hatIndex) unchanged = false;
-        if (unchanged && BodyIndex != bodyIndex) unchanged = false;
+        if (unchanged && this.HatIndex != hatIndex) unchanged = false;
+        if (unchanged && this.BodyIndex != bodyIndex) unchanged = false;
         if (unchanged) return true;
         IsDirty = true;
         
-        HatIndex = hatIndex;
-        BodyIndex = bodyIndex;
+        this.HatIndex = hatIndex;
+        this.BodyIndex = bodyIndex;
         return true;
     }
 }
@@ -1188,9 +1188,9 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!writer.WriteInt((int)BodyIndex)) return false;
-        if (!writer.WriteInt((int)UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!writer.WriteInt((int)this.BodyIndex)) return false;
+        if (!writer.WriteInt((int)this.UserName)) return false;
         return true;
     }
 
@@ -1203,9 +1203,9 @@ public partial struct Position3Data : NetworkComponent
         int userName = default;
         if (!reader.ReadInt(out userName)) return false;
         
-        HatIndex = hatIndex;
-        BodyIndex = (MyTestEnum)bodyIndex;
-        UserName = (MyTestEnum)userName;
+        this.HatIndex = hatIndex;
+        this.BodyIndex = (MyTestEnum)bodyIndex;
+        this.UserName = (MyTestEnum)userName;
         return true;
     }
 }
@@ -1264,9 +1264,9 @@ public partial struct Position3Data : NetworkComponent
 
     public bool Serialize(ref NetworkWriter128 writer)
     {
-        if (!writer.WriteInt(HatIndex)) return false;
-        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in BodyIndex)) return false;
-        if (!writer.WriteInt((int)UserName)) return false;
+        if (!writer.WriteInt(this.HatIndex)) return false;
+        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in this.BodyIndex)) return false;
+        if (!writer.WriteInt((int)this.UserName)) return false;
         return true;
     }
 
@@ -1279,9 +1279,203 @@ public partial struct Position3Data : NetworkComponent
         int userName = default;
         if (!reader.ReadInt(out userName)) return false;
         
-        HatIndex = hatIndex;
-        BodyIndex = bodyIndex;
-        UserName = (MyTestEnum)userName;
+        this.HatIndex = hatIndex;
+        this.BodyIndex = bodyIndex;
+        this.UserName = (MyTestEnum)userName;
+        return true;
+    }
+}
+";
+        Assert.AreEqual(expectedOutput, output);
+    }
+
+    [TestMethod]
+    public void SyncFieldOnStruct()
+    {
+        string source = @"
+using Plugins.basegame.Events;
+using DOTSNET;
+using Unity.Collections;
+
+public enum MyTestEnum
+{
+    X, Y, Z
+}
+
+public struct UserInformation
+{
+    public int HatIndex;
+    public FixedList128Bytes<long> BodyIndex;
+    public MyTestEnum UserName;
+}
+
+[Plugins.basegame.Events.CodeGenNetComponentAttribute(DOTSNET.SyncDirection.SERVER_TO_CLIENT)]
+public partial struct Position3Data
+{
+    [SyncField] public UserInformation Data;
+}
+";
+        var generator = new Generator();
+        generator.DisableAllGeneration();
+        generator.EnableEventDataGeneration = true;
+        string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
+
+        Assert.IsNotNull(output);
+
+        var expectedOutput = @"// <auto-generated>
+// Code generated by LittleToy Code Generator.
+// Changes may cause incorrect behavior and will be lost if the code is
+// regenerated.
+// </auto-generated>
+#nullable enable
+#pragma warning disable 1591
+using System;
+using Unity.Entities;
+using Unity.Mathematics;
+using Plugins.basegame.Events;
+using DOTSNET;
+using Unity.Collections;
+
+public partial struct Position3Data : NetworkComponent
+{
+    public SyncDirection GetSyncDirection()
+    {
+        return SyncDirection.SERVER_TO_CLIENT;
+    }
+
+    public bool Serialize(ref NetworkWriter128 writer)
+    {
+        if (!Serialize(ref writer, ref this.Data)) return false;
+        return true;
+    }
+
+    public bool Deserialize(ref NetworkReader128 reader)
+    {
+        UserInformation data = default;
+        if (!Deserialize(ref reader, ref data)) return false;
+        
+        this.Data = (UserInformation)data;
+        return true;
+    }
+
+    public static bool Serialize(ref NetworkWriter128 writer, ref UserInformation userInformation)
+    {
+        if (!writer.WriteInt(userInformation.HatIndex)) return false;
+        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in userInformation.BodyIndex)) return false;
+        if (!writer.WriteInt((int)userInformation.UserName)) return false;
+        return true;
+    }
+
+    public static bool Deserialize(ref NetworkReader128 reader, ref UserInformation userInformation)
+    {
+        if (!reader.ReadInt(out userInformation.HatIndex)) return false;
+        Unity.Collections.FixedList128Bytes<long> bodyIndex = default;
+        if (!DotsNetworkExtension.ReadFixedList128Batched(ref reader, ref bodyIndex)) return false;
+        int userName = default;
+        if (!reader.ReadInt(out userName)) return false;
+        
+        userInformation.BodyIndex = bodyIndex;
+        userInformation.UserName = (MyTestEnum)userName;
+        return true;
+    }
+}
+";
+        Assert.AreEqual(expectedOutput, output);
+    }
+
+    [TestMethod]
+    public void MarkDirtyOnStruct()
+    {
+        string source = @"
+using Plugins.basegame.Events;
+using DOTSNET;
+using Unity.Collections;
+
+public enum MyTestEnum
+{
+    X, Y, Z
+}
+
+public struct UserInformation
+{
+    public int HatIndex;
+    public FixedList128Bytes<long> BodyIndex;
+    public MyTestEnum UserName;
+}
+
+[Plugins.basegame.Events.CodeGenNetComponentAttribute(DOTSNET.SyncDirection.SERVER_TO_CLIENT)]
+public partial struct Position3Data
+{
+    [MarkDirty] [SyncField] public UserInformation Data;
+}
+";
+        var generator = new Generator();
+        generator.DisableAllGeneration();
+        generator.EnableEventDataGeneration = true;
+        string output = this.GetGeneratedOutput(source, generator, NullableContextOptions.Disable);
+
+        Assert.IsNotNull(output);
+
+        var expectedOutput = @"// <auto-generated>
+// Code generated by LittleToy Code Generator.
+// Changes may cause incorrect behavior and will be lost if the code is
+// regenerated.
+// </auto-generated>
+#nullable enable
+#pragma warning disable 1591
+using System;
+using Unity.Entities;
+using Unity.Mathematics;
+using Plugins.basegame.Events;
+using DOTSNET;
+using Unity.Collections;
+
+public partial struct Position3Data : NetworkComponent
+{
+    public bool IsDirty { get; set; }
+    public SyncDirection GetSyncDirection()
+    {
+        return SyncDirection.SERVER_TO_CLIENT;
+    }
+
+    public bool Serialize(ref NetworkWriter128 writer)
+    {
+        if (!Serialize(ref writer, ref this.Data)) return false;
+        return true;
+    }
+
+    public bool Deserialize(ref NetworkReader128 reader)
+    {
+        UserInformation data = default;
+        if (!Deserialize(ref reader, ref data)) return false;
+        
+        var unchanged = true;
+        if (unchanged && this.Data != (UserInformation)data) unchanged = false;
+        if (unchanged) return true;
+        IsDirty = true;
+        
+        this.Data = (UserInformation)data;
+        return true;
+    }
+
+    public static bool Serialize(ref NetworkWriter128 writer, ref UserInformation userInformation)
+    {
+        if (!writer.WriteInt(userInformation.HatIndex)) return false;
+        if (!DotsNetworkExtension.WriteFixedList128Batched(ref writer, in userInformation.BodyIndex)) return false;
+        if (!writer.WriteInt((int)userInformation.UserName)) return false;
+        return true;
+    }
+
+    public static bool Deserialize(ref NetworkReader128 reader, ref UserInformation userInformation)
+    {
+        if (!reader.ReadInt(out userInformation.HatIndex)) return false;
+        Unity.Collections.FixedList128Bytes<long> bodyIndex = default;
+        if (!DotsNetworkExtension.ReadFixedList128Batched(ref reader, ref bodyIndex)) return false;
+        int userName = default;
+        if (!reader.ReadInt(out userName)) return false;
+        
+        userInformation.BodyIndex = bodyIndex;
+        userInformation.UserName = (MyTestEnum)userName;
         return true;
     }
 }
