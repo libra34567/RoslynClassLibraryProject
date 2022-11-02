@@ -34,6 +34,7 @@ public partial struct JoinWorldMessage : IComponentData
 #nullable enable
 #pragma warning disable 1591
 using Unity.Entities;
+using UnityEngine;
 
 public partial class JoinWorldMessageAuthoring : SelectiveComponentDataAuthoring
 {
@@ -43,7 +44,7 @@ public partial class JoinWorldMessageAuthoring : SelectiveComponentDataAuthoring
 
     protected override void SelectiveConvert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponent<JoinWorldMessage>(entity, joinWorldMessage);
+        dstManager.AddComponentData(entity, joinWorldMessage);
     }
 }
 ";
@@ -81,6 +82,7 @@ namespace Test.InnerNamespace
 #nullable enable
 #pragma warning disable 1591
 using Unity.Entities;
+using UnityEngine;
 
 namespace Test.InnerNamespace
 {
@@ -93,7 +95,7 @@ namespace Test.InnerNamespace
 
         protected override void SelectiveConvert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponent<Test.InnerNamespace.JoinWorldMessage>(entity, joinWorldMessage);
+            dstManager.AddComponentData(entity, joinWorldMessage);
         }
     }
 }

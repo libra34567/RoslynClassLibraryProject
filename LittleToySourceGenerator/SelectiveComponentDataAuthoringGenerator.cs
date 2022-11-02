@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
-using static LittleToySourceGenerator.SelectiveSystemAuthoringGenerator;
-using System.Linq;
 using CsCodeGenerator;
 using CsCodeGenerator.Enums;
 
@@ -65,6 +63,7 @@ internal class SelectiveComponentDataAuthoringGenerator
             UsingDirectives = new List<string>
             {
                 "Unity.Entities;",
+                "UnityEngine;",
             },
             Header = Generator.FileHeader,
             Namespace = typeSymbol.ContainingNamespace.GetNamespace(),
@@ -109,7 +108,7 @@ internal class SelectiveComponentDataAuthoringGenerator
                 new Parameter("EntityManager", "dstManager"),
                 new Parameter("GameObjectConversionSystem", "conversionSystem"),
             },
-            BodyLines = new() { $"dstManager.AddComponent<{typeSymbol.ToDisplayString()}>(entity, {backingFieldName});" },
+            BodyLines = new() { $"dstManager.AddComponentData(entity, {backingFieldName});" },
         });
         return authoringClass;
     }
