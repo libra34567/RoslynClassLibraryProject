@@ -86,6 +86,16 @@ internal class SelectiveComponentDataAuthoringGenerator
             KeyWords = new() { KeyWord.Partial }
         };
 
+        string backingFieldName = typeSymbol.Name.ToCamel();
+        authoringClass.Fields.Add(new Field(typeSymbol.ToDisplayString(), backingFieldName)
+        {
+            AccessModifier = AccessModifier.Private,
+            Attributes = new()
+            {
+                new AttributeModel("SerializeField"),
+            },
+        });
+
         authoringClass.Methods.Add(new Method("void", "SelectiveConvert")
         {
             AccessModifier = AccessModifier.Protected,
@@ -99,7 +109,7 @@ internal class SelectiveComponentDataAuthoringGenerator
                 new Parameter("EntityManager", "dstManager"),
                 new Parameter("GameObjectConversionSystem", "conversionSystem"),
             },
-            BodyLines = new() { $"dstManager.AddComponent<{typeSymbol.ToDisplayString()}>(entity);" },
+            BodyLines = new() { $"dstManager.AddComponent<{typeSymbol.ToDisplayString()}>(entity, {backingFieldName});" },
         });
         return authoringClass;
     }

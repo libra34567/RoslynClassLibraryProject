@@ -37,9 +37,13 @@ using Unity.Entities;
 
 public partial class JoinWorldMessageAuthoring : SelectiveComponentDataAuthoring
 {
+    [SerializeField]
+    private JoinWorldMessage joinWorldMessage;
+
+
     protected override void SelectiveConvert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponent<JoinWorldMessage>(entity);
+        dstManager.AddComponent<JoinWorldMessage>(entity, joinWorldMessage);
     }
 }
 ";
@@ -83,9 +87,13 @@ namespace Test.InnerNamespace
 
     public partial class JoinWorldMessageAuthoring : SelectiveComponentDataAuthoring
     {
+        [SerializeField]
+        private Test.InnerNamespace.JoinWorldMessage joinWorldMessage;
+
+
         protected override void SelectiveConvert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponent<Test.InnerNamespace.JoinWorldMessage>(entity);
+            dstManager.AddComponent<Test.InnerNamespace.JoinWorldMessage>(entity, joinWorldMessage);
         }
     }
 }
