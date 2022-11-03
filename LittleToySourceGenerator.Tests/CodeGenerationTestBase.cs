@@ -203,6 +203,11 @@ namespace Plugins.basegame.Events
             Types = types;
         }
     }
+
+    [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true)]
+    public class GenerateSelectiveComponentDataAuthoringAttribute : Attribute
+    {
+    }
 }
 
 namespace Plugins.baseGame
