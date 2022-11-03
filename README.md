@@ -48,4 +48,5 @@ $LastMessage=$(git show -s --format=%s)
 pushd ../crowdcityonline
 
 ./SyncUpdate.ps1 -Branch $CurrentBranch -Message "$LastMessage" -UpdateBaseGame
+popd
 ```

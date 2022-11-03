@@ -343,6 +343,11 @@ public class Generator : ISourceGenerator
                         continue;
                     }
 
+                    if (!field.HasMarkDirtyAttribute && !field.HasSyncFieldAttribute)
+                    {
+                        continue;
+                    }
+
                     if (structs.Contains(field.Type))
                     {
                         continue;
