@@ -86,7 +86,7 @@ namespace UnityEditor
 ";
 
     private const string ZenGenAttributeType = "ZenGen";
-    private static readonly AttributeModel RequiredInPrefabInstancesAttribute = new AttributeModel("RequiredInPrefabInstances");
+    private static readonly AttributeModel RequiredInPrefabInstancesAttribute = new AttributeModel("RequiredIn(PrefabKind.PrefabInstance)");
     private static readonly AttributeModel SceneObjectsOnlyAttribute = new AttributeModel("SceneObjectsOnly");
     private static readonly AttributeModel AssetsOnlyAttribute = new AttributeModel("AssetsOnly");
     private static readonly AttributeModel SerializeFieldAttribute = new AttributeModel("SerializeField");
@@ -357,7 +357,9 @@ namespace UnityEditor
                 Name = "InstallSignals",
                 BuiltInDataType = BuiltInDataType.Void,
             };
+            installBindingsMethod.BodyLines.Add("SignalBusInstaller.Install(Container);");
             installBindingsMethod.BodyLines.Add(installMethod.Name + "();");
+            
             foreach (var service in signals)
             {
                 installMethod.BodyLines.Add(GenerateCall(service));
